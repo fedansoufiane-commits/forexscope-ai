@@ -16,15 +16,21 @@ Wie können historische Forex-Marktdaten genutzt werden, um eine ML-gestützte S
 
 Das Projekt orientiert sich am QUA3CK-Prozessmodell:
 
-- Q: zentrale Fragestellung und Zielgruppe
-- U: Daten- und Problemverständnis
-- A: Analyse, Feature Engineering und ML-Modellierung
-- 3: drei zentrale Ergebnisse der App
-- C/K: Kommunikation, Wissenstransfer und Reflexion
+- Q: Question – Definition des Machine-Learning-Problems
+- U: Understanding the data – Verständnis der Datenbasis
+- A³: Algorithm selection, Adaption, Adjustment – Algorithmuswahl, Feature Engineering und Hyperparameter-Anpassung
+- C: Conclude and compare – Ergebnisse bewerten und vergleichen
+- K: Knowledge transfer – Umsetzung als App, Dokumentation und Wissenstransfer
 
-Details stehen in:
+## QUA3CK-Notebooks
 
-docs/qua3ck_process.md
+Die fünf Phasen sind separat dokumentiert:
+
+- notebooks/01_Q_Question.ipynb
+- notebooks/02_U_Understanding_the_Data.ipynb
+- notebooks/03_A3_Algorithm_Adaption_Adjustment.ipynb
+- notebooks/04_C_Conclude_and_Compare.ipynb
+- notebooks/05_K_Knowledge_Transfer.ipynb
 
 ## Hauptfunktionen
 
@@ -50,7 +56,7 @@ ForexScope AI betrachtet mehrere KPI-Gruppen:
 - Analyse-KPIs: Trend-Score, ATR, Support/Resistance-Abstand
 - ML-KPIs: Accuracy, Trainingsdaten, Szenario-Wahrscheinlichkeit
 - Risiko-KPIs: Risiko pro Trade, CRV, Break-even-Trefferquote, Positionsgröße
-- Business-KPIs: Interpretierbarkeit, Transparenz, Präsentationsfähigkeit
+- Transfer-KPIs: Verständlichkeit, Transparenz, Reproduzierbarkeit
 
 Details stehen in:
 
@@ -90,9 +96,13 @@ forexscope-ai/
 - requirements.txt
 - data/
 - docs/data_sources.md
-- docs/qua3ck_process.md
 - docs/kpi_framework.md
-- notebooks/01_Q_Phase_ForexScope_AI.ipynb
+- docs/qua3ck_process.md
+- notebooks/01_Q_Question.ipynb
+- notebooks/02_U_Understanding_the_Data.ipynb
+- notebooks/03_A3_Algorithm_Adaption_Adjustment.ipynb
+- notebooks/04_C_Conclude_and_Compare.ipynb
+- notebooks/05_K_Knowledge_Transfer.ipynb
 
 ## Hinweis
 
