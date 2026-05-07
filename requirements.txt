@@ -4,3 +4,4 @@ plotly
 pandas
 numpy
 scikit-learn
+requests

@@ -1,0 +1,40 @@
+
+WealthScope AI Model Report
+
+Model:
+RandomForestClassifier
+
+Target:
+target_20d
+1 = Kurs liegt in 20 Handelstagen höher
+0 = Kurs liegt in 20 Handelstagen nicht höher
+
+Rows:
+Total: 92075
+Train: 69056
+Test: 23019
+
+Features:
+['daily_return', 'return_5d', 'return_20d', 'ma_20_distance', 'ma_50_distance', 'ma_200_distance', 'volatility_20d', 'drawdown']
+
+Accuracy:
+0.5325
+
+Classification Report:
+              precision    recall  f1-score   support
+
+           0       0.43      0.46      0.44      9328
+           1       0.61      0.58      0.60     13691
+
+    accuracy                           0.53     23019
+   macro avg       0.52      0.52      0.52     23019
+weighted avg       0.54      0.53      0.53     23019
+
+
+Confusion Matrix:
+[[4272 5056]
+ [5706 7985]]
+
+Interpretation:
+Das Modell ist ein erster ML-Prototyp. Die Accuracy von 53.25% liegt leicht über Zufall.
+Deshalb wird das Modell in WealthScope AI nicht als sichere Prognose genutzt, sondern als ein Baustein im Confidence Score.

@@ -1,0 +1,13 @@
+.streamlit/secrets.toml
+.streamlit/
+
+# Large local datasets
+data/raw/
+data/processed/*.csv
+
+# Local model artifacts
+models/*.joblib
+models/*.pkl
+
+# macOS
+.DS_Store
