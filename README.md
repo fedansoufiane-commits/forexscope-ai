@@ -1,12 +1,30 @@
-# ForexScope AI
+# ForexScope AI – Data-Driven Forex Insights
 
-ForexScope AI ist eine ML-gestützte Streamlit-App zur Analyse von Forex-Marktdaten.
+ForexScope AI ist eine ML-gestützte Streamlit-App zur Analyse von Forex-Marktdaten, technischen Indikatoren und risikobasierter Szenarioeinschätzung.
 
-Die App lädt historische Kursdaten für Währungspaare, berechnet technische Indikatoren und erstellt eine risikobasierte Szenarioeinschätzung. Zusätzlich enthält sie einen Capital & Risk Planner zur Berechnung von Risiko, Positionsgröße, Chance/Risiko-Verhältnis und Break-even-Trefferquote.
+Die App lädt historische Kursdaten für Währungspaare, berechnet technische Indikatoren und unterstützt Nutzer dabei, Marktstruktur, Risiko, Positionsgröße und mögliche Szenarien besser zu verstehen.
 
 ## Projektidee
 
-Viele Trading-Tools zeigen Charts und Indikatoren, aber erklären Risiko und Positionsgröße oft nicht ausreichend. ForexScope AI verbindet technische Analyse mit Risiko- und Kapitalplanung.
+Viele Trading-Tools zeigen Charts und Indikatoren, erklären aber Risiko, Positionsgröße und Modellunsicherheit nicht ausreichend. ForexScope AI verbindet technische Analyse, Machine Learning und Capital/Risk Planning in einer App.
+
+## Zentrale Fragestellung
+
+Wie können historische Forex-Marktdaten genutzt werden, um eine ML-gestützte Streamlit-App zu entwickeln, die technische Marktanalyse, Szenarioeinschätzung und risikobasierte Positionsplanung verständlich kombiniert?
+
+## QUA3CK-Bezug
+
+Das Projekt orientiert sich am QUA3CK-Prozessmodell:
+
+- Q: zentrale Fragestellung und Zielgruppe
+- U: Daten- und Problemverständnis
+- A: Analyse, Feature Engineering und ML-Modellierung
+- 3: drei zentrale Ergebnisse der App
+- C/K: Kommunikation, Wissenstransfer und Reflexion
+
+Details stehen in:
+
+docs/qua3ck_process.md
 
 ## Hauptfunktionen
 
@@ -21,7 +39,22 @@ Viele Trading-Tools zeigen Charts und Indikatoren, aber erklären Risiko und Pos
 - Multi-Timeframe-Dashboard
 - ML-Szenario für mögliche Kursrichtung
 - Capital & Risk Planner
+- Break-even-Trefferquote
 - Automation Readiness als Ausblick für spätere Broker-Anbindung
+
+## KPIs
+
+ForexScope AI betrachtet mehrere KPI-Gruppen:
+
+- Daten-KPIs: Datenpunkte, Timeframe-Abdeckung, Datenaktualität
+- Analyse-KPIs: Trend-Score, ATR, Support/Resistance-Abstand
+- ML-KPIs: Accuracy, Trainingsdaten, Szenario-Wahrscheinlichkeit
+- Risiko-KPIs: Risiko pro Trade, CRV, Break-even-Trefferquote, Positionsgröße
+- Business-KPIs: Interpretierbarkeit, Transparenz, Präsentationsfähigkeit
+
+Details stehen in:
+
+docs/kpi_framework.md
 
 ## Datenquellen
 
@@ -33,7 +66,9 @@ Zusätzlich werden als Big-Data-Grundlage und Erweiterung berücksichtigt:
 - OpenML oder weitere ML-Datensätze
 - Broker-APIs wie OANDA, Interactive Brokers, MetaTrader 5 oder cTrader als professioneller Ausblick
 
-Details stehen in docs/data_sources.md.
+Details stehen in:
+
+docs/data_sources.md
 
 ## Installation
 
@@ -55,7 +90,9 @@ forexscope-ai/
 - requirements.txt
 - data/
 - docs/data_sources.md
-- notebooks/
+- docs/qua3ck_process.md
+- docs/kpi_framework.md
+- notebooks/01_Q_Phase_ForexScope_AI.ipynb
 
 ## Hinweis
 
