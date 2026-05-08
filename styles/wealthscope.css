@@ -72,3 +72,211 @@
 .block-container {
     padding-bottom: 6rem !important;
 }
+
+/* =========================================================
+   Sidebar layout
+   ========================================================= */
+
+.sidebar-brand {
+    padding: 1.1rem 0.6rem 1.3rem 0.6rem;
+}
+
+.sidebar-brand h2 {
+    margin: 0 0 0.75rem 0;
+    font-size: 1.45rem;
+    font-weight: 950;
+    letter-spacing: -0.04em;
+}
+
+.sidebar-brand p {
+    margin: 0;
+    line-height: 1.55;
+    opacity: 0.74;
+    font-size: 0.94rem;
+}
+
+.sidebar-state-box,
+.sidebar-help-box {
+    border-radius: 16px;
+    padding: 0.85rem 0.9rem;
+    margin: 0.9rem 0;
+    border: 1px solid rgba(148, 163, 184, 0.22);
+    background: rgba(148, 163, 184, 0.10);
+    font-size: 0.88rem;
+    line-height: 1.55;
+}
+
+section[data-testid="stSidebar"] .stButton > button {
+    min-height: 44px;
+    justify-content: flex-start;
+    font-weight: 800;
+    border-radius: 15px !important;
+}
+
+section[data-testid="stSidebar"] [role="radiogroup"] {
+    padding: 0.45rem 0.55rem;
+}
+
+/* =========================================================
+   Harmonized WealthScope Sidebar
+   ========================================================= */
+
+.sidebar-home-link {
+    text-decoration: none !important;
+    display: block;
+    margin: 0.8rem 0 1.4rem 0;
+}
+
+.sidebar-brand-card {
+    border-radius: 26px;
+    padding: 1.15rem 1.05rem;
+    border: 1px solid rgba(148, 163, 184, 0.20);
+    background:
+        radial-gradient(circle at top left, rgba(111, 140, 255, 0.18), transparent 38%),
+        rgba(148, 163, 184, 0.08);
+    box-shadow: 0 18px 45px rgba(0, 0, 0, 0.14);
+    backdrop-filter: blur(18px);
+    transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease;
+}
+
+.sidebar-brand-card:hover {
+    transform: translateY(-1px);
+    border-color: rgba(111, 140, 255, 0.42);
+    background:
+        radial-gradient(circle at top left, rgba(111, 140, 255, 0.24), transparent 42%),
+        rgba(148, 163, 184, 0.12);
+}
+
+.sidebar-brand-title {
+    font-size: 1.35rem;
+    font-weight: 950;
+    letter-spacing: -0.045em;
+    line-height: 1.05;
+    margin-bottom: 0.85rem;
+}
+
+.sidebar-brand-subtitle {
+    font-size: 0.94rem;
+    line-height: 1.55;
+    opacity: 0.78;
+}
+
+.sidebar-section-label {
+    font-size: 0.77rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    opacity: 0.58;
+    font-weight: 850;
+    margin: 1.1rem 0 0.45rem 0.25rem;
+}
+
+.sidebar-divider {
+    height: 1px;
+    margin: 1.15rem 0;
+    background: linear-gradient(90deg, transparent, rgba(148, 163, 184, 0.32), transparent);
+}
+
+.sidebar-state-box,
+.sidebar-help-box {
+    border-radius: 22px !important;
+    padding: 0.95rem 1rem !important;
+    margin: 1rem 0 !important;
+    border: 1px solid rgba(148, 163, 184, 0.20) !important;
+    background: rgba(148, 163, 184, 0.08) !important;
+    box-shadow: 0 14px 35px rgba(0, 0, 0, 0.10) !important;
+    backdrop-filter: blur(16px);
+    font-size: 0.88rem;
+    line-height: 1.55;
+}
+
+.sidebar-state-box {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.15rem;
+}
+
+.sidebar-help-box {
+    opacity: 0.78;
+}
+
+section[data-testid="stSidebar"] {
+    border-right: 1px solid rgba(148, 163, 184, 0.20) !important;
+}
+
+section[data-testid="stSidebar"] [data-testid="stSidebarContent"] {
+    padding: 1.25rem 1.05rem 5.5rem 1.05rem !important;
+}
+
+section[data-testid="stSidebar"] .stButton > button {
+    min-height: 46px !important;
+    justify-content: flex-start !important;
+    font-weight: 850 !important;
+    border-radius: 18px !important;
+    border: 1px solid rgba(148, 163, 184, 0.20) !important;
+    background: rgba(148, 163, 184, 0.07) !important;
+    box-shadow: none !important;
+    transition: transform 0.16s ease, background 0.16s ease, border-color 0.16s ease !important;
+}
+
+section[data-testid="stSidebar"] .stButton > button:hover {
+    transform: translateY(-1px);
+    border-color: rgba(111, 140, 255, 0.42) !important;
+    background: rgba(111, 140, 255, 0.13) !important;
+}
+
+section[data-testid="stSidebar"] [role="radiogroup"] {
+    border-radius: 20px !important;
+    padding: 0.55rem 0.65rem !important;
+    border: 1px solid rgba(148, 163, 184, 0.18) !important;
+    background: rgba(148, 163, 184, 0.08) !important;
+}
+
+/* Light mode sidebar soft card look */
+.stApp:has(.theme-light) .sidebar-brand-card,
+.stApp:has(.theme-light) .sidebar-state-box,
+.stApp:has(.theme-light) .sidebar-help-box,
+.stApp:has(.theme-light) section[data-testid="stSidebar"] .stButton > button,
+.stApp:has(.theme-light) section[data-testid="stSidebar"] [role="radiogroup"] {
+    background: rgba(255, 255, 255, 0.72) !important;
+    border-color: rgba(15, 23, 42, 0.10) !important;
+    box-shadow: 0 18px 45px rgba(15, 23, 42, 0.08) !important;
+}
+
+
+/* =========================================================
+   Harmonized main canvas
+   ========================================================= */
+
+.block-container {
+    max-width: 1180px !important;
+    padding-top: 2.4rem !important;
+}
+
+.hero-card,
+.mini-card,
+.info-card,
+.export-card,
+.news-card,
+.advisor-box,
+.premium-strip,
+.mode-proof-card,
+.clean-table-wrap {
+    border-radius: 30px !important;
+}
+
+div[data-testid="stExpander"] {
+    border-radius: 24px !important;
+    overflow: hidden !important;
+}
+
+div[data-testid="stExpander"] details {
+    border-radius: 24px !important;
+}
+
+input,
+textarea,
+div[data-baseweb="select"] > div,
+div[data-baseweb="input"] > div {
+    border-radius: 18px !important;
+}
+

@@ -220,6 +220,75 @@ def render_runtime_theme(theme_mode: str, app_mode: str):
         color: __TEXT__ !important;
     }
 
+    /* =====================================================
+       Light/Dark fixes: title, dataframe, tables, bottom bar
+       ===================================================== */
+
+    .main-title,
+    .main-title *,
+    h1.main-title {
+        opacity: 1 !important;
+        filter: none !important;
+    }
+
+    .main-title {
+        background: linear-gradient(90deg, __TEXT__ 0%, __TEXT__ 45%, __ACCENT__ 100%) !important;
+        -webkit-background-clip: text !important;
+        background-clip: text !important;
+        -webkit-text-fill-color: transparent !important;
+        text-shadow: none !important;
+    }
+
+    /* Streamlit dataframe hard override */
+    [data-testid="stDataFrame"],
+    [data-testid="stDataFrame"] *,
+    [data-testid="stDataFrameResizable"],
+    [data-testid="stDataFrameResizable"] *,
+    [data-testid="stTable"],
+    [data-testid="stTable"] * {
+        background-color: __ELEVATED_BG__ !important;
+        color: __TEXT__ !important;
+        border-color: __BORDER__ !important;
+    }
+
+    [data-testid="stDataFrame"] canvas,
+    [data-testid="stDataFrameResizable"] canvas {
+        background-color: __ELEVATED_BG__ !important;
+    }
+
+    div[data-testid="stDataFrame"] [role="grid"],
+    div[data-testid="stDataFrame"] [role="row"],
+    div[data-testid="stDataFrame"] [role="gridcell"],
+    div[data-testid="stDataFrame"] [role="columnheader"] {
+        background-color: __ELEVATED_BG__ !important;
+        color: __TEXT__ !important;
+        border-color: __BORDER__ !important;
+    }
+
+    /* Native dataframe fallback */
+    .stDataFrame,
+    .stDataFrame *,
+    .dataframe,
+    .dataframe * {
+        background-color: __ELEVATED_BG__ !important;
+        color: __TEXT__ !important;
+        border-color: __BORDER__ !important;
+    }
+
+    /* Bottom bar always follows current runtime theme */
+    .bottom-status-bar {
+        background: __BOTTOM_BG__ !important;
+        border-top: 1px solid __BORDER__ !important;
+        color: __TEXT__ !important;
+    }
+
+    .bottom-status-bar *,
+    .bottom-status-item,
+    .bottom-status-item * {
+        color: __TEXT__ !important;
+    }
+
+
     [data-testid="stToast"],
     div[data-testid="stToast"],
     [data-testid="stNotification"],

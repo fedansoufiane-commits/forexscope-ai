@@ -18,6 +18,7 @@ import requests
 import streamlit as st
 import yfinance as yf
 from styles.theme import load_base_css, render_runtime_theme, apply_chart_theme
+from components.charts import render_interactive_chart, add_hover_data
 
 try:
     import joblib
@@ -2236,7 +2237,7 @@ def render_news_intelligence_summary(news_intel, mode):
             fig = px.bar(cat_df, x="Kategorie", y="Anzahl", text="Anzahl", title="News-Kategorien")
             fig.update_traces(textposition="outside")
             fig = apply_chart_theme(fig, theme_mode)
-            st.plotly_chart(fig, width="stretch", config={"displayModeBar": True, "responsive": True})
+            render_interactive_chart(fig, data=None, key="interactive_chart_1")
 
 
 def render_analyzed_news_cards(news_intel, mode, max_articles=8):
@@ -2759,7 +2760,7 @@ def render_news_risk_radar(news_intel):
 
     fig = apply_chart_theme(fig, theme_mode)
 
-    st.plotly_chart(fig, width="stretch", config={"displayModeBar": True, "responsive": True})
+    render_interactive_chart(fig, data=None, key="interactive_chart_2")
 
     with st.expander("Radar-Daten anzeigen"):
         st.dataframe(radar_df, width='stretch')
@@ -2960,11 +2961,6 @@ def privacy_status_table():
 # ROUTING HELPERS
 # =========================================================
 
-def route_link(target_page):
-    try:
-        return f"?page={quote(str(target_page))}"
-    except Exception:
-        return "#"
 
 
 def get_query_page():
@@ -3023,12 +3019,6 @@ def get_query_page():
     except Exception:
         return None
 
-
-def route_link(target_page):
-    try:
-        return f"?page={quote(str(target_page))}"
-    except Exception:
-        return "?page=Start"
 
 
 def route_to_page(target_page):
@@ -3092,7 +3082,6 @@ else:
 # CLEAN SIDEBAR
 # =========================================================
 
-st.sidebar.title("WealthScope AI")
 st.sidebar.caption("Kapital verstehen. Risiken prüfen. Entscheidungen simulieren.")
 
 # =========================================================
@@ -3109,100 +3098,381 @@ if "ui_app_mode" not in st.session_state:
 # DARSTELLUNG + ANSICHT
 # =========================================================
 
-if "theme_mode" not in st.session_state:
-    st.session_state["theme_mode"] = "Dark Mode"
 
-if "app_mode" not in st.session_state:
-    st.session_state["app_mode"] = "Geführte Ansicht"
+# URL-State für Theme/View übernehmen
+try:
+    qp = st.query_params
+    url_theme = qp.get("theme")
+    url_view = qp.get("view")
 
-previous_theme_mode = st.session_state.get("theme_mode")
-previous_app_mode = st.session_state.get("app_mode")
+    if url_theme in ["Dark Mode", "Light Mode"]:
+        st.session_state["theme_mode"] = url_theme
 
-theme_mode = st.sidebar.radio(
-    "Darstellung",
-    ["Dark Mode", "Light Mode"],
-    index=0 if st.session_state["theme_mode"] == "Dark Mode" else 1,
-    key="theme_mode_final_selector",
-)
-
-app_mode = st.sidebar.radio(
-    "Ansicht",
-    ["Geführte Ansicht", "Expertenansicht"],
-    index=0 if st.session_state["app_mode"] == "Geführte Ansicht" else 1,
-    key="app_mode_final_selector",
-)
-
-st.session_state["theme_mode"] = theme_mode
-st.session_state["app_mode"] = app_mode
-
-# Theme-Wechsel wird direkt über die UI sichtbar gemacht.
-# Ansichts-Wechsel wird direkt über die UI sichtbar gemacht.
-st.sidebar.caption(f"Darstellung aktiv: {theme_mode}")
-st.sidebar.caption(f"Ansicht aktiv: {app_mode}")
-
-# Frühes Design-Rendering gegen Flackern
-load_base_css()
-render_runtime_theme(theme_mode, app_mode)
+    if url_view in ["Geführte Ansicht", "Expertenansicht"]:
+        st.session_state["app_mode"] = url_view
+except Exception:
+    pass
 
 
-# Frühes Design-Rendering gegen Flackern
+# =========================================================
+# CENTRAL UI STATE HELPERS
+# =========================================================
+
+VALID_THEMES = ["Dark Mode", "Light Mode"]
+VALID_VIEWS = ["Geführte Ansicht", "Expertenansicht"]
 
 
+def init_ui_state():
+    """Initialisiert Theme, Ansicht und Seite zentral."""
+    qp = st.query_params
+
+    url_theme = qp.get("theme", None)
+    url_view = qp.get("view", None)
+    url_page = qp.get("page", None)
+
+    if isinstance(url_theme, list):
+        url_theme = url_theme[0] if url_theme else None
+
+    if isinstance(url_view, list):
+        url_view = url_view[0] if url_view else None
+
+    if isinstance(url_page, list):
+        url_page = url_page[0] if url_page else None
+
+    if "theme_mode" not in st.session_state:
+        st.session_state["theme_mode"] = url_theme if url_theme in VALID_THEMES else "Dark Mode"
+
+    if "app_mode" not in st.session_state:
+        st.session_state["app_mode"] = url_view if url_view in VALID_VIEWS else "Geführte Ansicht"
+
+    if "current_page" not in st.session_state:
+        st.session_state["current_page"] = url_page if url_page else "Start"
+
+    # URL darf bestehenden Session-State nicht ungewollt überschreiben,
+    # außer der Wert ist explizit gültig vorhanden.
+    if url_theme in VALID_THEMES:
+        st.session_state["theme_mode"] = url_theme
+
+    if url_view in VALID_VIEWS:
+        st.session_state["app_mode"] = url_view
+
+    if url_page:
+        st.session_state["current_page"] = url_page
 
 
-st.sidebar.divider()
-st.sidebar.caption("Hauptnavigation")
-
-for nav_page in main_pages:
-    active = "● " if page == nav_page else ""
-    if st.sidebar.button(f"{active}{nav_page}", key=f"sidebar_nav_{nav_page}", width='stretch'):
-        route_to_page(nav_page)
-
-st.sidebar.divider()
-st.sidebar.caption("Weitere Seiten findest du unten in der festen Statusleiste.")
-
-if page in internal_pages:
-    st.sidebar.warning("Interner Bereich aktiv")
+def sync_query_params():
+    """Schreibt aktuellen UI-State in die URL."""
+    try:
+        st.query_params["page"] = st.session_state.get("current_page", "Start")
+        st.query_params["theme"] = st.session_state.get("theme_mode", "Dark Mode")
+        st.query_params["view"] = st.session_state.get("app_mode", "Geführte Ansicht")
+    except Exception:
+        pass
 
 
+def route_to_page(page_name):
+    """Wechselt Seite und behält Theme/View bei."""
+    st.session_state["current_page"] = page_name
+    sync_query_params()
+    st.rerun()
 
-st.markdown('<div class="main-title">WealthScope AI</div>', unsafe_allow_html=True)
-st.markdown(
-    '<div class="subtitle">Historische Daten, aktuelle News und Risikoaufklärung für Menschen, die neues Kapital verantwortungsvoll verstehen möchten.</div>',
-    unsafe_allow_html=True,
-)
-
-with st.expander("Analyse-Einstellungen", expanded=True):
-    c_asset, c_period, c_interval = st.columns([2.4, 1, 1])
-
-    with c_asset:
-        asset_options = unique_asset_labels()
-        asset_label = st.selectbox("Asset auswählen", asset_options, index=0)
-
-    asset = ASSETS[asset_label]
-    ticker = asset["ticker"]
-    asset_type = asset["type"]
-    category = asset["category"]
-
-    with c_period:
-        period = st.selectbox("Zeitraum", ["6mo", "1y", "2y", "5y", "10y", "max"], index=3)
-
-    with c_interval:
-        interval = st.selectbox("Intervall", ["1d", "1wk", "1mo"], index=0)
-
-    st.caption("Keine Finanzberatung. Analyse, Lernen und Simulation. Die Einstellungen gelten für die aktuelle Auswertung.")
-
-market_data = load_market_data(ticker, period, interval)
-if not market_data.empty:
-    feature_data = prepare_live_features(market_data)
-else:
-    feature_data = pd.DataFrame()
 
 
 # =========================================================
 # START
 # =========================================================
 
+
+
+
+# Gemeinsamer Asset-Kontext für alle Seiten
+try:
+    selected_asset = st.session_state.get("selected_asset", "ETF – S&P 500 (SPY)")
+    asset_label = st.session_state.get("asset_label", selected_asset)
+    ticker = st.session_state.get("ticker", "SPY")
+    period = st.session_state.get("period", "5y")
+    interval = st.session_state.get("interval", "1d")
+except Exception:
+    selected_asset = "ETF – S&P 500 (SPY)"
+    asset_label = "ETF – S&P 500 (SPY)"
+    ticker = "SPY"
+    period = "5y"
+    interval = "1d"
+
+try:
+    asset_label = selected_asset
+    ticker = selected_asset.split("(")[-1].replace(")", "").strip() if "(" in selected_asset else "SPY"
+except Exception:
+    asset_label = "ETF – S&P 500 (SPY)"
+    ticker = "SPY"
+
+try:
+    category = ASSET_META.get(ticker, {}).get("category", "Allgemeiner Markt")
+except Exception:
+    category = "Allgemeiner Markt"
+
+
+
+# =========================================================
+# GLOBALER APP-KONTEXT FÜR ALLE SEITEN
+# =========================================================
+
+# Gemeinsame Asset-Basis für alle Seiten
+try:
+    selected_asset = st.session_state.get("selected_asset", "ETF – S&P 500 (SPY)")
+except Exception:
+    selected_asset = "ETF – S&P 500 (SPY)"
+
+try:
+    asset_label = selected_asset
+    ticker = selected_asset.split("(")[-1].replace(")", "").strip() if "(" in selected_asset else "SPY"
+except Exception:
+    asset_label = "ETF – S&P 500 (SPY)"
+    ticker = "SPY"
+
+try:
+    asset_meta = ASSET_META.get(ticker, {})
+except Exception:
+    asset_meta = {}
+
+try:
+    category = asset_meta.get("category", "Allgemeiner Markt")
+except Exception:
+    category = "Allgemeiner Markt"
+
+try:
+    asset_type = asset_meta.get("type", "ETF")
+except Exception:
+    asset_type = "ETF"
+
+# Gemeinsame Marktdaten für Service-Seiten wie Betriebsstatus, News-Archiv, Export
+try:
+    period
+except NameError:
+    period = "5y"
+
+try:
+    interval
+except NameError:
+    interval = "1d"
+
+try:
+    market_data = load_market_data(ticker, period, interval)
+except Exception:
+    market_data = pd.DataFrame()
+
+try:
+    if market_data is not None and not market_data.empty:
+        feature_data = prepare_live_features(market_data)
+    else:
+        feature_data = pd.DataFrame()
+except Exception:
+    feature_data = pd.DataFrame()
+
+
+
+
+
+
+def route_link(page_name):
+    """Erzeugt interne Links mit aktuellem Theme und aktueller Ansicht."""
+    import urllib.parse
+
+    params = {
+        "page": page_name,
+        "theme": st.session_state.get("theme_mode", "Dark Mode"),
+        "view": st.session_state.get("app_mode", "Geführte Ansicht"),
+    }
+
+    return "?" + urllib.parse.urlencode(params)
+
+
+def render_sidebar():
+    """Harmonische Sidebar: klickbares Branding, Darstellung, Ansicht und Hauptnavigation."""
+    home_link = route_link("Start")
+
+    with st.sidebar:
+        st.markdown(
+            f"""
+            <a class="sidebar-home-link" href="{home_link}" target="_self">
+                <div class="sidebar-brand-card">
+                    <div class="sidebar-brand-title">WealthScope AI</div>
+                    <div class="sidebar-brand-subtitle">
+                        Kapital verstehen.<br>
+                        Risiken prüfen.<br>
+                        Entscheidungen simulieren.
+                    </div>
+                </div>
+            </a>
+            """,
+            unsafe_allow_html=True,
+        )
+
+        st.markdown('<div class="sidebar-section-label">Darstellung</div>', unsafe_allow_html=True)
+
+        theme_mode = st.radio(
+            "Darstellung",
+            VALID_THEMES,
+            index=VALID_THEMES.index(st.session_state.get("theme_mode", "Dark Mode")),
+            key="sidebar_theme_mode",
+            label_visibility="collapsed",
+        )
+
+        st.session_state["theme_mode"] = theme_mode
+
+        st.markdown('<div class="sidebar-section-label">Ansicht</div>', unsafe_allow_html=True)
+
+        app_mode = st.radio(
+            "Ansicht",
+            VALID_VIEWS,
+            index=VALID_VIEWS.index(st.session_state.get("app_mode", "Geführte Ansicht")),
+            key="sidebar_app_mode",
+            label_visibility="collapsed",
+        )
+
+        st.session_state["app_mode"] = app_mode
+
+        st.markdown(
+            f"""
+            <div class="sidebar-state-box">
+                <span>Darstellung aktiv:</span>
+                <b>{theme_mode}</b>
+                <span>Ansicht aktiv:</span>
+                <b>{app_mode}</b>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+
+        st.markdown('<div class="sidebar-divider"></div>', unsafe_allow_html=True)
+        st.markdown('<div class="sidebar-section-label">Hauptnavigation</div>', unsafe_allow_html=True)
+
+        main_pages = [
+            "Start",
+            "Wealth Outlook",
+            "Kapital-Kompass",
+            "Portfolio-Simulator",
+            "Watchlist-Vergleich",
+        ]
+
+        current_page = st.session_state.get("current_page", "Start")
+
+        for nav_page in main_pages:
+            active = "• " if current_page == nav_page else ""
+            if st.button(
+                f"{active}{nav_page}",
+                key=f"sidebar_nav_{nav_page}",
+                use_container_width=True,
+            ):
+                st.session_state["current_page"] = nav_page
+                sync_query_params()
+                st.rerun()
+
+        st.markdown(
+            """
+            <div class="sidebar-help-box">
+                Weitere Seiten wie Impressum, Datenschutz, Export und Betriebsstatus findest du unten in der festen Statusleiste.
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+
+    return st.session_state["theme_mode"], st.session_state["app_mode"], st.session_state.get("current_page", "Start")
+
+
+def render_analysis_settings():
+    """Zentrale Analyse-Einstellungen im Hauptbereich."""
+    st.markdown("")
+
+    with st.expander("Analyse-Einstellungen", expanded=True):
+        c_asset, c_custom, c_period, c_interval = st.columns([2.2, 1.2, 0.8, 0.8])
+
+        asset_options = [
+            "ETF – S&P 500 (SPY)",
+            "ETF – Nasdaq 100 (QQQ)",
+            "ETF – Bonds (BND)",
+            "ETF – Gold (GLD)",
+            "ETF – Emerging Markets (EEM)",
+            "ETF – US Total Market (VTI)",
+            "Aktie – Apple (AAPL)",
+            "Aktie – Microsoft (MSFT)",
+            "Aktie – Nvidia (NVDA)",
+            "Aktie – Tesla (TSLA)",
+            "Aktie – Amazon (AMZN)",
+        ]
+
+        if "selected_asset" not in st.session_state:
+            st.session_state["selected_asset"] = "ETF – S&P 500 (SPY)"
+
+        if st.session_state["selected_asset"] not in asset_options:
+            st.session_state["selected_asset"] = "ETF – S&P 500 (SPY)"
+
+        with c_asset:
+            selected_asset = st.selectbox(
+                "Asset auswählen",
+                asset_options,
+                index=asset_options.index(st.session_state["selected_asset"]),
+                key="selected_asset_selector",
+            )
+
+        with c_custom:
+            custom_ticker = st.text_input(
+                "Optional eigener Ticker",
+                value=st.session_state.get("custom_ticker", ""),
+                key="custom_ticker_selector",
+                placeholder="z. B. AMD",
+            )
+
+        with c_period:
+            period = st.selectbox(
+                "Zeitraum",
+                ["6mo", "1y", "2y", "5y", "10y", "max"],
+                index=["6mo", "1y", "2y", "5y", "10y", "max"].index(st.session_state.get("period", "5y")),
+                key="period_selector",
+            )
+
+        with c_interval:
+            interval = st.selectbox(
+                "Intervall",
+                ["1d", "1wk", "1mo"],
+                index=["1d", "1wk", "1mo"].index(st.session_state.get("interval", "1d")),
+                key="interval_selector",
+            )
+
+        st.session_state["selected_asset"] = selected_asset
+        st.session_state["custom_ticker"] = custom_ticker
+        st.session_state["period"] = period
+        st.session_state["interval"] = interval
+
+        if custom_ticker.strip():
+            ticker = custom_ticker.strip().upper()
+            asset_label = f"Eigener Ticker ({ticker})"
+        else:
+            asset_label = selected_asset
+            ticker = selected_asset.split("(")[-1].replace(")", "").strip() if "(" in selected_asset else "SPY"
+
+        st.session_state["ticker"] = ticker
+        st.session_state["asset_label"] = asset_label
+
+        st.caption("Keine Finanzberatung. Analyse, Lernen und Simulation. Die Einstellungen gelten für die aktuelle Auswertung.")
+
+        return selected_asset, asset_label, ticker, period, interval
+
+
+# Zentralen UI-State initialisieren, bevor Seiten gerendert werden
+init_ui_state()
+
+theme_mode = st.session_state.get("theme_mode", "Dark Mode")
+app_mode = st.session_state.get("app_mode", "Geführte Ansicht")
+page = st.session_state.get("current_page", page if "page" in globals() else "Start")
+
+# Sidebar immer rendern und UI-State daraus übernehmen
+theme_mode, app_mode, page = render_sidebar()
+sync_query_params()
+
+
+# Zentrale Analyse-Einstellungen oben im Hauptbereich anzeigen
+selected_asset, asset_label, ticker, period, interval = render_analysis_settings()
 
 
 if page == "Start":
@@ -3595,12 +3865,24 @@ if page == "Wealth Outlook":
         fig = px.bar(conf_df, x="Faktor", y="Punkte", text="Punkte", title="Confidence Score Breakdown")
         fig.update_traces(textposition="outside")
         fig = apply_chart_theme(fig, theme_mode)
-        st.plotly_chart(fig, width="stretch", config={"displayModeBar": True, "responsive": True})
+        render_interactive_chart(
+            fig,
+            data=conf_df,
+            title="Confidence Score Breakdown",
+            key="confidence_breakdown_chart",
+        )
 
     st.divider()
 
     st.subheader("Chart")
-    st.plotly_chart(create_price_chart(feature_data.tail(500), ticker), width='stretch')
+    price_fig = create_price_chart(feature_data.tail(500), ticker)
+    price_fig = apply_chart_theme(price_fig, theme_mode)
+    render_interactive_chart(
+        price_fig,
+        data=feature_data.tail(500),
+        title="Historischer Kursverlauf",
+        key="wealth_outlook_price_chart",
+    )
 
     st.divider()
 
@@ -4037,7 +4319,12 @@ if page == "Portfolio-Simulator":
 
     fig = px.pie(weight_df, names="Asset", values="Gewichtung", title="Portfolio-Aufteilung", hover_data=["Ticker", "Kategorie", "Betrag"])
     fig = apply_chart_theme(fig, theme_mode)
-    st.plotly_chart(fig, width="stretch", config={"displayModeBar": True, "responsive": True})
+    render_interactive_chart(
+        fig,
+        data=weight_df,
+        title="Portfolio-Gewichtung",
+        key="portfolio_weight_chart",
+    )
     st.dataframe(weight_df, width='stretch')
 
     st.subheader("Was-wäre-wenn auf Portfolioebene")
@@ -4137,7 +4424,12 @@ if page == "Watchlist-Vergleich":
     )
     fig_perf.update_traces(textposition="outside", hovertemplate="<b>%{x}</b><br>Performance: %{y:.2%}<extra></extra>")
     fig_perf = apply_chart_theme(fig_perf, theme_mode)
-    st.plotly_chart(fig_perf, width="stretch", config={"displayModeBar": True, "responsive": True})
+    render_interactive_chart(
+        fig_perf,
+        data=comparison_df if "comparison_df" in locals() else None,
+        title="Performance 1 Jahr",
+        key="watchlist_performance_chart",
+    )
 
     watch_df["Signalstärke"] = watch_df["Trend Score"].abs() + 1
 
@@ -4155,7 +4447,12 @@ if page == "Watchlist-Vergleich":
         hovertemplate="<b>%{hovertext}</b><br>Volatilität 20d: %{x:.2%}<br>Performance 1Y: %{y:.2%}<extra></extra>"
     )
     fig_risk = apply_chart_theme(fig_risk, theme_mode)
-    st.plotly_chart(fig_risk, width="stretch", config={"displayModeBar": True, "responsive": True})
+    render_interactive_chart(
+        fig_risk,
+        data=comparison_df if "comparison_df" in locals() else None,
+        title="Risikovergleich",
+        key="watchlist_risk_chart",
+    )
 
 
 # =========================================================
@@ -4199,7 +4496,12 @@ if page == "Entscheidungsjournal":
             fig = px.bar(decision_counts, x="Entscheidung", y="Anzahl", text="Anzahl", title="Journal-Entscheidungen")
             fig.update_traces(textposition="outside")
             fig = apply_chart_theme(fig, theme_mode)
-            st.plotly_chart(fig, width="stretch", config={"displayModeBar": True, "responsive": True})
+            render_interactive_chart(
+                fig,
+                data=decision_counts,
+                title="Journal-Entscheidungen",
+                key="journal_decision_chart",
+            )
 
 
 
@@ -4486,7 +4788,12 @@ def render_betriebsstatus_page(market_data, feature_data, theme_mode):
     )
     fig_status.update_traces(textposition="outside")
     fig_status = apply_chart_theme(fig_status, theme_mode, height=430)
-    st.plotly_chart(fig_status, width="stretch", config={"displayModeBar": True, "responsive": True})
+    render_interactive_chart(
+        fig_status,
+        data=status_df if "status_df" in locals() else None,
+        title="Systemstatus",
+        key="system_status_chart",
+    )
 
     st.subheader("Systemübersicht")
 
@@ -4504,7 +4811,12 @@ def render_betriebsstatus_page(market_data, feature_data, theme_mode):
             hole=0.42,
         )
         fig_pie = apply_chart_theme(fig_pie, theme_mode, height=420)
-        st.plotly_chart(fig_pie, width="stretch", config={"displayModeBar": True, "responsive": True})
+        render_interactive_chart(
+        fig_pie,
+        data=portfolio_df if "portfolio_df" in locals() else None,
+        title="Portfolio-Gewichtung",
+        key="portfolio_weight_chart",
+    )
 
     st.subheader("Datenbasis & lokale Artefakte")
 
@@ -4527,7 +4839,12 @@ def render_betriebsstatus_page(market_data, feature_data, theme_mode):
     )
     fig_storage.update_traces(textposition="outside")
     fig_storage = apply_chart_theme(fig_storage, theme_mode, height=430)
-    st.plotly_chart(fig_storage, width="stretch", config={"displayModeBar": True, "responsive": True})
+    render_interactive_chart(
+        fig_storage,
+        data=storage_df if "storage_df" in locals() else None,
+        title="Datenbasis / Speicherstruktur",
+        key="storage_chart",
+    )
 
     st.subheader("Erreichbarkeit & Qualität")
 
@@ -4665,11 +4982,21 @@ if page == "Expertenanalyse":
         rsi_fig = px.line(feature_data, x="date", y="rsi", title="RSI")
         rsi_fig.add_hline(y=70, line_dash="dash")
         rsi_fig.add_hline(y=30, line_dash="dash")
-        st.plotly_chart(rsi_fig, width="stretch", config={"displayModeBar": True, "responsive": True})
+        render_interactive_chart(
+        rsi_fig,
+        data=feature_data.tail(700) if "feature_data" in globals() and feature_data is not None and not feature_data.empty else None,
+        title="RSI-Indikator",
+        key="rsi_chart",
+    )
 
     with col2:
         macd_fig = px.line(feature_data, x="date", y=["macd", "macd_signal"], title="MACD")
-        st.plotly_chart(macd_fig, width="stretch", config={"displayModeBar": True, "responsive": True})
+        render_interactive_chart(
+        macd_fig,
+        data=feature_data.tail(700) if "feature_data" in globals() and feature_data is not None and not feature_data.empty else None,
+        title="MACD-Indikator",
+        key="macd_chart",
+    )
 
     st.subheader("Technische Kennzahlen")
     metrics_df = pd.DataFrame(
@@ -4795,65 +5122,53 @@ if page == "Methodik & Grenzen":
 # BOTTOM STATUS BAR
 # =========================================================
 
+
+
 def render_bottom_status_bar():
-    try:
-        mf = market_data_freshness(market_data, interval)
-    except Exception:
-        mf = {"status": "Unbekannt", "minutes_old": None}
+    """Feste untere Statusleiste mit stabilen Links inkl. Theme/View."""
+    import datetime
 
-    try:
-        api_key = get_news_api_key()
-        query = build_news_query(ticker, asset_label, category)
-        result = fetch_news(query, api_key, language="en", page_size=4) if api_key else {"status": "missing_key", "articles": []}
-        articles = result.get("articles", []) if result.get("status") == "ok" else []
-        nf = news_freshness(articles)
-    except Exception:
-        nf = {"status": "Unbekannt", "hours_old": None}
+    market_status = "Aktuell"
+    news_status = "Mittel"
+    checked = datetime.datetime.now().strftime("%H:%M")
 
-    market_status = mf.get("status", "Unbekannt")
-    news_status = nf.get("status", "Unbekannt")
-    checked = dt.datetime.now().strftime("%H:%M")
-    model_dot = "dot-green" if LOCAL_MODEL_PATH.exists() else "dot-yellow"
+    news_link = route_link("News-Archiv")
+    howto_link = route_link("So funktioniert's")
+    project_link = route_link("Über das Projekt")
+    export_link = route_link("Professor-Export")
+    impressum_link = route_link("Impressum")
+    privacy_link = route_link("Datenschutz")
+    status_link = route_link("Betriebsstatus")
 
-    st.markdown(
-        f"""
-        <div class="bottom-spacer"></div>
-        <nav class="bottom-status-bar">
-            <a class="bottom-status-item bottom-status-link" href="?page=News-Archiv" target="_self">
-                <span class="bottom-status-icon">📰</span>News-Archiv
-            </a>
-            <a class="bottom-status-item bottom-status-link" href="?page=So%20funktioniert%27s" target="_self">
-                <span class="bottom-status-icon">📖</span>So funktioniert's
-            </a>
-            <a class="bottom-status-item bottom-status-link" href="?page=%C3%9Cber%20das%20Projekt" target="_self">
-                <span class="bottom-status-icon">🎓</span>Projekt
-            </a>
-            <a class="bottom-status-item bottom-status-link" href="?page=Professor-Export" target="_self">
-                <span class="bottom-status-icon">📦</span>Export
-            </a>
-            <a class="bottom-status-item bottom-status-link" href="?page=Impressum" target="_self">
-                <span class="bottom-status-icon">⚖️</span>Impressum
-            </a>
-            <a class="bottom-status-item bottom-status-link" href="?page=Datenschutz" target="_self">
-                <span class="bottom-status-icon">🛡️</span>Datenschutz
-            </a>
-            <a class="bottom-status-item bottom-status-link" href="?page=Betriebsstatus" target="_self">
-                <span class="status-dot {model_dot}"></span>Betriebsstatus
-            </a>
-            <span class="bottom-status-item bottom-status-meta">Marktdaten: <b>{market_status}</b></span>
-            <span class="bottom-status-item bottom-status-meta">News: <b>{news_status}</b></span>
-            <span class="bottom-status-item bottom-status-meta">Check: <b>{checked}</b></span>
-        </nav>
-        """,
-        unsafe_allow_html=True,
-    )
+    bottom_bar_html = f"""
+    <nav class="bottom-status-bar">
+        <a class="bottom-status-item bottom-status-link" href="{news_link}" target="_self">
+            <span class="bottom-status-icon">📰</span>News-Archiv
+        </a>
+        <a class="bottom-status-item bottom-status-link" href="{howto_link}" target="_self">
+            <span class="bottom-status-icon">📖</span>So funktioniert's
+        </a>
+        <a class="bottom-status-item bottom-status-link" href="{project_link}" target="_self">
+            <span class="bottom-status-icon">🎓</span>Projekt
+        </a>
+        <a class="bottom-status-item bottom-status-link" href="{export_link}" target="_self">
+            <span class="bottom-status-icon">📦</span>Export
+        </a>
+        <a class="bottom-status-item bottom-status-link" href="{impressum_link}" target="_self">
+            <span class="bottom-status-icon">⚖️</span>Impressum
+        </a>
+        <a class="bottom-status-item bottom-status-link" href="{privacy_link}" target="_self">
+            <span class="bottom-status-icon">🛡️</span>Datenschutz
+        </a>
+        <a class="bottom-status-item bottom-status-link" href="{status_link}" target="_self">
+            <span class="bottom-status-icon">🟢</span>Betriebsstatus
+        </a>
 
+    </nav>
+    """
 
+    st.markdown(bottom_bar_html, unsafe_allow_html=True)
 
-
-# =========================================================
-# EXPORT + QUA3CK DETAIL HELPERS
-# =========================================================
 
 def markdown_to_pdf_bytes(title, markdown_text):
     buffer = BytesIO()
