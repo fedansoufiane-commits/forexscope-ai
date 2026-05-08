@@ -11,3 +11,14 @@ models/*.pkl
 
 # macOS
 .DS_Store
+
+# Local decision journal
+data/journal/
+
+# Local backups
+app_before_design_cleanup.py
+app_forex_backup.py
+
+# Local backups
+app_before_design_cleanup.py
+app_forex_backup.py
