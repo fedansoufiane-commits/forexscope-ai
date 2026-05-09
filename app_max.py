@@ -1,6 +1,8 @@
 from __future__ import annotations
+import base64
 
 import io
+import zipfile
 import json
 import math
 import time
@@ -32,6 +34,15 @@ st.set_page_config(
         "About": "WealthScope AI – lokale wissenschaftliche Demo-Anwendung. Keine Finanzberatung.",
     },
 )
+
+st.logo(
+    "assets/wealthscope_logo.svg",
+    size="large",
+    icon_image="assets/wealthscope_icon.svg",
+)
+
+
+
 
 
 # =========================================================
@@ -192,7 +203,7 @@ def qp_get(key: str, default: str) -> str:
 def init_state() -> None:
     page = urllib.parse.unquote_plus(qp_get("page", "Start"))
     theme = "Light Mode"  # Theme nativ über Streamlit Settings
-    view = urllib.parse.unquote_plus(qp_get("view", "Geführte Ansicht"))
+    view = "Geführte Ansicht"
 
     if page not in ALL_PAGES:
         page = "Start"
@@ -251,7 +262,7 @@ def href(page_name: str) -> str:
 def sync_url() -> None:
     st.query_params["page"] = st.session_state.get("current_page", "Start")
     # Theme wird nativ über Streamlit Settings gesteuert, nicht über URL.
-    st.query_params["view"] = st.session_state.get("app_mode", "Geführte Ansicht")
+    st.query_params["view"] = "Geführte Ansicht"
 
 
 def route_to(page_name: str) -> None:
@@ -522,6 +533,7 @@ def fetch_real_newsapi(query: str, api_key: str, language: str = "en", page_size
             "URL": article.get("url") or "",
             "Beschreibung": article.get("description") or "",
             "Content": article.get("content") or "",
+            "Bild": article.get("urlToImage") or "",
         })
 
     return pd.DataFrame(rows), "REAL_NEWSAPI"
@@ -586,6 +598,7 @@ def analyze_real_news_df(news_df: pd.DataFrame, query: str) -> Tuple[pd.DataFram
             "Impact": "Hoch" if abs(score) >= 1.5 else "Mittel",
             "Kurzinterpretation": label,
             "URL": row.get("URL", ""),
+            "Bild": row.get("Bild", ""),
             "Suchlogik": query,
         })
 
@@ -1118,11 +1131,38 @@ def metric_grid(items: List[Tuple[str, str]]) -> None:
 # SIDEBAR
 # =========================================================
 
+
+def render_clickable_sidebar_logo() -> None:
+    logo_path = Path("assets/wealthscope_logo.svg")
+
+    if not logo_path.exists():
+        st.markdown(
+            '<a href="?page=Start&view=Geführte+Ansicht" target="_self" style="text-decoration:none;">'
+            '<strong>💠 WealthScope AI</strong>'
+            '</a>',
+            unsafe_allow_html=True,
+        )
+        return
+
+    encoded_logo = base64.b64encode(logo_path.read_bytes()).decode("utf-8")
+
+    st.markdown(
+        f"""
+        <a href="?page=Start&view=Geführte+Ansicht" target="_self" style="text-decoration:none;">
+            <img
+                src="data:image/svg+xml;base64,{encoded_logo}"
+                alt="WealthScope AI"
+                style="width: 180px; max-width: 100%; height: auto; display: block; margin-bottom: 1rem;"
+            />
+        </a>
+        """,
+        unsafe_allow_html=True,
+    )
+
 def render_sidebar(df: pd.DataFrame) -> Optional[pd.DataFrame]:
     uploaded_df = None
 
     with st.sidebar:
-        st.markdown("### 💠 WealthScope AI")
         st.caption("Analyse-Steuerung für Kapital, Risiko und Portfolio.")
 
         st.divider()
@@ -1217,21 +1257,11 @@ Tolerierter Rückgang: **{money(tolerated_loss)}**
         st.caption("Theme: über Streamlit-Menü oben rechts → Settings → Theme")
 
 
-        view = st.radio(
-            "Analysemodus",
-            ["Geführte Ansicht", "Expertenansicht"],
-            index=0 if st.session_state.get("app_mode") == "Geführte Ansicht" else 1,
-            key="view_radio",
-            horizontal=False,
-        )
-        if view != st.session_state.get("app_mode"):
-            st.session_state["app_mode"] = view
-            sync_url()
-            st.rerun()
+        st.session_state["app_mode"] = "Geführte Ansicht"
+        st.caption("Analysemodus: Geführte Standardansicht")
 
         st.toggle("Rohdaten anzeigen", key="show_raw_data")
         st.toggle("Erklärungen anzeigen", key="show_explanations")
-        st.toggle("Expertenmetriken erweitern", key="show_advanced_metrics")
 
         st.divider()
 
@@ -1364,6 +1394,7 @@ def chart_radar(result: AnalysisResult) -> go.Figure:
     return fig
 
 
+
 def chart_portfolio(capital: float, weight: float, ticker: str) -> go.Figure:
     invested = capital * weight / 100
     cash = capital - invested
@@ -1373,7 +1404,7 @@ def chart_portfolio(capital: float, weight: float, ticker: str) -> go.Figure:
 
 
 def show_chart_with_data(title: str, fig: go.Figure, data: pd.DataFrame, key: str) -> None:
-    st.plotly_chart(fig, theme="streamlit", width="stretch", config={"responsive": True, "displayModeBar": True, "displaylogo": False}, key=key)
+    st.plotly_chart(fig, theme="streamlit", use_container_width=True, config={"responsive": True, "displayModeBar": True, "displaylogo": False}, key=key)
     if st.session_state.get("show_raw_data", True):
         with st.expander(f"Daten hinter dem Diagramm anzeigen: {title}", expanded=False):
             st.dataframe(data, width="stretch", hide_index=True)
@@ -1549,7 +1580,6 @@ def page_start(ctx: Dict[str, Any]) -> None:
             route_to("Professor-Export")
         card("Reproduzierbarkeit", "Downloadbare Daten, Exporte, URL-Zustand und sichtbare Annahmen.")
 
-    st.tabs(["Überblick", "Demo-Ablauf", "Präsentationsnutzen"])
     tab1, tab2, tab3 = st.tabs(["Überblick", "Demo-Ablauf", "Präsentationsnutzen"])
     with tab1:
         st.info("Die Startseite ist bewusst erklärend aufgebaut und zeigt, worum es in der App geht.")
@@ -1564,16 +1594,304 @@ def page_start(ctx: Dict[str, Any]) -> None:
     render_explainers()
 
 
+
+
+# =========================================================
+# UPGRADE HELPERS: VISUALS, METHODIK, ASSISTANT, EXPORT
+# =========================================================
+
+def build_ticker_ranking(df: pd.DataFrame) -> pd.DataFrame:
+    required = {"ticker", "asset_type", "daily_return", "drawdown"}
+    missing = required - set(df.columns)
+
+    if missing or df.empty:
+        return pd.DataFrame()
+
+    agg_kwargs = dict(
+        datenpunkte=("ticker", "size"),
+        startdatum=("date", "min"),
+        enddatum=("date", "max"),
+        durchschnittliche_tagesrendite=("daily_return", "mean"),
+        volatilitaet=("daily_return", "std"),
+        maximaler_drawdown=("drawdown", "min"),
+    )
+
+    if "target_20d" in df.columns:
+        agg_kwargs["zielquote_20d"] = ("target_20d", "mean")
+
+    ranking = (
+        df.groupby(["ticker", "asset_type"], dropna=False)
+        .agg(**agg_kwargs)
+        .reset_index()
+    )
+
+    for col in [
+        "durchschnittliche_tagesrendite",
+        "volatilitaet",
+        "maximaler_drawdown",
+        "zielquote_20d",
+    ]:
+        if col in ranking.columns:
+            ranking[col] = ranking[col] * 100
+
+    sort_cols = [c for c in ["zielquote_20d", "durchschnittliche_tagesrendite"] if c in ranking.columns]
+    if sort_cols:
+        ranking = ranking.sort_values(sort_cols, ascending=False)
+
+    return ranking
+
+
+def chart_risk_return_scatter(df: pd.DataFrame) -> go.Figure:
+    ranking = build_ticker_ranking(df)
+
+    fig = go.Figure()
+
+    if ranking.empty:
+        fig.update_layout(title="Risiko-Rendite-Vergleich nicht verfügbar")
+        return fig
+
+    max_points = max(float(ranking["datenpunkte"].max()), 1.0)
+
+    fig.add_trace(
+        go.Scatter(
+            x=ranking["volatilitaet"],
+            y=ranking["durchschnittliche_tagesrendite"],
+            mode="markers+text",
+            text=ranking["ticker"],
+            textposition="top center",
+            marker=dict(
+                size=(ranking["datenpunkte"] / max_points * 34 + 8),
+                opacity=0.72,
+            ),
+            customdata=ranking[
+                [
+                    "asset_type",
+                    "maximaler_drawdown",
+                    "zielquote_20d" if "zielquote_20d" in ranking.columns else "datenpunkte",
+                    "datenpunkte",
+                ]
+            ],
+            hovertemplate=(
+                "<b>%{text}</b><br>"
+                "Asset-Typ: %{customdata[0]}<br>"
+                "Volatilität: %{x:.2f}%<br>"
+                "Ø Tagesrendite: %{y:.3f}%<br>"
+                "Max. Drawdown: %{customdata[1]:.2f}%<br>"
+                "Zielquote/Daten: %{customdata[2]}<br>"
+                "Datenpunkte: %{customdata[3]}<extra></extra>"
+            ),
+            name="Ticker",
+        )
+    )
+
+    fig.update_layout(
+        title="Risiko-Rendite-Vergleich aller Ticker",
+        xaxis_title="Volatilität",
+        yaxis_title="Ø Tagesrendite",
+        height=520,
+        margin=dict(l=10, r=10, t=55, b=10),
+    )
+
+    return fig
+
+
+def chart_feature_correlation(df: pd.DataFrame) -> go.Figure:
+    feature_cols = [
+        "daily_return",
+        "return_5d",
+        "return_20d",
+        "ma_20_distance",
+        "ma_50_distance",
+        "ma_200_distance",
+        "volatility_20d",
+        "drawdown",
+        "future_return_20d",
+        "target_20d",
+    ]
+
+    available = [c for c in feature_cols if c in df.columns]
+
+    if len(available) < 2:
+        fig = go.Figure()
+        fig.update_layout(title="Feature-Korrelation nicht verfügbar")
+        return fig
+
+    corr = df[available].corr(numeric_only=True)
+
+    fig = go.Figure(
+        data=go.Heatmap(
+            z=corr.values,
+            x=corr.columns,
+            y=corr.index,
+            text=corr.round(2).values,
+            texttemplate="%{text}",
+            colorbar=dict(title="Korrelation"),
+        )
+    )
+
+    fig.update_layout(
+        title="Feature-Korrelationsmatrix",
+        height=560,
+        margin=dict(l=10, r=10, t=55, b=10),
+    )
+
+    return fig
+
+
+def chart_volatility(df: pd.DataFrame, ticker: str) -> go.Figure:
+    d = df[df["ticker"] == ticker].sort_values("date").copy()
+
+    fig = go.Figure()
+
+    if "volatility_20d" in d.columns:
+        fig.add_trace(
+            go.Scatter(
+                x=d["date"],
+                y=d["volatility_20d"] * 100,
+                mode="lines",
+                name="20T Volatilität %",
+            )
+        )
+
+    fig.update_layout(
+        title=f"{ticker}: Volatilitätsverlauf",
+        hovermode="x unified",
+        yaxis_title="Volatilität in %",
+        height=360,
+        margin=dict(l=10, r=10, t=55, b=10),
+        legend=dict(orientation="h"),
+    )
+
+    return fig
+
+
+@st.dialog("Methodik & Grenzen")
+def methodology_dialog() -> None:
+    st.markdown(
+        """
+### Datenbasis
+- Lokale Kaggle-Marktdaten als vorbereiteter Feature-Datensatz
+- Technische Features: Renditen, Moving Averages, Volatilität, Drawdown
+- Zielvariable: `target_20d`
+
+### News
+- NewsAPI als externe Nachrichtenquelle
+- Query-basierte Suche
+- Vereinfachtes regelbasiertes Sentiment
+
+### Scoring
+- Aktuell regelbasiertes Scoring
+- Kein echtes Kauf-/Verkaufssignal
+- ML-Ausbau über ML-Labor möglich
+
+### Grenzen
+- Historische Daten garantieren keine Zukunftsentwicklung
+- News-Sentiment ist vereinfacht
+- Keine Finanzberatung
+        """
+    )
+
+
+def assistant_answer(prompt: str, ctx: Dict[str, Any]) -> str:
+    result = ctx["result"]
+    df = ctx["features"]
+    news_df = ctx.get("news_df", pd.DataFrame())
+
+    p = prompt.lower()
+
+    if any(word in p for word in ["drawdown", "verlust", "rückgang"]):
+        latest_text = ""
+        if not df.empty and "drawdown" in df.columns:
+            latest = df["drawdown"].dropna().tail(1)
+            if not latest.empty:
+                latest_text = f" Der letzte Drawdown-Wert liegt bei ca. {float(latest.iloc[0]) * 100:.2f}%."
+
+        return (
+            f"Drawdown beschreibt, wie stark {result.ticker} vom vorherigen Hoch gefallen ist."
+            f"{latest_text} WealthScope nutzt Drawdown, um Kapitalrisiko sichtbarer zu machen. "
+            "Das ist keine Anlageberatung."
+        )
+
+    if any(word in p for word in ["news", "nachricht", "sentiment"]):
+        if news_df.empty:
+            return "Für die aktuelle Analyse liegen keine News-Daten vor oder die NewsAPI liefert gerade keine Ergebnisse."
+
+        top_titles = news_df.get("Titel", pd.Series(dtype=str)).dropna().head(3).astype(str).tolist()
+        bullets = "\\n".join([f"- {t}" for t in top_titles])
+
+        return (
+            f"Die aktuelle News-Lage für {result.ticker} wird als '{result.news_label}' eingeordnet "
+            f"mit einem News-Score von {result.news_score}. Beispiele:\\n{bullets}\\n"
+            "Die Einordnung ist regelbasiert und vereinfacht."
+        )
+
+    if any(word in p for word in ["feature", "target", "target_20d", "modell", "ml"]):
+        return (
+            "`target_20d` beschreibt, ob der Kurs nach 20 Handelstagen höher liegt. "
+            "Die App nutzt Features wie Renditen, Moving Averages, Volatilität und Drawdown. "
+            "Aktuell ist das Scoring regelbasiert; ein echtes ML-Modell kann darauf aufbauen."
+        )
+
+    if any(word in p for word in ["methodik", "quelle", "daten", "kaggle"]):
+        return (
+            "WealthScope nutzt lokal vorbereitete Kaggle-Marktdaten, berechnet technische Features "
+            "und ergänzt NewsAPI-Daten. Ziel ist eine reproduzierbare Demo für Analyse, Erklärung und Export."
+        )
+
+    if any(word in p for word in ["risiko", "volatil", "volatilität"]):
+        return (
+            f"Für {result.ticker} bewertet WealthScope Risiko über Volatilität, Drawdown, Gewichtung "
+            f"und tolerierten Rückgang. Aktuelle Risikoklasse: {result.risk_label}. "
+            f"Confidence: {result.confidence}/100."
+        )
+
+    return (
+        f"Aktuell wird {result.ticker} mit Outlook '{result.outlook}' und Risiko '{result.risk_label}' bewertet. "
+        f"Die Confidence liegt bei {result.confidence}/100. {result.recommendation} "
+        "Du kannst nach Drawdown, News, target_20d, Methodik oder Risiko fragen. Keine Finanzberatung."
+    )
+
+
+def make_export_zip(result: AnalysisResult, features_df: pd.DataFrame, news_df: pd.DataFrame) -> bytes:
+    buffer = io.BytesIO()
+    report_md = analysis_report_markdown(result)
+    context_json = json.dumps(asdict(result), indent=2, ensure_ascii=False)
+
+    with zipfile.ZipFile(buffer, "w", zipfile.ZIP_DEFLATED) as zf:
+        zf.writestr("analysebericht.md", report_md)
+        zf.writestr("analyse_context.json", context_json)
+        zf.writestr("gefilterte_marktdaten.csv", features_df.to_csv(index=False))
+        zf.writestr("news_einordnung.csv", news_df.to_csv(index=False))
+        zf.writestr(
+            "methodik.txt",
+            "WealthScope AI kombiniert lokale Kaggle-Marktdaten, Feature Engineering, NewsAPI-Daten und ein regelbasiertes Scoring. Keine Finanzberatung.",
+        )
+
+    buffer.seek(0)
+    return buffer.getvalue()
+
+
 def page_outlook(ctx: Dict[str, Any]) -> None:
     result = ctx["result"]
     df = ctx["features"]
+    raw = ctx["market"]
 
     page_title("Wealth Outlook", f"Asset: {result.ticker}. Szenario, Kapital-Schutz und nächste Schritte.")
     result_metrics(result)
 
+    with st.status("Analyse-Pipeline", expanded=False) as status:
+        st.write("Marktdaten geladen.")
+        st.write("Features berechnet.")
+        st.write("News eingeordnet.")
+        st.write("Risiko und Score abgeleitet.")
+        status.update(label="Analyse bereit", state="complete")
+
     card("Interpretation", f"{result.recommendation} News-Lage: {result.news_label}.", hero=True)
 
-    tab1, tab2, tab3, tab4 = st.tabs(["Kurs", "Risiko", "Scores", "Rohdaten"])
+    if st.button("Methodik & Grenzen anzeigen", width="stretch"):
+        methodology_dialog()
+
+    tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs(["Kurs", "Risiko", "Vergleich", "Features", "Scores", "Rohdaten"])
 
     with tab1:
         show_chart_with_data(
@@ -1582,6 +1900,7 @@ def page_outlook(ctx: Dict[str, Any]) -> None:
             df[["date", "ticker", "close", "ma_20", "ma_50", "ma_200"]].tail(600),
             "outlook_price",
         )
+
     with tab2:
         show_chart_with_data(
             "Drawdown",
@@ -1589,13 +1908,58 @@ def page_outlook(ctx: Dict[str, Any]) -> None:
             df[["date", "ticker", "close", "drawdown", "volatility_20d"]].tail(600),
             "outlook_drawdown",
         )
+        if "volatility_20d" in df.columns:
+            show_chart_with_data(
+                "Volatilität",
+                chart_volatility(df, result.ticker),
+                df[["date", "ticker", "volatility_20d"]].dropna().tail(600),
+                "outlook_volatility",
+            )
+        show_chart_with_data(
+            "Renditeverteilung",
+            chart_returns(df, result.ticker),
+            df[["date", "ticker", "daily_return"]].dropna().tail(1000),
+            "outlook_returns",
+        )
+
     with tab3:
+        enriched_all = []
+        for ticker in available_tickers(raw):
+            part = enrich_features(filter_period(raw, ticker, st.session_state.get("period", "5Y")))
+            if not part.empty:
+                enriched_all.append(part)
+        compare_df = pd.concat(enriched_all, ignore_index=True) if enriched_all else df
+        ranking = build_ticker_ranking(compare_df)
+        show_chart_with_data("Risiko-Rendite-Vergleich", chart_risk_return_scatter(compare_df), ranking, "risk_return_scatter")
+        st.dataframe(ranking, width="stretch", hide_index=True)
+
+    with tab4:
+        show_chart_with_data(
+            "Feature-Korrelationen",
+            chart_feature_correlation(df),
+            df[[c for c in [
+                "daily_return",
+                "return_5d",
+                "return_20d",
+                "ma_20_distance",
+                "ma_50_distance",
+                "ma_200_distance",
+                "volatility_20d",
+                "drawdown",
+                "future_return_20d",
+                "target_20d",
+            ] if c in df.columns]].dropna().tail(2000),
+            "feature_correlation",
+        )
+
+    with tab5:
         col1, col2 = st.columns(2)
         with col1:
             show_chart_with_data("Score-Zerlegung", chart_scores(result), pd.DataFrame([asdict(result)]), "outlook_scores")
         with col2:
             show_chart_with_data("Radar-Profil", chart_radar(result), pd.DataFrame([asdict(result)]), "outlook_radar")
-    with tab4:
+
+    with tab6:
         st.dataframe(df.tail(1000), width="stretch", hide_index=True)
 
     render_explainers()
@@ -1764,6 +2128,24 @@ def page_ml_lab(ctx: Dict[str, Any]) -> None:
     fig.update_layout(title="Feature-Sicht", height=420)
     show_chart_with_data("Feature-Sicht", fig, features_df, "ml_feature_view")
 
+    show_chart_with_data(
+        "Feature-Korrelationen",
+        chart_feature_correlation(ctx["features"]),
+        ctx["features"][[c for c in [
+            "daily_return",
+            "return_5d",
+            "return_20d",
+            "ma_20_distance",
+            "ma_50_distance",
+            "ma_200_distance",
+            "volatility_20d",
+            "drawdown",
+            "future_return_20d",
+            "target_20d",
+        ] if c in ctx["features"].columns]].dropna().tail(2000),
+        "ml_feature_correlation",
+    )
+
     with st.expander("Python-Hilfe anzeigen"):
         st.help(compute_scores)
 
@@ -1771,7 +2153,23 @@ def page_ml_lab(ctx: Dict[str, Any]) -> None:
 def page_assistant(ctx: Dict[str, Any]) -> None:
     result = ctx["result"]
 
-    page_title("Assistent", "Erklärt Analyse, Methodik und Risiken im Chat-Stil.")
+    page_title("WealthScope Assistent", "Frage zur aktuellen Analyse, Methodik, News-Lage oder Zielvariable.")
+
+    with st.container(border=True):
+        st.markdown(
+            """
+**Beispielfragen**
+- Warum ist die Einschätzung aktuell neutral/positiv/negativ?
+- Was bedeutet Drawdown?
+- Welche News wurden berücksichtigt?
+- Was ist `target_20d`?
+- Wie funktioniert die Methodik?
+            """
+        )
+
+    if st.button("Chat zurücksetzen", width="stretch"):
+        st.session_state["chat_messages"] = []
+        st.rerun()
 
     for msg in st.session_state.get("chat_messages", []):
         with st.chat_message(msg["role"]):
@@ -1780,14 +2178,108 @@ def page_assistant(ctx: Dict[str, Any]) -> None:
     prompt = st.chat_input("Frage zur Analyse stellen")
     if prompt:
         st.session_state["chat_messages"].append({"role": "user", "content": prompt})
-
-        answer = (
-            f"Aktuell wird {result.ticker} mit Outlook '{result.outlook}' und Risiko '{result.risk_label}' bewertet. "
-            f"Die Confidence liegt bei {result.confidence}/100. "
-            f"Wichtig: {result.recommendation} Keine Finanzberatung."
-        )
+        answer = assistant_answer(prompt, ctx)
         st.session_state["chat_messages"].append({"role": "assistant", "content": answer})
         st.rerun()
+
+
+
+def render_news_cards(news_df: pd.DataFrame, max_items: int = 8) -> None:
+    if news_df.empty:
+        st.info("Keine News für die aktuelle Suchlogik gefunden.")
+        return
+
+    filter_col1, filter_col2 = st.columns([1, 2])
+
+    with filter_col1:
+        if "Kurzinterpretation" in news_df.columns:
+            sentiment_values = [
+                str(x)
+                for x in news_df["Kurzinterpretation"].dropna().unique()
+                if str(x).strip()
+            ]
+        else:
+            sentiment_values = []
+
+        sentiments = ["Alle"] + sorted(sentiment_values)
+        selected_sentiment = st.selectbox(
+            "Sentiment filtern",
+            sentiments,
+            key="news_sentiment_filter",
+        )
+
+    with filter_col2:
+        search_term = st.text_input(
+            "News durchsuchen",
+            placeholder="z. B. earnings, inflation, AI",
+            key="news_search_filter",
+        )
+
+    view_df = news_df.copy()
+
+    if selected_sentiment != "Alle" and "Kurzinterpretation" in view_df.columns:
+        view_df = view_df[view_df["Kurzinterpretation"].astype(str) == selected_sentiment]
+
+    if search_term:
+        title_series = view_df["Titel"].astype(str) if "Titel" in view_df.columns else pd.Series("", index=view_df.index)
+        desc_series = view_df["Beschreibung"].astype(str) if "Beschreibung" in view_df.columns else pd.Series("", index=view_df.index)
+        source_series = view_df["Quelle"].astype(str) if "Quelle" in view_df.columns else pd.Series("", index=view_df.index)
+
+        mask = (
+            title_series.str.contains(search_term, case=False, na=False)
+            | desc_series.str.contains(search_term, case=False, na=False)
+            | source_series.str.contains(search_term, case=False, na=False)
+        )
+        view_df = view_df[mask]
+
+    st.caption(f"{len(view_df)} von {len(news_df)} News sichtbar")
+
+    if view_df.empty:
+        st.warning("Keine News nach dem aktuellen Filter gefunden.")
+        return
+
+    for idx, row in view_df.head(max_items).iterrows():
+        title = str(row.get("Titel", "") or "Ohne Titel")
+        source = str(row.get("Quelle", "") or "Unbekannte Quelle")
+        date = str(row.get("Datum", "") or "")
+        desc = str(row.get("Beschreibung", "") or "")
+        sentiment = row.get("Sentiment", "")
+        relevance = str(row.get("Relevanz", "") or "")
+        impact = str(row.get("Impact", "") or "")
+        interpretation = str(row.get("Kurzinterpretation", "") or "")
+        url = str(row.get("URL", "") or "")
+        image_url = str(row.get("Bild", "") or "")
+
+        with st.container(border=True):
+            left, right = st.columns([1, 3], vertical_alignment="top")
+
+            with left:
+                if image_url.startswith("http"):
+                    st.image(image_url, width="stretch")
+                else:
+                    st.caption("Kein Bild verfügbar")
+
+            with right:
+                st.subheader(title)
+                st.caption(f"{source} · {date}")
+
+                m1, m2, m3 = st.columns(3)
+                m1.metric("Sentiment", sentiment)
+                m2.metric("Relevanz", relevance)
+                m3.metric("Impact", impact)
+
+                if desc:
+                    st.write(desc)
+
+                if interpretation:
+                    st.caption(f"Einordnung: {interpretation}")
+
+                if url.startswith("http"):
+                    st.link_button("Artikel öffnen", url, width="stretch")
+
+                with st.expander("Details anzeigen"):
+                    st.write("Suchlogik:", row.get("Suchlogik", ""))
+                    st.write("URL:", url)
 
 
 def page_news(ctx: Dict[str, Any]) -> None:
@@ -1825,7 +2317,11 @@ def page_news(ctx: Dict[str, Any]) -> None:
 
     st.markdown(f"**Aktive Suchlogik:** `{query}`")
     st.markdown(f"**News Intelligence:** {news_label} · Score: `{round(news_score, 2)}` · Quelle: `{news_source}`")
-    st.dataframe(news_df, width="stretch", hide_index=True)
+
+    render_news_cards(news_df)
+
+    with st.expander("Rohdaten der News anzeigen"):
+        st.dataframe(news_df, width="stretch", hide_index=True)
 
     st.download_button(
         "News-Auswertung als CSV herunterladen",
@@ -1853,7 +2349,7 @@ def page_how(ctx: Dict[str, Any]) -> None:
 3. Features berechnen  
 4. News-Suchlogik bewerten  
 5. Risiko und Confidence ableiten  
-6. Geführte Interpretation oder Expertenansicht anzeigen  
+6. Geführte Interpretation, Methodik und Grenzen anzeigen  
 
 ### Wichtig
 
@@ -1887,139 +2383,6 @@ Diese App ist keine Finanzberatung. Sie ist eine wissenschaftliche Demo-Anwendun
             """
         )
 
-
-def page_project(ctx: Dict[str, Any]) -> None:
-    raw = ctx["market"]
-
-    page_title("Über das Projekt", "Projektkontext, Datenbasis und Zielsetzung.")
-
-    metric_grid(
-        [
-            ("Datensätze geladen", f"{len(raw):,}".replace(",", ".")),
-            ("Ticker", str(raw["ticker"].nunique())),
-            ("Zeitraum Start", raw["date"].min().strftime("%Y-%m-%d")),
-            ("Zeitraum Ende", raw["date"].max().strftime("%Y-%m-%d")),
-        ]
-    )
-
-    card(
-        "Zielsetzung",
-        "WealthScope AI ist eine lokale Streamlit-Demo zur Kapitalanalyse. Ziel ist, Marktbewegungen, Risikokennzahlen, News-Logik und ML-nahe Scores verständlich und nachvollziehbar darzustellen.",
-        hero=True,
-    )
-
-
-def page_export(ctx: Dict[str, Any]) -> None:
-    result = ctx["result"]
-    df = ctx["features"]
-
-    page_title("Professor-Export", "Exportiere Analyse, Rohdaten und Kurzbericht.")
-
-    report_md = analysis_report_markdown(result)
-    report_json = json.dumps(asdict(result), indent=2, ensure_ascii=False)
-
-    c1, c2, c3 = st.columns(3)
-    with c1:
-        st.download_button("Markdown herunterladen", report_md.encode("utf-8"), "wealthscope_analysebericht.md", "text/markdown")
-    with c2:
-        st.download_button("JSON herunterladen", report_json.encode("utf-8"), "wealthscope_analysebericht.json", "application/json")
-    with c3:
-        st.download_button("CSV herunterladen", df.to_csv(index=False).encode("utf-8"), f"wealthscope_{result.ticker}_data.csv", "text/csv")
-
-    st.code(report_md, language="markdown")
-
-
-def page_impressum(ctx: Dict[str, Any]) -> None:
-    page_title("Impressum", "Platzhalter für eine mögliche öffentliche Bereitstellung.")
-    card(
-        "Impressum / Anbieterkennzeichnung",
-        "WealthScope AI ist aktuell eine lokale Demo-Anwendung im Rahmen eines Studienprojekts. Die Angaben müssten vor einer echten Veröffentlichung rechtlich geprüft werden.",
-        hero=True,
-    )
-
-
-def page_privacy(ctx: Dict[str, Any]) -> None:
-    page_title("Datenschutz", "Transparenz über lokale Daten und Verarbeitung.")
-    card(
-        "Datenschutz-Hinweis",
-        "Die Demo verarbeitet lokale Marktdaten und lokal eingegebene Parameter. Bei Nutzung externer APIs müssten API-Anbieter, Datenflüsse und Speicherfristen dokumentiert werden.",
-        hero=True,
-    )
-
-
-def page_status(ctx: Dict[str, Any]) -> None:
-    raw = ctx["market"]
-    df = ctx["features"]
-    model = ctx["model"]
-    result = ctx["result"]
-    proof = data_proof(raw)
-
-    page_title("Betriebsstatus", "Professoren-Check: Datenbasis, Features, Modellstatus und Reproduzierbarkeit.")
-
-    real_data_active = str(proof["source"]).startswith("REAL")
-    score = 98 if real_data_active and not raw.empty and not df.empty else 62
-
-    card(
-        f"🟢 Systemstatus: {'ECHTE DATEN AKTIV' if real_data_active else 'DEMO-FALLBACK AKTIV'}",
-        f"Gesamtscore: {score} / 100. Letzter Check: {datetime.now().strftime('%d.%m.%Y %H:%M:%S')}. Datenquelle: {proof['source']}.",
-        hero=True,
-    )
-
-    metric_grid(
-        [
-            ("Datenquelle", proof["source"]),
-            ("Zeilen", f"{proof['rows']:,}".replace(",", ".")),
-            ("Ticker", str(proof["tickers"])),
-            ("Zeitraum", f"{proof['date_min']} bis {proof['date_max']}"),
-        ]
-    )
-
-    metric_grid(
-        [
-            ("Spalten", str(proof["columns"])),
-            ("Feature-Spalten", str(proof["feature_count"])),
-            ("Target 20d", "Ja" if proof["has_target_20d"] else "Nein"),
-            ("Dateigröße", f"{proof['file_size_mb']} MB"),
-        ]
-    )
-
-    st.subheader("Datenbasis-Nachweis")
-    st.code(proof["file_used"], language="text")
-
-    status_df = pd.DataFrame(
-        [
-            {"Komponente": "Marktdaten", "Status": "OK" if not raw.empty else "Fehler", "Details": f"{proof['rows']} Zeilen · Quelle: {proof['source']}"},
-            {"Komponente": "Feature-Berechnung", "Status": "OK" if not df.empty else "Fehler", "Details": f"{len(df)} Zeilen für {result.ticker}"},
-            {"Komponente": "Zielvariable", "Status": "OK" if proof["has_target_20d"] else "Prüfen", "Details": "target_20d vorhanden" if proof["has_target_20d"] else "target_20d fehlt"},
-            {"Komponente": "Future Return", "Status": "OK" if proof["has_future_return_20d"] else "Prüfen", "Details": "future_return_20d vorhanden" if proof["has_future_return_20d"] else "future_return_20d fehlt"},
-            {"Komponente": "Modell", "Status": "Demo-Modell", "Details": model["version"]},
-            {"Komponente": "News Intelligence", "Status": "Demo-Logik", "Details": result.news_label},
-            {"Komponente": "Export", "Status": "OK", "Details": "CSV, JSON, Markdown"},
-            {"Komponente": "Reproduzierbarkeit", "Status": "OK", "Details": "URL-Parameter, lokale Datei, sichtbare Datenbasis"},
-        ]
-    )
-    st.dataframe(status_df, width="stretch", hide_index=True)
-
-    st.subheader("Feature-Spalten")
-    st.write(", ".join(proof["feature_cols"]) if proof["feature_cols"] else "Keine zusätzlichen Feature-Spalten erkannt.")
-
-    st.subheader("Ticker-Verteilung")
-    ticker_counts = raw["ticker"].value_counts().reset_index()
-    ticker_counts.columns = ["Ticker", "Zeilen"]
-    st.dataframe(ticker_counts, width="stretch", hide_index=True)
-
-    if st.button("Statusanimation testen"):
-        progress = st.progress(0, text="Statusprüfung läuft...")
-        for i in range(100):
-            time.sleep(0.005)
-            progress.progress(i + 1, text=f"Statusprüfung läuft... {i + 1}%")
-        st.toast("Statusprüfung abgeschlossen.", icon="✅")
-        st.balloons()
-
-
-# =========================================================
-# ROUTER
-# =========================================================
 
 def route_page(page: str, ctx: Dict[str, Any]) -> None:
     if page == "Start":
@@ -2060,6 +2423,637 @@ def route_page(page: str, ctx: Dict[str, Any]) -> None:
 # MAIN
 # =========================================================
 
+
+
+def render_floating_assistant_panel(ctx: Dict[str, Any]) -> None:
+    current_page = st.session_state.get("current_page", "Start")
+    current_href = href(current_page)
+
+    chat_param = str(st.query_params.get("chat", "")).lower()
+    if chat_param == "open":
+        st.session_state["ws_chat_open"] = True
+    elif chat_param == "closed":
+        st.session_state["ws_chat_open"] = False
+
+    if "ws_chat_messages" not in st.session_state:
+        result = ctx["result"]
+        st.session_state["ws_chat_messages"] = [
+            {
+                "role": "assistant",
+                "content": (
+                    f"Hi, ich bin der WealthScope Assistent. "
+                    f"Ich kann dir die aktuelle Analyse zu {result.ticker}, Drawdown, Risiko, News, "
+                    f"target_20d und Methodik erklären. Keine Finanzberatung."
+                ),
+            }
+        ]
+
+    open_href = current_href + "&chat=open" if "?" in current_href else current_href + "?chat=open"
+    close_href = current_href + "&chat=closed" if "?" in current_href else current_href + "?chat=closed"
+
+    st.markdown(
+        """
+        <style>
+        .ws-chat-fab {
+            position: fixed;
+            right: 24px;
+            bottom: 88px;
+            width: 58px;
+            height: 58px;
+            border-radius: 999px;
+            background: var(--primary-color, #6366F1);
+            color: white !important;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none !important;
+            font-size: 26px;
+            box-shadow: 0 18px 44px rgba(15, 23, 42, 0.22);
+            z-index: 999999;
+            transition: transform 0.15s ease, filter 0.15s ease;
+        }
+        .ws-chat-fab:hover {
+            transform: translateY(-2px);
+            filter: brightness(1.05);
+        }
+
+        div:has(> .element-container .ws-chat-panel-marker) {
+            position: fixed !important;
+            right: 24px !important;
+            bottom: 88px !important;
+            width: 430px !important;
+            max-width: calc(100vw - 48px) !important;
+            max-height: 72vh !important;
+            overflow-y: auto !important;
+            background: var(--background-color, white) !important;
+            border: 1px solid rgba(120, 120, 120, 0.25) !important;
+            border-radius: 22px !important;
+            padding: 16px !important;
+            box-shadow: 0 24px 70px rgba(15, 23, 42, 0.28) !important;
+            z-index: 999998 !important;
+        }
+
+        .ws-chat-panel-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 10px;
+        }
+        .ws-chat-panel-title {
+            font-size: 16px;
+            font-weight: 800;
+            margin: 0;
+        }
+        .ws-chat-panel-subtitle {
+            font-size: 12px;
+            opacity: 0.72;
+            margin-top: 2px;
+        }
+        .ws-chat-close {
+            text-decoration: none !important;
+            color: inherit !important;
+            border: 1px solid rgba(120, 120, 120, 0.28);
+            border-radius: 999px;
+            padding: 4px 10px;
+            font-size: 13px;
+        }
+
+        @media (max-width: 700px) {
+            div:has(> .element-container .ws-chat-panel-marker) {
+                left: 12px !important;
+                right: 12px !important;
+                bottom: 72px !important;
+                width: auto !important;
+                max-width: none !important;
+            }
+            .ws-chat-fab {
+                right: 16px;
+                bottom: 78px;
+            }
+        }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
+
+    if not st.session_state.get("ws_chat_open", False):
+        st.markdown(
+            f'<a class="ws-chat-fab" href="{open_href}" target="_self" title="WealthScope Assistent">💬</a>',
+            unsafe_allow_html=True,
+        )
+        return
+
+    with st.container():
+        st.markdown('<div class="ws-chat-panel-marker"></div>', unsafe_allow_html=True)
+
+        st.markdown(
+            f"""
+            <div class="ws-chat-panel-head">
+                <div>
+                    <p class="ws-chat-panel-title">💬 WealthScope Assistent</p>
+                    <div class="ws-chat-panel-subtitle">Kontextbasierte Hilfe zur aktuellen Analyse</div>
+                </div>
+                <a class="ws-chat-close" href="{close_href}" target="_self">Schließen</a>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+
+        for msg in st.session_state["ws_chat_messages"][-8:]:
+            with st.chat_message(msg["role"]):
+                st.write(msg["content"])
+
+        with st.form("ws_floating_chat_form", clear_on_submit=True):
+            prompt = st.text_input(
+                "Frage",
+                placeholder="z. B. Was bedeutet Drawdown?",
+                label_visibility="collapsed",
+                key="ws_floating_chat_prompt",
+            )
+            c1, c2 = st.columns([2, 1])
+            with c1:
+                submitted = st.form_submit_button("Senden", width="stretch")
+            with c2:
+                reset = st.form_submit_button("Reset", width="stretch")
+
+        if reset:
+            result = ctx["result"]
+            st.session_state["ws_chat_messages"] = [
+                {
+                    "role": "assistant",
+                    "content": (
+                        f"Chat zurückgesetzt. Ich kann dir die aktuelle Analyse zu {result.ticker}, "
+                        "Risiko, News, Features und Methodik erklären."
+                    ),
+                }
+            ]
+            st.rerun()
+
+        if submitted and prompt.strip():
+            st.session_state["ws_chat_messages"].append({"role": "user", "content": prompt.strip()})
+            answer = assistant_answer(prompt.strip(), ctx)
+            st.session_state["ws_chat_messages"].append({"role": "assistant", "content": answer})
+            st.rerun()
+
+
+
+
+# =========================================================
+# FOOTER PAGE UPGRADES: PROJEKT, EXPORT, IMPRESSUM, DATENSCHUTZ, STATUS
+# =========================================================
+
+def ws_dataset_snapshot(ctx: Dict[str, Any]) -> Dict[str, Any]:
+    market = ctx.get("market", pd.DataFrame())
+    features = ctx.get("features", pd.DataFrame())
+    result = ctx.get("result")
+
+    source = getattr(result, "source", "unbekannt") if result is not None else "unbekannt"
+    ticker = getattr(result, "ticker", "unbekannt") if result is not None else "unbekannt"
+
+    date_min = ""
+    date_max = ""
+
+    if not market.empty and "date" in market.columns:
+        date_min = str(pd.to_datetime(market["date"]).min().date())
+        date_max = str(pd.to_datetime(market["date"]).max().date())
+
+    return {
+        "ticker": ticker,
+        "source": source,
+        "market_rows": int(len(market)) if market is not None else 0,
+        "feature_rows": int(len(features)) if features is not None else 0,
+        "market_columns": int(len(market.columns)) if market is not None and not market.empty else 0,
+        "feature_columns": int(len(features.columns)) if features is not None and not features.empty else 0,
+        "tickers": int(market["ticker"].nunique()) if market is not None and not market.empty and "ticker" in market.columns else 0,
+        "date_min": date_min,
+        "date_max": date_max,
+        "target_available": bool(features is not None and "target_20d" in features.columns),
+    }
+
+
+def ws_render_snapshot_metrics(ctx: Dict[str, Any]) -> None:
+    snap = ws_dataset_snapshot(ctx)
+
+    c1, c2, c3, c4 = st.columns(4)
+    c1.metric("Marktdaten", f"{snap['market_rows']:,}".replace(",", "."))
+    c2.metric("Feature-Zeilen", f"{snap['feature_rows']:,}".replace(",", "."))
+    c3.metric("Ticker", snap["tickers"])
+    c4.metric("target_20d", "vorhanden" if snap["target_available"] else "fehlt")
+
+    st.caption(
+        f"Quelle: `{snap['source']}` · Zeitraum: `{snap['date_min']}` bis `{snap['date_max']}` · "
+        f"Spalten: Marktdaten `{snap['market_columns']}`, Features `{snap['feature_columns']}`"
+    )
+
+
+def ws_build_export_package(ctx: Dict[str, Any]) -> bytes:
+    result = ctx["result"]
+    market = ctx.get("market", pd.DataFrame())
+    features = ctx.get("features", pd.DataFrame())
+    news_df = ctx.get("news_df", pd.DataFrame())
+
+    buffer = io.BytesIO()
+
+    report_md = analysis_report_markdown(result) if "analysis_report_markdown" in globals() else "# WealthScope Export\n"
+    context_json = json.dumps(asdict(result), indent=2, ensure_ascii=False)
+
+    with zipfile.ZipFile(buffer, "w", zipfile.ZIP_DEFLATED) as zf:
+        zf.writestr("01_analysebericht.md", report_md)
+        zf.writestr("02_analyse_context.json", context_json)
+
+        if market is not None and not market.empty:
+            zf.writestr("03_marktdaten.csv", market.to_csv(index=False))
+
+        if features is not None and not features.empty:
+            zf.writestr("04_feature_daten.csv", features.to_csv(index=False))
+
+        if news_df is not None and not news_df.empty:
+            zf.writestr("05_news_einordnung.csv", news_df.to_csv(index=False))
+
+        zf.writestr(
+            "06_methodik_und_grenzen.txt",
+            (
+                "WealthScope AI ist eine Streamlit-Demo für ein Uni-/QUA3CK-/Big-Data-Projekt.\n"
+                "Die App nutzt lokal vorbereitete Kaggle-Marktdaten, Feature Engineering, NewsAPI-Daten "
+                "und aktuell ein regelbasiertes Scoring.\n\n"
+                "Die Anwendung stellt keine Anlageberatung dar. Historische Daten und vereinfachte News-Signale "
+                "garantieren keine zukünftige Entwicklung.\n"
+            ),
+        )
+
+    buffer.seek(0)
+    return buffer.getvalue()
+
+
+def page_project(ctx: Dict[str, Any]) -> None:
+    page_title("Projekt", "Ziel, Methodik, Architektur und Präsentationsnutzen von WealthScope AI.")
+
+    ws_render_snapshot_metrics(ctx)
+
+    tab1, tab2, tab3, tab4 = st.tabs(["Überblick", "QUA3CK", "Architektur", "Präsentation"])
+
+    with tab1:
+        st.subheader("Projektziel")
+        st.write(
+            "WealthScope AI ist eine interaktive Streamlit-App zur datenbasierten Analyse von Finanzmarktdaten. "
+            "Die App verbindet historische Kursdaten, technische Features, NewsAPI-Daten und ein nachvollziehbares Scoring."
+        )
+
+        c1, c2, c3 = st.columns(3)
+        with c1:
+            with st.container(border=True):
+                st.markdown("### Echte Datenbasis")
+                st.write("Lokale Kaggle-Marktdaten als Parquet/CSV-Basis mit transparentem Datenstatus.")
+        with c2:
+            with st.container(border=True):
+                st.markdown("### Analyse & Visualisierung")
+                st.write("Kurs, Risiko, Drawdown, Volatilität, Feature-Korrelation und News-Kontext.")
+        with c3:
+            with st.container(border=True):
+                st.markdown("### Erklärbarkeit")
+                st.write("Methodik, Assistent, Export und Rohdaten machen Ergebnisse nachvollziehbar.")
+
+        with st.expander("Warum ist das professorentauglich?"):
+            st.write(
+                "Die App zeigt Datenbasis, Feature Engineering, Zielvariable, News-Komponente, Grenzen und Exportfähigkeit. "
+                "Damit ist sie nicht nur optisch, sondern auch methodisch nachvollziehbar."
+            )
+
+    with tab2:
+        st.subheader("QUA3CK-Struktur")
+        steps = pd.DataFrame(
+            [
+                ["Question", "Welche Marktdaten- und News-Signale unterstützen eine nachvollziehbare Markteinschätzung?"],
+                ["Understanding", "Datenbasis prüfen: Zeilen, Ticker, Zeitraum, Spalten, Zielvariable."],
+                ["Algorithm Selection", "Regelbasiertes Scoring als transparente Baseline; ML-Ausbau möglich."],
+                ["Adaption", "Feature Engineering: Returns, Moving Averages, Volatilität, Drawdown, target_20d."],
+                ["Adjustment", "Parameter wie Zeitraum, Kapital, Gewichtung und Risikotoleranz steuerbar."],
+                ["Conclude", "Outlook, Risiko, News-Lage, Export und Grenzen werden sichtbar."],
+                ["Knowledge Transfer", "Assistent, Methodikdialog und Präsentationsseiten erklären die Ergebnisse."],
+            ],
+            columns=["QUA3CK-Baustein", "Umsetzung in WealthScope"],
+        )
+        st.dataframe(steps, width="stretch", hide_index=True)
+
+    with tab3:
+        st.subheader("Technische Architektur")
+        architecture = {
+            "Frontend": "Streamlit",
+            "Daten": "Kaggle Stock/ETF Dataset, lokal verarbeitet",
+            "Format": "Parquet bevorzugt, CSV als Fallback",
+            "News": "NewsAPI über .streamlit/secrets.toml",
+            "Analyse": "Pandas, NumPy, Plotly",
+            "Visualisierung": "Streamlit-native Layouts + Plotly",
+            "Scoring": "Regelbasiert, ML-Ausbau vorbereitet",
+        }
+        st.json(architecture)
+
+        with st.expander("Empfohlene spätere Modularisierung"):
+            st.code(
+                """app.py
+components/
+  layout.py
+  charts.py
+  news.py
+  scoring.py
+  export.py
+  assistant.py
+  data_loader.py
+pages_app/
+  start.py
+  outlook.py
+  data_lab.py
+  ml_lab.py
+  project.py
+  export.py
+""",
+                language="text",
+            )
+
+    with tab4:
+        st.subheader("Präsentationsnutzen")
+        st.write("Diese Seite kann direkt im Vortrag genutzt werden, um Ziel, Aufbau und Methodik kompakt zu erklären.")
+
+        with st.container(border=True):
+            st.markdown("#### 60-Sekunden-Erklärung")
+            st.write(
+                "WealthScope AI verarbeitet echte historische Marktdaten, berechnet technische Features, "
+                "ergänzt NewsAPI-Informationen und stellt daraus eine nachvollziehbare Analyseoberfläche bereit. "
+                "Die App zeigt Datenstatus, Visualisierungen, Rohdaten, Methodik, Export und Grenzen transparent an."
+            )
+
+        st.info("Wichtig für die Präsentation: Regelbasiertes Scoring klar als Baseline benennen, nicht als fertiges Investmentmodell.")
+
+
+def page_export(ctx: Dict[str, Any]) -> None:
+    page_title("Export", "Analyseergebnisse, Rohdaten und Methodik reproduzierbar herunterladen.")
+
+    result = ctx["result"]
+    market = ctx.get("market", pd.DataFrame())
+    features = ctx.get("features", pd.DataFrame())
+    news_df = ctx.get("news_df", pd.DataFrame())
+
+    ws_render_snapshot_metrics(ctx)
+
+    st.subheader("Export-Paket")
+
+    with st.status("Exportdaten vorbereiten", expanded=False) as status:
+        st.write("Analysekontext erzeugt.")
+        st.write("Marktdaten und Feature-Daten geprüft.")
+        st.write("News-Daten geprüft.")
+        st.write("Methodikdatei vorbereitet.")
+        status.update(label="Export bereit", state="complete")
+
+    export_zip = ws_build_export_package(ctx)
+
+    st.download_button(
+        "Komplettes Export-Paket herunterladen",
+        data=export_zip,
+        file_name=f"wealthscope_export_{result.ticker}.zip",
+        mime="application/zip",
+        width="stretch",
+    )
+
+    tab1, tab2, tab3, tab4 = st.tabs(["Bericht", "Daten", "News", "Kontext"])
+
+    with tab1:
+        report_md = analysis_report_markdown(result) if "analysis_report_markdown" in globals() else "# WealthScope Export"
+        st.code(report_md, language="markdown")
+        st.download_button(
+            "Analysebericht als Markdown herunterladen",
+            data=report_md.encode("utf-8"),
+            file_name=f"wealthscope_report_{result.ticker}.md",
+            mime="text/markdown",
+            width="stretch",
+        )
+
+    with tab2:
+        st.write("Gefilterte Feature-Daten der aktuellen Analyse.")
+        if features is not None and not features.empty:
+            st.dataframe(features.tail(1000), width="stretch", hide_index=True)
+            st.download_button(
+                "Feature-Daten als CSV herunterladen",
+                data=features.to_csv(index=False).encode("utf-8"),
+                file_name=f"wealthscope_features_{result.ticker}.csv",
+                mime="text/csv",
+                width="stretch",
+            )
+        else:
+            st.warning("Keine Feature-Daten verfügbar.")
+
+    with tab3:
+        if news_df is not None and not news_df.empty:
+            st.dataframe(news_df, width="stretch", hide_index=True)
+            st.download_button(
+                "News-Einordnung als CSV herunterladen",
+                data=news_df.to_csv(index=False).encode("utf-8"),
+                file_name=f"wealthscope_news_{result.ticker}.csv",
+                mime="text/csv",
+                width="stretch",
+            )
+        else:
+            st.info("Keine News-Daten verfügbar.")
+
+    with tab4:
+        context = asdict(result)
+        st.json(context)
+        st.download_button(
+            "Analysekontext als JSON herunterladen",
+            data=json.dumps(context, indent=2, ensure_ascii=False).encode("utf-8"),
+            file_name=f"wealthscope_context_{result.ticker}.json",
+            mime="application/json",
+            width="stretch",
+        )
+
+
+def page_impressum(ctx: Dict[str, Any]) -> None:
+    page_title("Impressum", "Projektkontext, Verantwortlichkeit und Hinweise.")
+
+    st.warning(
+        "Dies ist eine Uni-/Demo-Anwendung und kein produktives Finanz- oder Beratungsangebot. "
+        "Die Angaben ersetzen kein rechtlich geprüftes Impressum."
+    )
+
+    tab1, tab2, tab3 = st.tabs(["Projektangaben", "Verantwortlichkeit", "Hinweise"])
+
+    with tab1:
+        with st.container(border=True):
+            st.markdown("### WealthScope AI")
+            st.write("Interaktive Streamlit-App für ein QUA3CK-/Big-Data-/Data-Science-Projekt.")
+            st.write("Zweck: Demonstration von Datenaufbereitung, Analyse, Visualisierung, News-Kontext und Export.")
+
+    with tab2:
+        st.write("Für eine echte Veröffentlichung müssten hier rechtlich korrekte Angaben ergänzt werden.")
+        st.dataframe(
+            pd.DataFrame(
+                [
+                    ["Projektname", "WealthScope AI"],
+                    ["Kontext", "Uni-/Demo-Projekt"],
+                    ["Technologie", "Python, Streamlit, Pandas, Plotly, NewsAPI"],
+                    ["Status", "Nicht produktiv"],
+                ],
+                columns=["Feld", "Angabe"],
+            ),
+            width="stretch",
+            hide_index=True,
+        )
+
+    with tab3:
+        st.info(
+            "Die App liefert keine Anlageberatung, keine Kauf-/Verkaufsempfehlung und keine rechtlich verbindliche Auskunft. "
+            "Alle Ergebnisse dienen der Demonstration und methodischen Einordnung."
+        )
+
+        with st.expander("Warum diese Seite trotzdem sinnvoll ist"):
+            st.write(
+                "Auch in einer Demo-App zeigt ein Impressum-/Hinweisbereich, dass zwischen Prototyp, Produktivsystem "
+                "und rechtlicher Verantwortung unterschieden wird."
+            )
+
+
+def page_datenschutz(ctx: Dict[str, Any]) -> None:
+    page_title("Datenschutz", "Transparenz über Datenquellen, lokale Verarbeitung und externe API-Nutzung.")
+
+    tab1, tab2, tab3, tab4 = st.tabs(["Überblick", "Datenquellen", "Verarbeitung", "Grenzen"])
+
+    with tab1:
+        st.subheader("Datenschutz- und Transparenzhinweis")
+        st.write(
+            "WealthScope AI verarbeitet primär lokale Marktdaten und optional NewsAPI-Daten. "
+            "Die App ist als Demo-/Uni-Projekt konzipiert und nicht als produktives Kundensystem."
+        )
+
+        ws_render_snapshot_metrics(ctx)
+
+    with tab2:
+        sources = pd.DataFrame(
+            [
+                ["Historische Marktdaten", "Lokales Kaggle-Dataset", "Parquet/CSV", "Ja"],
+                ["News", "NewsAPI", "HTTP API über API-Key", "Nein"],
+                ["Nutzereingaben", "Streamlit-Session", "Session State", "Nein"],
+                ["Secrets", ".streamlit/secrets.toml", "lokal, nicht committen", "Nein"],
+            ],
+            columns=["Datenart", "Quelle", "Technik", "Personenbezogen?"],
+        )
+        st.dataframe(sources, width="stretch", hide_index=True)
+
+    with tab3:
+        st.markdown(
+            """
+**Verarbeitung in der App**
+- Marktdaten werden lokal geladen und analysiert.
+- News werden über eine API-Abfrage ergänzt.
+- Eingaben wie Kapital, Gewichtung oder Risikotoleranz bleiben im App-Zustand.
+- API-Keys liegen lokal in `.streamlit/secrets.toml` und dürfen nicht ins Repository.
+            """
+        )
+
+        with st.expander("Technischer Hinweis zu Secrets"):
+            st.code(
+                """.streamlit/secrets.toml
+
+NEWS_API_KEY = "..."
+""",
+                language="toml",
+            )
+
+    with tab4:
+        st.warning(
+            "Diese Seite ist kein rechtlich geprüftes Datenschutzdokument. "
+            "Für eine echte Veröffentlichung wären Hosting, Logging, API-Nutzung, Nutzertracking und Rechtsgrundlagen separat zu prüfen."
+        )
+
+
+def page_privacy(ctx: Dict[str, Any]) -> None:
+    page_datenschutz(ctx)
+
+
+def page_status(ctx: Dict[str, Any]) -> None:
+    page_title("Status", "Technischer Zustand, Datenverfügbarkeit und Prüfhinweise.")
+
+    result = ctx["result"]
+    market = ctx.get("market", pd.DataFrame())
+    features = ctx.get("features", pd.DataFrame())
+    news_df = ctx.get("news_df", pd.DataFrame())
+
+    ws_render_snapshot_metrics(ctx)
+
+    st.subheader("Systemstatus")
+
+    c1, c2, c3, c4 = st.columns(4)
+    c1.metric("Marktdaten", "aktiv" if market is not None and not market.empty else "fehlt")
+    c2.metric("Features", "aktiv" if features is not None and not features.empty else "fehlt")
+    c3.metric("News", getattr(result, "news_source", "unbekannt"))
+    c4.metric("Aktuelle Seite", st.session_state.get("current_page", "Start"))
+
+    required_cols = [
+        "date",
+        "ticker",
+        "close",
+        "daily_return",
+        "ma_20",
+        "ma_50",
+        "ma_200",
+        "volatility_20d",
+        "drawdown",
+        "target_20d",
+    ]
+
+    status_rows = []
+    for col in required_cols:
+        status_rows.append(
+            {
+                "Prüfung": col,
+                "Status": "OK" if features is not None and col in features.columns else "fehlt",
+            }
+        )
+
+    st.dataframe(pd.DataFrame(status_rows), width="stretch", hide_index=True)
+
+    tab1, tab2, tab3 = st.tabs(["Session", "Datenprüfung", "Debug"])
+
+    with tab1:
+        safe_session = {
+            k: str(v)
+            for k, v in st.session_state.items()
+            if k not in {"chat_messages", "ws_chat_messages"}
+        }
+        st.json(safe_session)
+
+    with tab2:
+        with st.status("Statusprüfung", expanded=True) as status:
+            if market is not None and not market.empty:
+                st.write("Marktdaten geladen.")
+            else:
+                st.write("Marktdaten fehlen.")
+
+            if features is not None and not features.empty:
+                st.write("Feature-Daten geladen.")
+            else:
+                st.write("Feature-Daten fehlen.")
+
+            if news_df is not None and not news_df.empty:
+                st.write("News-Daten verfügbar.")
+            else:
+                st.write("News-Daten leer oder nicht geladen.")
+
+            status.update(label="Prüfung abgeschlossen", state="complete")
+
+    with tab3:
+        st.caption("Technische Debug-Ansicht für lokale Entwicklung.")
+        st.json(
+            {
+                "ticker": getattr(result, "ticker", ""),
+                "source": getattr(result, "source", ""),
+                "news_source": getattr(result, "news_source", ""),
+                "outlook": getattr(result, "outlook", ""),
+                "risk_label": getattr(result, "risk_label", ""),
+                "confidence": getattr(result, "confidence", ""),
+            }
+        )
+
+
 def main() -> None:
     init_state()
 
@@ -2092,6 +3086,7 @@ def main() -> None:
 
     render_data_badge(market_df)
     route_page(st.session_state.get("current_page", "Start"), ctx)
+    render_floating_assistant_panel(ctx)
     render_bottom_bar()
 
 
