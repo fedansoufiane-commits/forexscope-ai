@@ -1,4 +1,5 @@
 from __future__ import annotations
+import base64
 
 import io
 import json
@@ -32,6 +33,15 @@ st.set_page_config(
         "About": "WealthScope AI – lokale wissenschaftliche Demo-Anwendung. Keine Finanzberatung.",
     },
 )
+
+st.logo(
+    "assets/wealthscope_logo.svg",
+    size="large",
+    icon_image="assets/wealthscope_icon.svg",
+)
+
+
+
 
 
 # =========================================================
@@ -192,7 +202,7 @@ def qp_get(key: str, default: str) -> str:
 def init_state() -> None:
     page = urllib.parse.unquote_plus(qp_get("page", "Start"))
     theme = "Light Mode"  # Theme nativ über Streamlit Settings
-    view = urllib.parse.unquote_plus(qp_get("view", "Geführte Ansicht"))
+    view = "Geführte Ansicht"
 
     if page not in ALL_PAGES:
         page = "Start"
@@ -251,7 +261,7 @@ def href(page_name: str) -> str:
 def sync_url() -> None:
     st.query_params["page"] = st.session_state.get("current_page", "Start")
     # Theme wird nativ über Streamlit Settings gesteuert, nicht über URL.
-    st.query_params["view"] = st.session_state.get("app_mode", "Geführte Ansicht")
+    st.query_params["view"] = "Geführte Ansicht"
 
 
 def route_to(page_name: str) -> None:
@@ -522,6 +532,7 @@ def fetch_real_newsapi(query: str, api_key: str, language: str = "en", page_size
             "URL": article.get("url") or "",
             "Beschreibung": article.get("description") or "",
             "Content": article.get("content") or "",
+            "Bild": article.get("urlToImage") or "",
         })
 
     return pd.DataFrame(rows), "REAL_NEWSAPI"
@@ -586,6 +597,7 @@ def analyze_real_news_df(news_df: pd.DataFrame, query: str) -> Tuple[pd.DataFram
             "Impact": "Hoch" if abs(score) >= 1.5 else "Mittel",
             "Kurzinterpretation": label,
             "URL": row.get("URL", ""),
+            "Bild": row.get("Bild", ""),
             "Suchlogik": query,
         })
 
@@ -1118,11 +1130,38 @@ def metric_grid(items: List[Tuple[str, str]]) -> None:
 # SIDEBAR
 # =========================================================
 
+
+def render_clickable_sidebar_logo() -> None:
+    logo_path = Path("assets/wealthscope_logo.svg")
+
+    if not logo_path.exists():
+        st.markdown(
+            '<a href="?page=Start&view=Geführte+Ansicht" target="_self" style="text-decoration:none;">'
+            '<strong>💠 WealthScope AI</strong>'
+            '</a>',
+            unsafe_allow_html=True,
+        )
+        return
+
+    encoded_logo = base64.b64encode(logo_path.read_bytes()).decode("utf-8")
+
+    st.markdown(
+        f"""
+        <a href="?page=Start&view=Geführte+Ansicht" target="_self" style="text-decoration:none;">
+            <img
+                src="data:image/svg+xml;base64,{encoded_logo}"
+                alt="WealthScope AI"
+                style="width: 180px; max-width: 100%; height: auto; display: block; margin-bottom: 1rem;"
+            />
+        </a>
+        """,
+        unsafe_allow_html=True,
+    )
+
 def render_sidebar(df: pd.DataFrame) -> Optional[pd.DataFrame]:
     uploaded_df = None
 
     with st.sidebar:
-        st.markdown("### 💠 WealthScope AI")
         st.caption("Analyse-Steuerung für Kapital, Risiko und Portfolio.")
 
         st.divider()
@@ -1217,21 +1256,11 @@ Tolerierter Rückgang: **{money(tolerated_loss)}**
         st.caption("Theme: über Streamlit-Menü oben rechts → Settings → Theme")
 
 
-        view = st.radio(
-            "Analysemodus",
-            ["Geführte Ansicht", "Expertenansicht"],
-            index=0 if st.session_state.get("app_mode") == "Geführte Ansicht" else 1,
-            key="view_radio",
-            horizontal=False,
-        )
-        if view != st.session_state.get("app_mode"):
-            st.session_state["app_mode"] = view
-            sync_url()
-            st.rerun()
+        st.session_state["app_mode"] = "Geführte Ansicht"
+        st.caption("Analysemodus: Geführte Standardansicht")
 
         st.toggle("Rohdaten anzeigen", key="show_raw_data")
         st.toggle("Erklärungen anzeigen", key="show_explanations")
-        st.toggle("Expertenmetriken erweitern", key="show_advanced_metrics")
 
         st.divider()
 
@@ -1364,6 +1393,33 @@ def chart_radar(result: AnalysisResult) -> go.Figure:
     return fig
 
 
+
+def chart_volatility(df: pd.DataFrame, ticker: str) -> go.Figure:
+    d = df[df["ticker"] == ticker].sort_values("date").copy()
+
+    fig = go.Figure()
+
+    if "volatility_20d" in d.columns:
+        fig.add_trace(
+            go.Scatter(
+                x=d["date"],
+                y=d["volatility_20d"],
+                mode="lines",
+                name="20T Volatilität",
+            )
+        )
+
+    fig.update_layout(
+        title=f"{ticker}: Volatilitätsverlauf",
+        hovermode="x unified",
+        yaxis_tickformat=".1%",
+        height=360,
+        margin=dict(l=10, r=10, t=55, b=10),
+        legend=dict(orientation="h"),
+    )
+
+    return fig
+
 def chart_portfolio(capital: float, weight: float, ticker: str) -> go.Figure:
     invested = capital * weight / 100
     cash = capital - invested
@@ -1373,7 +1429,7 @@ def chart_portfolio(capital: float, weight: float, ticker: str) -> go.Figure:
 
 
 def show_chart_with_data(title: str, fig: go.Figure, data: pd.DataFrame, key: str) -> None:
-    st.plotly_chart(fig, theme="streamlit", width="stretch", config={"responsive": True, "displayModeBar": True, "displaylogo": False}, key=key)
+    st.plotly_chart(fig, theme="streamlit", use_container_width=True, config={"responsive": True, "displayModeBar": True, "displaylogo": False}, key=key)
     if st.session_state.get("show_raw_data", True):
         with st.expander(f"Daten hinter dem Diagramm anzeigen: {title}", expanded=False):
             st.dataframe(data, width="stretch", hide_index=True)
@@ -1549,7 +1605,6 @@ def page_start(ctx: Dict[str, Any]) -> None:
             route_to("Professor-Export")
         card("Reproduzierbarkeit", "Downloadbare Daten, Exporte, URL-Zustand und sichtbare Annahmen.")
 
-    st.tabs(["Überblick", "Demo-Ablauf", "Präsentationsnutzen"])
     tab1, tab2, tab3 = st.tabs(["Überblick", "Demo-Ablauf", "Präsentationsnutzen"])
     with tab1:
         st.info("Die Startseite ist bewusst erklärend aufgebaut und zeigt, worum es in der App geht.")
@@ -1588,6 +1643,13 @@ def page_outlook(ctx: Dict[str, Any]) -> None:
             chart_drawdown(df, result.ticker),
             df[["date", "ticker", "close", "drawdown", "volatility_20d"]].tail(600),
             "outlook_drawdown",
+        )
+
+        show_chart_with_data(
+            "Volatilität",
+            chart_volatility(df, result.ticker),
+            df[["date", "ticker", "volatility_20d"]].dropna().tail(600),
+            "outlook_volatility",
         )
     with tab3:
         col1, col2 = st.columns(2)
@@ -1790,6 +1852,57 @@ def page_assistant(ctx: Dict[str, Any]) -> None:
         st.rerun()
 
 
+
+def render_news_cards(news_df: pd.DataFrame, max_items: int = 8) -> None:
+    if news_df.empty:
+        st.info("Keine News für die aktuelle Suchlogik gefunden.")
+        return
+
+    view_df = news_df.head(max_items).copy()
+
+    for idx, row in view_df.iterrows():
+        title = str(row.get("Titel", "") or "Ohne Titel")
+        source = str(row.get("Quelle", "") or "Unbekannte Quelle")
+        date = str(row.get("Datum", "") or "")
+        desc = str(row.get("Beschreibung", "") or "")
+        sentiment = row.get("Sentiment", "")
+        relevance = str(row.get("Relevanz", "") or "")
+        impact = str(row.get("Impact", "") or "")
+        interpretation = str(row.get("Kurzinterpretation", "") or "")
+        url = str(row.get("URL", "") or "")
+        image_url = str(row.get("Bild", "") or "")
+
+        with st.container(border=True):
+            left, right = st.columns([1, 3], vertical_alignment="top")
+
+            with left:
+                if image_url.startswith("http"):
+                    st.image(image_url, width="stretch")
+                else:
+                    st.caption("Kein Bild verfügbar")
+
+            with right:
+                st.subheader(title)
+                st.caption(f"{source} · {date}")
+
+                c1, c2, c3 = st.columns(3)
+                c1.metric("Sentiment", sentiment)
+                c2.metric("Relevanz", relevance)
+                c3.metric("Impact", impact)
+
+                if desc:
+                    st.write(desc)
+
+                if interpretation:
+                    st.caption(f"Einordnung: {interpretation}")
+
+                if url.startswith("http"):
+                    st.link_button("Artikel öffnen", url, width="stretch")
+
+                with st.expander("Details anzeigen"):
+                    st.write("Suchlogik:", row.get("Suchlogik", ""))
+                    st.write("URL:", url)
+
 def page_news(ctx: Dict[str, Any]) -> None:
     result = ctx["result"]
 
@@ -1825,7 +1938,11 @@ def page_news(ctx: Dict[str, Any]) -> None:
 
     st.markdown(f"**Aktive Suchlogik:** `{query}`")
     st.markdown(f"**News Intelligence:** {news_label} · Score: `{round(news_score, 2)}` · Quelle: `{news_source}`")
-    st.dataframe(news_df, width="stretch", hide_index=True)
+
+    render_news_cards(news_df)
+
+    with st.expander("Rohdaten der News anzeigen"):
+        st.dataframe(news_df, width="stretch", hide_index=True)
 
     st.download_button(
         "News-Auswertung als CSV herunterladen",
