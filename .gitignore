@@ -22,3 +22,14 @@ app_forex_backup.py
 # Local backups
 app_before_design_cleanup.py
 app_forex_backup.py
+
+# Local backup files
+app_backup_*.py
+app_max_backup_*.py
+app_max_before_*.py
+app_max_current_*.py
+app_max_try.py
+styles/*backup*.css
+
+# Streamlit secrets
+.streamlit/secrets.toml
