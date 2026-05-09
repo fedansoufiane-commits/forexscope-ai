@@ -191,13 +191,13 @@ def qp_get(key: str, default: str) -> str:
 
 def init_state() -> None:
     page = urllib.parse.unquote_plus(qp_get("page", "Start"))
-    theme = urllib.parse.unquote_plus(qp_get("theme", "Dark Mode"))
+    theme = "Light Mode"  # Theme nativ über Streamlit Settings
     view = urllib.parse.unquote_plus(qp_get("view", "Geführte Ansicht"))
 
     if page not in ALL_PAGES:
         page = "Start"
     if theme not in ["Dark Mode", "Light Mode"]:
-        theme = "Dark Mode"
+        theme = "Light Mode"
     if view not in ["Geführte Ansicht", "Expertenansicht"]:
         view = "Geführte Ansicht"
 
@@ -240,18 +240,17 @@ def init_state() -> None:
 
 
 def href(page_name: str) -> str:
-    theme = st.session_state.get("theme_mode", "Dark Mode")
+    theme = st.session_state.get("theme_mode", "Light Mode")
     view = st.session_state.get("app_mode", "Geführte Ansicht")
     return (
         "/?page=" + urllib.parse.quote_plus(page_name)
-        + "&theme=" + urllib.parse.quote_plus(theme)
         + "&view=" + urllib.parse.quote_plus(view)
     )
 
 
 def sync_url() -> None:
     st.query_params["page"] = st.session_state.get("current_page", "Start")
-    st.query_params["theme"] = st.session_state.get("theme_mode", "Dark Mode")
+    # Theme wird nativ über Streamlit Settings gesteuert, nicht über URL.
     st.query_params["view"] = st.session_state.get("app_mode", "Geführte Ansicht")
 
 
@@ -920,156 +919,28 @@ def pct(value: float) -> str:
 # STYLE + STRUCTURE
 # =========================================================
 
-def inject_css(theme_mode: str) -> None:
-    marker = "theme-light" if theme_mode == "Light Mode" else "theme-dark"
-    st.markdown(f'<div class="{marker}"></div>', unsafe_allow_html=True)
-
+def inject_css(theme_mode: str = "Light Mode") -> None:
+    """
+    Minimaler CSS-Hook.
+    Streamlit übernimmt Theme/Light/Dark nativ.
+    Custom CSS nur für Footer-Abstand und kleine Stabilisierung.
+    """
     st.markdown(
         """
 <style>
-:root {
-    --ws-bg: #070b16;
-    --ws-panel: rgba(20, 27, 44, 0.82);
-    --ws-card: rgba(25, 33, 52, 0.88);
-    --ws-text: rgba(248, 250, 252, 0.96);
-    --ws-muted: rgba(203, 213, 225, 0.76);
-    --ws-border: rgba(148, 163, 184, 0.18);
-    --ws-green: #22c55e;
-    --ws-indigo: #6366f1;
-    --ws-red: #ff4b55;
-}
-
-.stApp {
-    color: var(--ws-text);
-    background:
-        radial-gradient(circle at 10% 0%, rgba(34,197,94,0.08), transparent 26%),
-        radial-gradient(circle at 90% 0%, rgba(99,102,241,0.12), transparent 34%),
-        linear-gradient(135deg, #050814 0%, #0b1020 54%, #100b1d 100%) !important;
-}
-
-.stApp:has(.theme-light) {
-    color: #0f172a;
-    background:
-        radial-gradient(circle at 10% 0%, rgba(34,197,94,0.08), transparent 28%),
-        radial-gradient(circle at 90% 0%, rgba(99,102,241,0.10), transparent 34%),
-        linear-gradient(135deg, #f8fafc 0%, #eef4ff 55%, #f8fafc 100%) !important;
-}
-
 main .block-container {
-    max-width: 1180px !important;
-    padding-top: 7.4rem !important;
-    padding-bottom: 7.8rem !important;
+    padding-bottom: 8rem !important;
 }
-
-
-
-.stApp:has(.theme-light) 
-
-
-
-section[data-testid="stSidebar"] [role="radiogroup"] {
-    padding: 0.58rem 0.65rem !important;
-    border-radius: 18px !important;
-    background: rgba(15,23,42,0.34) !important;
-    border: 1px solid rgba(148,163,184,0.14) !important;
-}
-
-.stApp:has(.theme-light) section[data-testid="stSidebar"] [role="radiogroup"] {
-    background: rgba(255,255,255,0.76) !important;
-    border: 1px solid rgba(15,23,42,0.09) !important;
-}
-
-@media (max-width: 1180px) {
-    .ws-header {
-        grid-template-columns: 230px 1fr !important;
-        min-height: 92px !important;
-    }
-    .ws-header-status {
-        display: none !important;
-    }
-    main .block-container {
-        padding-top: 9.3rem !important;
-    }
-    
-    .ws-metric-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-    }
-}
-
-@media (max-width: 860px) {
-    .ws-header {
-        grid-template-columns: 1fr !important;
-        left: 0.6rem !important;
-        right: 0.6rem !important;
-        min-height: 118px !important;
-        justify-items: center !important;
-    }
-    main .block-container {
-        padding-top: 11.2rem !important;
-    }
-    
-    .ws-metric-grid {
-        grid-template-columns: 1fr !important;
-    }
-}
-
-
-/* =========================================================
-   NATIVE STREAMLIT SIDEBAR RESTORE
-   Sidebar bleibt native, einklappbar und sauber sichtbar.
-   ========================================================= */
-
-section[data-testid="stSidebar"] {
-    background:
-        radial-gradient(circle at 50% 0%, rgba(99,102,241,0.08), transparent 35%),
-        rgba(2, 6, 23, 0.88) !important;
-    border-right: 1px solid rgba(148,163,184,0.14) !important;
-}
-
-section[data-testid="stSidebar"] > div:first-child {
-    padding-top: 1.1rem !important;
-    padding-left: 1rem !important;
-    padding-right: 1rem !important;
-    padding-bottom: 7rem !important;
-}
-
-.stApp:has(.theme-light) section[data-testid="stSidebar"] {
-    background:
-        radial-gradient(circle at 50% 0%, rgba(99,102,241,0.08), transparent 35%),
-        rgba(248,250,252,0.96) !important;
-    border-right: 1px solid rgba(15,23,42,0.10) !important;
-}
-
-/* Header bleibt im normalen Main-Bereich, nicht über der Sidebar */
-.ws-header {
-    left: 1rem !important;
-    right: 1rem !important;
-}
-
-/* BottomBar bleibt volle Breite und überdeckt nicht die Sidebar-Logik */
-.ws-bottom {
-    left: 0 !important;
-    width: 100% !important;
-}
-
-/* Hauptcontent bekommt genug Abstand zum Header */
-main .block-container {
-    padding-top: 7.8rem !important;
-}
-
-/* Collapse-Button nicht aggressiv stylen. Streamlit darf ihn selbst platzieren. */
-
 </style>
         """,
         unsafe_allow_html=True,
     )
 
-
 def render_header() -> None:
     current = st.session_state.get("current_page", "Start")
-    theme = st.session_state.get("theme_mode", "Dark Mode")
+    theme = st.session_state.get("theme_mode", "Light Mode")
     view = st.session_state.get("app_mode", "Geführte Ansicht")
-    theme_short = "Dark" if theme == "Dark Mode" else "Light"
+    theme_short = "Native"
     view_short = "Geführt" if view == "Geführte Ansicht" else "Experte"
 
     nav = ""
@@ -1097,30 +968,130 @@ def render_header() -> None:
 
 
 def render_bottom_bar() -> None:
-    current = st.session_state.get("current_page", "Start")
-    links = ""
-    for page in SERVICE_PAGES:
-        active = " active" if current == page else ""
-        links += (
-            f'<a class="ws-bottom-link{active}" href="{href(page)}" target="_self">'
-            f'<span>{PAGE_ICONS[page]}</span><span>{PAGE_LABELS[page]}</span></a>'
+    from urllib.parse import quote_plus
+    from datetime import datetime
+
+    view = st.session_state.get("app_mode", "Geführte Ansicht")
+    current_page = st.session_state.get("current_page", "Start")
+
+    items = [
+        ("📰", "News", "News-Archiv"),
+        ("📖", "Methodik", "So funktioniert's"),
+        ("🎓", "Projekt", "Über das Projekt"),
+        ("📦", "Export", "Professor-Export"),
+        ("⚖️", "Impressum", "Impressum"),
+        ("🛡️", "Datenschutz", "Datenschutz"),
+        ("🟢", "Status", "Betriebsstatus"),
+    ]
+
+    links = []
+    for icon, label, page_name in items:
+        active = " active" if page_name == current_page else ""
+        href = f"/?page={quote_plus(page_name)}&view={quote_plus(view)}"
+        links.append(
+            f"<a class='ws-native-footer-link{active}' href='{href}' target='_self'>"
+            f"<span class='ws-native-footer-icon'>{icon}</span>"
+            f"<span>{label}</span>"
+            f"</a>"
         )
 
-    st.markdown(
-        f"""
-<div class="ws-bottom">
-    <div class="ws-bottom-links">{links}</div>
-    <div class="ws-bottom-meta">
-        <span>Marktdaten: <b>Aktuell</b></span>
-        <span>News: <b>Mittel</b></span>
-        <span>Check: <b>{datetime.now().strftime("%H:%M")}</b></span>
-        <span>Version: <b>{APP_VERSION}</b></span>
+    checked = datetime.now().strftime("%H:%M")
+
+    html = f"""
+<style>
+main .block-container {{
+    padding-bottom: 8rem !important;
+}}
+
+.ws-native-footer {{
+    position: fixed !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    z-index: 999999 !important;
+    padding: 0.70rem 1.2rem 0.55rem !important;
+    background: color-mix(in srgb, var(--st-background-color) 90%, transparent) !important;
+    border-top: 1px solid var(--st-border-color) !important;
+    box-shadow: 0 -16px 38px rgba(15, 23, 42, 0.10) !important;
+    backdrop-filter: blur(18px) !important;
+    -webkit-backdrop-filter: blur(18px) !important;
+}}
+
+.ws-native-footer-inner {{
+    max-width: 1180px !important;
+    margin: 0 auto !important;
+}}
+
+.ws-native-footer-links {{
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    flex-wrap: wrap !important;
+    gap: 0.55rem !important;
+}}
+
+.ws-native-footer-link {{
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 0.38rem !important;
+    min-height: 38px !important;
+    padding: 0.42rem 0.82rem !important;
+    border-radius: 999px !important;
+    color: var(--st-text-color) !important;
+    text-decoration: none !important;
+    font-weight: 750 !important;
+    font-size: 0.82rem !important;
+    background: var(--st-secondary-background-color) !important;
+    border: 1px solid var(--st-border-color) !important;
+}}
+
+.ws-native-footer-link:hover,
+.ws-native-footer-link.active {{
+    border-color: var(--st-primary-color) !important;
+    color: var(--st-primary-color) !important;
+}}
+
+.ws-native-footer-icon {{
+    width: 24px !important;
+    height: 24px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    border-radius: 999px !important;
+    background: color-mix(in srgb, var(--st-primary-color) 14%, transparent) !important;
+}}
+
+.ws-native-footer-meta {{
+    margin-top: 0.35rem !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    flex-wrap: wrap !important;
+    gap: 0.80rem !important;
+    font-size: 0.72rem !important;
+    color: var(--st-text-color) !important;
+    opacity: 0.78 !important;
+    font-weight: 650 !important;
+}}
+</style>
+
+<div class="ws-native-footer">
+    <div class="ws-native-footer-inner">
+        <div class="ws-native-footer-links">
+            {''.join(links)}
+        </div>
+        <div class="ws-native-footer-meta">
+            <span>Marktdaten: <b>Aktuell</b></span>
+            <span>News: <b>Mittel</b></span>
+            <span>Check: <b>{checked}</b></span>
+            <span>Version: <b>2.0-max</b></span>
+        </div>
     </div>
 </div>
-        """,
-        unsafe_allow_html=True,
-    )
+"""
 
+    st.markdown(html, unsafe_allow_html=True)
 
 def card(title: str, body: str, hero: bool = False) -> None:
     hero_class = " ws-hero" if hero else ""
@@ -1243,18 +1214,8 @@ Tolerierter Rückgang: **{money(tolerated_loss)}**
         st.divider()
 
         st.caption("DARSTELLUNG")
+        st.caption("Theme: über Streamlit-Menü oben rechts → Settings → Theme")
 
-        theme = st.radio(
-            "Theme",
-            ["Dark Mode", "Light Mode"],
-            index=0 if st.session_state.get("theme_mode") == "Dark Mode" else 1,
-            key="theme_radio",
-            horizontal=False,
-        )
-        if theme != st.session_state.get("theme_mode"):
-            st.session_state["theme_mode"] = theme
-            sync_url()
-            st.rerun()
 
         view = st.radio(
             "Analysemodus",
@@ -1412,7 +1373,7 @@ def chart_portfolio(capital: float, weight: float, ticker: str) -> go.Figure:
 
 
 def show_chart_with_data(title: str, fig: go.Figure, data: pd.DataFrame, key: str) -> None:
-    st.plotly_chart(fig, width="stretch", key=key)
+    st.plotly_chart(fig, theme="streamlit", config={"responsive": True, "displaylogo": False}, key=key)
     if st.session_state.get("show_raw_data", True):
         with st.expander(f"Daten hinter dem Diagramm anzeigen: {title}", expanded=False):
             st.dataframe(data, width="stretch", hide_index=True)
@@ -2103,9 +2064,8 @@ def main() -> None:
     init_state()
 
     # Layout zuerst
-    inject_css(st.session_state.get("theme_mode", "Dark Mode"))
-    render_header()
-
+    inject_css()
+    # render_header() deaktiviert: kaputte Top-Linkzeile
     # Daten zuerst lokal laden, dann optional Upload aus Sidebar übernehmen.
     base_df = load_local_market_data()
     uploaded_df = render_sidebar(base_df)
