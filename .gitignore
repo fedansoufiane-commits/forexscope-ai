@@ -43,3 +43,8 @@ data/external/
 # data/processed/*.csv
 # Duplicate processed CSV exports
 data/processed/*.csv
+# Local backups and generated models
+models/
+*.joblib
+.streamlit/config_before_*.toml
+.streamlit/config_invalid_*.toml
