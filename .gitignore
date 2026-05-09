@@ -1,43 +1,45 @@
-.streamlit/secrets.toml
-.streamlit/
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+.venv/
+venv/
+env/
+ENV/
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
 
-# Large local datasets
-data/raw/
-data/processed/*.csv
-
-# Local model artifacts
-models/*.joblib
-models/*.pkl
-
-# macOS
+# macOS / IDE
 .DS_Store
-
-# Local decision journal
-data/journal/
-
-# Local backups
-app_before_design_cleanup.py
-app_forex_backup.py
-
-# Local backups
-app_before_design_cleanup.py
-app_forex_backup.py
-
-# Local backup files
-app_backup_*.py
-app_max_backup_*.py
-app_max_before_*.py
-app_max_current_*.py
-app_max_try.py
-styles/*backup*.css
-
+.vscode/
+.idea/
 # Streamlit secrets
 .streamlit/secrets.toml
-
-# Local recovery / backup files
+# Jupyter
+.ipynb_checkpoints/
+# Local backups / recovery
+backups/
+backup*/
 app_max_before_*.py
 app_max_broken_*.py
 app_max_broken_line1_*.py
+app_max_broken_literal_newlines_*.py
 backups_cleanup_*/
 styles/*_before_*.css
 styles/*_broken_*.css
+# Logs / temp
+*.log
+*.tmp
+*.bak
+# Raw large datasets
+data/raw/
+data/external/
+*.zip
+# Keep processed model-ready dataset, ignore duplicate CSV if desired
+# data/processed/*.csv
+# Duplicate processed CSV exports
+data/processed/*.csv
