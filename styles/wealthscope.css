@@ -280,3 +280,4205 @@ div[data-baseweb="input"] > div {
     border-radius: 18px !important;
 }
 
+
+/* =========================================================
+   Native Streamlit Sidebar Toggle nach oben links verschieben
+   ========================================================= */
+
+/* Aktueller Streamlit Collapse Button */
+button[data-testid="stSidebarCollapseButton"],
+div[data-testid="stSidebarCollapseButton"] button,
+div[data-testid="stSidebarCollapseButton"] {
+    position: fixed !important;
+    top: 5.8rem !important;
+    left: 1.15rem !important;
+    z-index: 999999 !important;
+
+    width: 42px !important;
+    height: 42px !important;
+    border-radius: 999px !important;
+
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+
+    background: rgba(15, 23, 42, 0.72) !important;
+    border: 1px solid rgba(148, 163, 184, 0.28) !important;
+    box-shadow: 0 14px 35px rgba(0, 0, 0, 0.22) !important;
+    backdrop-filter: blur(16px) !important;
+}
+
+/* Falls Streamlit ältere/andere Test-ID nutzt */
+button[data-testid="collapsedControl"],
+div[data-testid="collapsedControl"] button,
+div[data-testid="collapsedControl"] {
+    position: fixed !important;
+    top: 5.8rem !important;
+    left: 1.15rem !important;
+    z-index: 999999 !important;
+
+    width: 42px !important;
+    height: 42px !important;
+    border-radius: 999px !important;
+
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+
+    background: rgba(15, 23, 42, 0.72) !important;
+    border: 1px solid rgba(148, 163, 184, 0.28) !important;
+    box-shadow: 0 14px 35px rgba(0, 0, 0, 0.22) !important;
+    backdrop-filter: blur(16px) !important;
+}
+
+/* Light Mode */
+.stApp:has(.theme-light) button[data-testid="stSidebarCollapseButton"],
+.stApp:has(.theme-light) div[data-testid="stSidebarCollapseButton"] button,
+.stApp:has(.theme-light) div[data-testid="stSidebarCollapseButton"],
+.stApp:has(.theme-light) button[data-testid="collapsedControl"],
+.stApp:has(.theme-light) div[data-testid="collapsedControl"] button,
+.stApp:has(.theme-light) div[data-testid="collapsedControl"] {
+    background: rgba(255, 255, 255, 0.78) !important;
+    border: 1px solid rgba(15, 23, 42, 0.12) !important;
+    box-shadow: 0 14px 35px rgba(15, 23, 42, 0.12) !important;
+}
+
+/* Sidebar-Inhalt bekommt oben etwas Platz, damit der Button nicht in den Inhalt drückt */
+section[data-testid="stSidebar"] [data-testid="stSidebarContent"] {
+    padding-top: 4.4rem !important;
+}
+
+
+/* =========================================================
+   FINAL FIX: Sidebar Toggle sauber oben links
+   ========================================================= */
+
+/* Native Sidebar-Collapse-Button aus dem Inhalt herausziehen */
+button[data-testid="stSidebarCollapseButton"],
+div[data-testid="stSidebarCollapseButton"],
+div[data-testid="stSidebarCollapseButton"] button,
+button[data-testid="collapsedControl"],
+div[data-testid="collapsedControl"],
+div[data-testid="collapsedControl"] button {
+    position: fixed !important;
+    top: 0.95rem !important;
+    left: 0.95rem !important;
+    z-index: 999999 !important;
+
+    width: 38px !important;
+    height: 38px !important;
+    min-width: 38px !important;
+    min-height: 38px !important;
+
+    border-radius: 999px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+
+    background: rgba(15, 23, 42, 0.76) !important;
+    color: rgba(248, 250, 252, 0.94) !important;
+    border: 1px solid rgba(148, 163, 184, 0.28) !important;
+    box-shadow: 0 14px 36px rgba(0, 0, 0, 0.22) !important;
+    backdrop-filter: blur(16px) !important;
+}
+
+/* Light Mode Variante */
+.stApp:has(.theme-light) button[data-testid="stSidebarCollapseButton"],
+.stApp:has(.theme-light) div[data-testid="stSidebarCollapseButton"],
+.stApp:has(.theme-light) div[data-testid="stSidebarCollapseButton"] button,
+.stApp:has(.theme-light) button[data-testid="collapsedControl"],
+.stApp:has(.theme-light) div[data-testid="collapsedControl"],
+.stApp:has(.theme-light) div[data-testid="collapsedControl"] button {
+    background: rgba(255, 255, 255, 0.88) !important;
+    color: rgba(15, 23, 42, 0.92) !important;
+    border: 1px solid rgba(15, 23, 42, 0.12) !important;
+    box-shadow: 0 14px 36px rgba(15, 23, 42, 0.12) !important;
+}
+
+/* Sidebar-Inhalt deutlich unter dem Button starten lassen */
+section[data-testid="stSidebar"] [data-testid="stSidebarContent"] {
+    padding-top: 5.6rem !important;
+}
+
+/* Brand-Card bekommt Abstand, damit der Toggle nicht hineinragt */
+.sidebar-home-link {
+    margin-top: 0.2rem !important;
+}
+
+/* Verhindert, dass alte runde Ghost-Buttons sichtbar bleiben */
+section[data-testid="stSidebar"] button[kind="secondary"]:empty,
+section[data-testid="stSidebar"] button:empty {
+    display: none !important;
+}
+
+/* Falls ein leerer Streamlit-Button mit nur Icon-Kreis bleibt: kleiner und transparent */
+section[data-testid="stSidebar"] .stButton:has(button:empty) {
+    display: none !important;
+}
+
+
+/* =========================================================
+   FINAL SIDEBAR CLEANUP – harmonisch, ruhig, keine Ghost-Kreise
+   ========================================================= */
+
+/* Ghost-Kreis oben links ausblenden, aber echten Toggle sichtbar lassen */
+section[data-testid="stSidebar"] > div:first-child button:not([data-testid="stSidebarCollapseButton"]),
+section[data-testid="stSidebar"] button:empty,
+section[data-testid="stSidebar"] .stButton:has(button:empty) {
+    display: none !important;
+}
+
+/* Native Toggle kleiner und an eine ruhige Position */
+button[data-testid="stSidebarCollapseButton"],
+div[data-testid="stSidebarCollapseButton"],
+div[data-testid="stSidebarCollapseButton"] button,
+button[data-testid="collapsedControl"],
+div[data-testid="collapsedControl"],
+div[data-testid="collapsedControl"] button {
+    position: fixed !important;
+    top: 1.05rem !important;
+    left: 1.05rem !important;
+    z-index: 999999 !important;
+
+    width: 34px !important;
+    height: 34px !important;
+    min-width: 34px !important;
+    min-height: 34px !important;
+
+    border-radius: 999px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+
+    background: rgba(15, 23, 42, 0.72) !important;
+    color: rgba(248, 250, 252, 0.94) !important;
+    border: 1px solid rgba(148, 163, 184, 0.24) !important;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.18) !important;
+    backdrop-filter: blur(16px) !important;
+}
+
+/* Sidebar insgesamt weicher */
+section[data-testid="stSidebar"] {
+    border-right: 1px solid rgba(148, 163, 184, 0.18) !important;
+}
+
+section[data-testid="stSidebar"] [data-testid="stSidebarContent"] {
+    padding: 4.6rem 1.05rem 6rem 1.05rem !important;
+}
+
+/* Brand Card schlanker und eleganter */
+.sidebar-home-link {
+    text-decoration: none !important;
+    display: block !important;
+    margin: 0 0 1.35rem 0 !important;
+}
+
+.sidebar-brand-card {
+    border-radius: 24px !important;
+    padding: 1.2rem 1.05rem !important;
+    border: 1px solid rgba(148, 163, 184, 0.18) !important;
+    background:
+        radial-gradient(circle at top left, rgba(94, 129, 255, 0.16), transparent 42%),
+        rgba(148, 163, 184, 0.07) !important;
+    box-shadow: 0 18px 45px rgba(0, 0, 0, 0.10) !important;
+    backdrop-filter: blur(18px) !important;
+}
+
+.sidebar-brand-title {
+    font-size: 1.32rem !important;
+    font-weight: 950 !important;
+    letter-spacing: -0.045em !important;
+    margin-bottom: 0.75rem !important;
+}
+
+.sidebar-brand-subtitle {
+    font-size: 0.92rem !important;
+    line-height: 1.55 !important;
+    opacity: 0.76 !important;
+}
+
+/* Labels */
+.sidebar-section-label {
+    margin: 1.15rem 0 0.45rem 0.35rem !important;
+    font-size: 0.72rem !important;
+    font-weight: 900 !important;
+    letter-spacing: 0.12em !important;
+    text-transform: uppercase !important;
+    opacity: 0.58 !important;
+}
+
+/* Radio-Gruppen kompakter */
+section[data-testid="stSidebar"] [role="radiogroup"] {
+    border-radius: 22px !important;
+    padding: 0.62rem 0.78rem !important;
+    border: 1px solid rgba(148, 163, 184, 0.16) !important;
+    background: rgba(148, 163, 184, 0.07) !important;
+    box-shadow: 0 14px 34px rgba(0, 0, 0, 0.08) !important;
+}
+
+/* State Box harmonischer */
+.sidebar-state-box,
+.sidebar-help-box {
+    border-radius: 22px !important;
+    padding: 0.95rem 1rem !important;
+    margin: 1rem 0 !important;
+    border: 1px solid rgba(148, 163, 184, 0.16) !important;
+    background: rgba(148, 163, 184, 0.07) !important;
+    box-shadow: 0 14px 34px rgba(0, 0, 0, 0.08) !important;
+    backdrop-filter: blur(16px) !important;
+}
+
+/* Navigation Buttons ruhiger */
+section[data-testid="stSidebar"] .stButton > button {
+    min-height: 44px !important;
+    border-radius: 18px !important;
+    justify-content: flex-start !important;
+    font-weight: 850 !important;
+    border: 1px solid rgba(148, 163, 184, 0.15) !important;
+    background: rgba(148, 163, 184, 0.055) !important;
+    box-shadow: none !important;
+}
+
+section[data-testid="stSidebar"] .stButton > button:hover {
+    background: rgba(94, 129, 255, 0.13) !important;
+    border-color: rgba(94, 129, 255, 0.32) !important;
+}
+
+/* Light Mode */
+.stApp:has(.theme-light) button[data-testid="stSidebarCollapseButton"],
+.stApp:has(.theme-light) div[data-testid="stSidebarCollapseButton"],
+.stApp:has(.theme-light) div[data-testid="stSidebarCollapseButton"] button,
+.stApp:has(.theme-light) button[data-testid="collapsedControl"],
+.stApp:has(.theme-light) div[data-testid="collapsedControl"],
+.stApp:has(.theme-light) div[data-testid="collapsedControl"] button {
+    background: rgba(255, 255, 255, 0.86) !important;
+    color: rgba(15, 23, 42, 0.92) !important;
+    border-color: rgba(15, 23, 42, 0.11) !important;
+    box-shadow: 0 12px 30px rgba(15, 23, 42, 0.11) !important;
+}
+
+.stApp:has(.theme-light) .sidebar-brand-card,
+.stApp:has(.theme-light) .sidebar-state-box,
+.stApp:has(.theme-light) .sidebar-help-box,
+.stApp:has(.theme-light) section[data-testid="stSidebar"] [role="radiogroup"],
+.stApp:has(.theme-light) section[data-testid="stSidebar"] .stButton > button {
+    background: rgba(255, 255, 255, 0.72) !important;
+    border-color: rgba(15, 23, 42, 0.10) !important;
+    box-shadow: 0 18px 42px rgba(15, 23, 42, 0.07) !important;
+}
+
+
+/* =========================================================
+   FINAL SIDEBAR RESET – WealthScope AI
+   ========================================================= */
+
+section[data-testid="stSidebar"] {
+    border-right: 1px solid rgba(148, 163, 184, 0.20) !important;
+}
+
+section[data-testid="stSidebar"] [data-testid="stSidebarContent"] {
+    padding: 1.25rem 1rem 6rem 1rem !important;
+}
+
+/* Streamlit Collapse-Button normalisieren */
+button[data-testid="stSidebarCollapseButton"],
+div[data-testid="stSidebarCollapseButton"] button,
+button[data-testid="collapsedControl"],
+div[data-testid="collapsedControl"] button {
+    position: fixed !important;
+    top: 0.95rem !important;
+    left: 0.95rem !important;
+    z-index: 999999 !important;
+
+    width: 34px !important;
+    height: 34px !important;
+    min-width: 34px !important;
+    min-height: 34px !important;
+
+    border-radius: 999px !important;
+    background: rgba(15, 23, 42, 0.82) !important;
+    color: rgba(248, 250, 252, 0.95) !important;
+    border: 1px solid rgba(148, 163, 184, 0.25) !important;
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.22) !important;
+}
+
+/* Ghost-Kreis oben links entfernen */
+section[data-testid="stSidebar"] button:empty,
+section[data-testid="stSidebar"] .stButton:has(button:empty) {
+    display: none !important;
+}
+
+/* Klickbares Logo / Home-Link */
+.ws-sidebar-home {
+    text-decoration: none !important;
+    display: block !important;
+    margin: 3.3rem 0 1.4rem 0 !important;
+}
+
+.ws-sidebar-logo {
+    border-radius: 28px;
+    padding: 1.25rem 1.1rem;
+    text-align: center;
+
+    background:
+        radial-gradient(circle at 50% 0%, rgba(99, 102, 241, 0.18), transparent 48%),
+        rgba(148, 163, 184, 0.075);
+
+    border: 1px solid rgba(148, 163, 184, 0.18);
+    box-shadow: 0 18px 46px rgba(0, 0, 0, 0.12);
+    backdrop-filter: blur(18px);
+}
+
+.ws-logo-mark {
+    width: 42px;
+    height: 42px;
+    margin: 0 auto 0.75rem auto;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 999px;
+    font-size: 1.2rem;
+    font-weight: 900;
+
+    background: rgba(99, 102, 241, 0.16);
+    border: 1px solid rgba(99, 102, 241, 0.32);
+}
+
+.ws-logo-title {
+    font-size: 1.35rem;
+    font-weight: 950;
+    letter-spacing: -0.045em;
+    line-height: 1.05;
+    margin-bottom: 0.75rem;
+}
+
+.ws-logo-subtitle {
+    font-size: 0.9rem;
+    line-height: 1.55;
+    opacity: 0.74;
+}
+
+/* Sidebar Labels */
+.ws-sidebar-label {
+    margin: 1.15rem 0 0.45rem 0.25rem;
+    font-size: 0.72rem;
+    font-weight: 900;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    opacity: 0.58;
+}
+
+/* Radio Cards */
+section[data-testid="stSidebar"] [role="radiogroup"] {
+    border-radius: 22px !important;
+    padding: 0.65rem 0.8rem !important;
+    border: 1px solid rgba(148, 163, 184, 0.16) !important;
+    background: rgba(148, 163, 184, 0.07) !important;
+    box-shadow: 0 14px 34px rgba(0, 0, 0, 0.08) !important;
+}
+
+/* Statusbox */
+.ws-sidebar-state {
+    border-radius: 22px;
+    padding: 0.95rem 1rem;
+    margin: 1rem 0;
+
+    background: rgba(148, 163, 184, 0.07);
+    border: 1px solid rgba(148, 163, 184, 0.16);
+    box-shadow: 0 14px 34px rgba(0, 0, 0, 0.08);
+}
+
+.ws-sidebar-state div {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.75rem;
+    font-size: 0.85rem;
+    line-height: 1.55;
+}
+
+.ws-sidebar-state span {
+    opacity: 0.68;
+}
+
+.ws-sidebar-state b {
+    font-weight: 850;
+}
+
+/* Navigation */
+.ws-sidebar-divider {
+    height: 1px;
+    margin: 1.2rem 0;
+    background: linear-gradient(90deg, transparent, rgba(148, 163, 184, 0.32), transparent);
+}
+
+section[data-testid="stSidebar"] .stButton > button {
+    min-height: 44px !important;
+    border-radius: 18px !important;
+    justify-content: flex-start !important;
+    font-weight: 850 !important;
+
+    background: rgba(148, 163, 184, 0.055) !important;
+    border: 1px solid rgba(148, 163, 184, 0.15) !important;
+    box-shadow: none !important;
+}
+
+section[data-testid="stSidebar"] .stButton > button:hover {
+    background: rgba(99, 102, 241, 0.13) !important;
+    border-color: rgba(99, 102, 241, 0.32) !important;
+}
+
+/* Hinweisbox */
+.ws-sidebar-note {
+    border-radius: 22px;
+    padding: 0.95rem 1rem;
+    margin-top: 1.15rem;
+
+    font-size: 0.85rem;
+    line-height: 1.55;
+    opacity: 0.72;
+
+    background: rgba(148, 163, 184, 0.07);
+    border: 1px solid rgba(148, 163, 184, 0.16);
+}
+
+/* Light Mode */
+.stApp:has(.theme-light) .ws-sidebar-logo,
+.stApp:has(.theme-light) .ws-sidebar-state,
+.stApp:has(.theme-light) .ws-sidebar-note,
+.stApp:has(.theme-light) section[data-testid="stSidebar"] [role="radiogroup"],
+.stApp:has(.theme-light) section[data-testid="stSidebar"] .stButton > button {
+    background: rgba(255, 255, 255, 0.74) !important;
+    border-color: rgba(15, 23, 42, 0.10) !important;
+    box-shadow: 0 18px 42px rgba(15, 23, 42, 0.07) !important;
+}
+
+.stApp:has(.theme-light) button[data-testid="stSidebarCollapseButton"],
+.stApp:has(.theme-light) div[data-testid="stSidebarCollapseButton"] button,
+.stApp:has(.theme-light) button[data-testid="collapsedControl"],
+.stApp:has(.theme-light) div[data-testid="collapsedControl"] button {
+    background: rgba(255, 255, 255, 0.88) !important;
+    color: rgba(15, 23, 42, 0.92) !important;
+    border-color: rgba(15, 23, 42, 0.11) !important;
+    box-shadow: 0 12px 30px rgba(15, 23, 42, 0.11) !important;
+}
+
+
+/* =========================================================
+   FINAL COMPACT SIDEBAR – centered home logo
+   ========================================================= */
+
+/* Sidebar sauber und kompakt */
+section[data-testid="stSidebar"] {
+    border-right: 1px solid rgba(148, 163, 184, 0.18) !important;
+}
+
+section[data-testid="stSidebar"] [data-testid="stSidebarContent"] {
+    padding: 1.1rem 1rem 5.8rem 1rem !important;
+}
+
+/* Alte Branding-Klassen vollständig neutralisieren */
+.sidebar-brand,
+.sidebar-brand-card,
+.sidebar-home-link,
+.ws-sidebar-logo,
+.ws-logo-mark,
+.ws-logo-title,
+.ws-logo-subtitle {
+    display: none !important;
+}
+
+/* Leere/Ghost-Kreise ausblenden */
+section[data-testid="stSidebar"] button:empty,
+section[data-testid="stSidebar"] .stButton:has(button:empty) {
+    display: none !important;
+}
+
+/* Streamlit Collapse Button: klein oben links */
+button[data-testid="stSidebarCollapseButton"],
+div[data-testid="stSidebarCollapseButton"] button,
+button[data-testid="collapsedControl"],
+div[data-testid="collapsedControl"] button {
+    position: fixed !important;
+    top: 0.85rem !important;
+    left: 0.85rem !important;
+    z-index: 999999 !important;
+
+    width: 32px !important;
+    height: 32px !important;
+    min-width: 32px !important;
+    min-height: 32px !important;
+
+    border-radius: 999px !important;
+    background: rgba(15, 23, 42, 0.78) !important;
+    color: rgba(248, 250, 252, 0.94) !important;
+    border: 1px solid rgba(148, 163, 184, 0.24) !important;
+    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.18) !important;
+}
+
+/* Mittiges Logo oben */
+.ws-home-logo-link {
+    text-decoration: none !important;
+    display: block !important;
+    margin: 2.55rem auto 0.9rem auto !important;
+}
+
+.ws-home-logo {
+    width: 100%;
+    border-radius: 26px;
+    padding: 1rem 0.85rem;
+    text-align: center;
+
+    background:
+        radial-gradient(circle at 50% 0%, rgba(99, 102, 241, 0.16), transparent 46%),
+        rgba(148, 163, 184, 0.065);
+
+    border: 1px solid rgba(148, 163, 184, 0.16);
+    box-shadow: 0 16px 38px rgba(0, 0, 0, 0.10);
+    backdrop-filter: blur(18px);
+    transition: transform 0.16s ease, border-color 0.16s ease, background 0.16s ease;
+}
+
+.ws-home-logo:hover {
+    transform: translateY(-1px);
+    border-color: rgba(99, 102, 241, 0.35);
+    background:
+        radial-gradient(circle at 50% 0%, rgba(99, 102, 241, 0.23), transparent 48%),
+        rgba(148, 163, 184, 0.09);
+}
+
+.ws-home-logo-mark {
+    width: 38px;
+    height: 38px;
+    margin: 0 auto 0.55rem auto;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 999px;
+    font-size: 1.05rem;
+    font-weight: 900;
+
+    background: rgba(99, 102, 241, 0.16);
+    border: 1px solid rgba(99, 102, 241, 0.32);
+}
+
+.ws-home-logo-text {
+    font-size: 1.22rem;
+    font-weight: 950;
+    letter-spacing: -0.04em;
+    line-height: 1.05;
+}
+
+/* Claim kleiner, keine große Card */
+.ws-sidebar-claim {
+    margin: 0.2rem 0 1.15rem 0;
+    padding: 0.8rem 0.9rem;
+    border-radius: 18px;
+
+    font-size: 0.88rem;
+    line-height: 1.5;
+    opacity: 0.72;
+
+    background: rgba(148, 163, 184, 0.055);
+    border: 1px solid rgba(148, 163, 184, 0.13);
+}
+
+/* Labels */
+.ws-sidebar-label {
+    margin: 1rem 0 0.42rem 0.25rem !important;
+    font-size: 0.72rem !important;
+    font-weight: 900 !important;
+    letter-spacing: 0.12em !important;
+    text-transform: uppercase !important;
+    opacity: 0.58 !important;
+}
+
+/* Radio-Gruppen weniger klobig */
+section[data-testid="stSidebar"] [role="radiogroup"] {
+    border-radius: 18px !important;
+    padding: 0.48rem 0.65rem !important;
+    border: 1px solid rgba(148, 163, 184, 0.15) !important;
+    background: rgba(148, 163, 184, 0.055) !important;
+    box-shadow: none !important;
+}
+
+/* Status kompakter */
+.ws-sidebar-state-compact {
+    border-radius: 18px;
+    padding: 0.75rem 0.85rem;
+    margin: 0.85rem 0 1rem 0;
+
+    background: rgba(148, 163, 184, 0.055);
+    border: 1px solid rgba(148, 163, 184, 0.13);
+}
+
+.ws-sidebar-state-compact div {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.6rem;
+    font-size: 0.82rem;
+    line-height: 1.5;
+}
+
+.ws-sidebar-state-compact span {
+    opacity: 0.66;
+}
+
+.ws-sidebar-state-compact b {
+    font-weight: 850;
+}
+
+/* Navigation Buttons */
+section[data-testid="stSidebar"] .stButton > button {
+    min-height: 40px !important;
+    border-radius: 15px !important;
+    justify-content: flex-start !important;
+    font-weight: 800 !important;
+    font-size: 0.9rem !important;
+
+    background: rgba(148, 163, 184, 0.045) !important;
+    border: 1px solid rgba(148, 163, 184, 0.13) !important;
+    box-shadow: none !important;
+}
+
+section[data-testid="stSidebar"] .stButton > button:hover {
+    background: rgba(99, 102, 241, 0.12) !important;
+    border-color: rgba(99, 102, 241, 0.30) !important;
+}
+
+/* Hinweis unten kompakt */
+.ws-sidebar-note-compact {
+    margin-top: 1rem;
+    padding: 0.8rem 0.85rem;
+    border-radius: 18px;
+
+    font-size: 0.82rem;
+    line-height: 1.45;
+    opacity: 0.68;
+
+    background: rgba(148, 163, 184, 0.055);
+    border: 1px solid rgba(148, 163, 184, 0.13);
+}
+
+/* Light Mode */
+.stApp:has(.theme-light) .ws-home-logo,
+.stApp:has(.theme-light) .ws-sidebar-claim,
+.stApp:has(.theme-light) .ws-sidebar-state-compact,
+.stApp:has(.theme-light) .ws-sidebar-note-compact,
+.stApp:has(.theme-light) section[data-testid="stSidebar"] [role="radiogroup"],
+.stApp:has(.theme-light) section[data-testid="stSidebar"] .stButton > button {
+    background: rgba(255, 255, 255, 0.72) !important;
+    border-color: rgba(15, 23, 42, 0.09) !important;
+    box-shadow: 0 14px 34px rgba(15, 23, 42, 0.055) !important;
+}
+
+.stApp:has(.theme-light) button[data-testid="stSidebarCollapseButton"],
+.stApp:has(.theme-light) div[data-testid="stSidebarCollapseButton"] button,
+.stApp:has(.theme-light) button[data-testid="collapsedControl"],
+.stApp:has(.theme-light) div[data-testid="collapsedControl"] button {
+    background: rgba(255, 255, 255, 0.88) !important;
+    color: rgba(15, 23, 42, 0.92) !important;
+    border-color: rgba(15, 23, 42, 0.10) !important;
+    box-shadow: 0 10px 26px rgba(15, 23, 42, 0.10) !important;
+}
+
+
+/* =========================================================
+   FINAL OVERRIDE: compact sidebar + visible navigation
+   ========================================================= */
+
+section[data-testid="stSidebar"] {
+    border-right: 1px solid rgba(148, 163, 184, 0.20) !important;
+}
+
+section[data-testid="stSidebar"] [data-testid="stSidebarContent"] {
+    padding: 1rem 0.85rem 5.4rem 0.85rem !important;
+    overflow-y: auto !important;
+}
+
+/* Alte Sidebar-Branding-Reste ausblenden */
+.sidebar-brand,
+.sidebar-brand-card,
+.sidebar-home-link,
+.ws-sidebar-logo,
+.ws-logo-mark,
+.ws-logo-title,
+.ws-logo-subtitle,
+.ws-sidebar-note,
+.ws-sidebar-note-compact {
+    display: none !important;
+}
+
+/* Ghost-Kreise entfernen */
+section[data-testid="stSidebar"] button:empty,
+section[data-testid="stSidebar"] .stButton:has(button:empty) {
+    display: none !important;
+}
+
+/* Collapse Button klein und unauffällig */
+button[data-testid="stSidebarCollapseButton"],
+div[data-testid="stSidebarCollapseButton"] button,
+button[data-testid="collapsedControl"],
+div[data-testid="collapsedControl"] button {
+    position: fixed !important;
+    top: 0.75rem !important;
+    left: 0.75rem !important;
+    z-index: 999999 !important;
+
+    width: 30px !important;
+    height: 30px !important;
+    min-width: 30px !important;
+    min-height: 30px !important;
+
+    border-radius: 999px !important;
+    background: rgba(15, 23, 42, 0.74) !important;
+    color: rgba(248, 250, 252, 0.94) !important;
+    border: 1px solid rgba(148, 163, 184, 0.22) !important;
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.18) !important;
+}
+
+/* Home Logo */
+.ws-home-logo-link {
+    text-decoration: none !important;
+    display: block !important;
+    margin: 2.15rem 0 0.75rem 0 !important;
+}
+
+.ws-home-logo-final {
+    border-radius: 20px !important;
+    padding: 0.85rem 0.7rem !important;
+    text-align: center !important;
+    background: rgba(148, 163, 184, 0.07) !important;
+    border: 1px solid rgba(148, 163, 184, 0.16) !important;
+    box-shadow: none !important;
+}
+
+.ws-home-logo-mark-final {
+    width: 32px !important;
+    height: 32px !important;
+    margin: 0 auto 0.42rem auto !important;
+
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+
+    border-radius: 999px !important;
+    font-size: 0.95rem !important;
+    background: rgba(99, 102, 241, 0.16) !important;
+    border: 1px solid rgba(99, 102, 241, 0.28) !important;
+}
+
+.ws-home-logo-title-final {
+    font-size: 1.03rem !important;
+    font-weight: 950 !important;
+    letter-spacing: -0.04em !important;
+}
+
+/* Claim */
+.ws-sidebar-claim-final {
+    margin: 0 0 0.85rem 0 !important;
+    padding: 0.7rem 0.75rem !important;
+    border-radius: 16px !important;
+    font-size: 0.78rem !important;
+    line-height: 1.45 !important;
+    opacity: 0.72 !important;
+
+    background: rgba(148, 163, 184, 0.045) !important;
+    border: 1px solid rgba(148, 163, 184, 0.12) !important;
+}
+
+/* Labels */
+.ws-sidebar-label-final {
+    margin: 0.85rem 0 0.35rem 0.2rem !important;
+    font-size: 0.66rem !important;
+    font-weight: 900 !important;
+    letter-spacing: 0.12em !important;
+    text-transform: uppercase !important;
+    opacity: 0.62 !important;
+}
+
+/* Radio-Gruppen kompakt */
+section[data-testid="stSidebar"] [role="radiogroup"] {
+    border-radius: 15px !important;
+    padding: 0.42rem 0.55rem !important;
+    border: 1px solid rgba(148, 163, 184, 0.14) !important;
+    background: rgba(148, 163, 184, 0.045) !important;
+    box-shadow: none !important;
+}
+
+/* Radio Text kleiner */
+section[data-testid="stSidebar"] [role="radiogroup"] label {
+    font-size: 0.82rem !important;
+}
+
+/* State Box kompakt */
+.ws-sidebar-state-final {
+    border-radius: 15px !important;
+    padding: 0.62rem 0.68rem !important;
+    margin: 0.75rem 0 0.85rem 0 !important;
+
+    background: rgba(148, 163, 184, 0.045) !important;
+    border: 1px solid rgba(148, 163, 184, 0.12) !important;
+}
+
+.ws-sidebar-state-final div {
+    display: flex !important;
+    justify-content: space-between !important;
+    gap: 0.45rem !important;
+    font-size: 0.72rem !important;
+    line-height: 1.45 !important;
+}
+
+.ws-sidebar-state-final span {
+    opacity: 0.66 !important;
+}
+
+.ws-sidebar-state-final b {
+    font-weight: 850 !important;
+}
+
+/* Navigation sichtbar direkt nach State */
+.ws-nav-label-final {
+    margin-top: 0.85rem !important;
+}
+
+section[data-testid="stSidebar"] .stButton {
+    margin-bottom: 0.35rem !important;
+}
+
+section[data-testid="stSidebar"] .stButton > button {
+    min-height: 36px !important;
+    height: 36px !important;
+    border-radius: 13px !important;
+    justify-content: flex-start !important;
+    font-weight: 800 !important;
+    font-size: 0.78rem !important;
+    padding: 0.35rem 0.65rem !important;
+
+    background: rgba(148, 163, 184, 0.04) !important;
+    border: 1px solid rgba(148, 163, 184, 0.12) !important;
+    box-shadow: none !important;
+}
+
+section[data-testid="stSidebar"] .stButton > button:hover {
+    background: rgba(99, 102, 241, 0.11) !important;
+    border-color: rgba(99, 102, 241, 0.28) !important;
+}
+
+/* Light Mode */
+.stApp:has(.theme-light) .ws-home-logo-final,
+.stApp:has(.theme-light) .ws-sidebar-claim-final,
+.stApp:has(.theme-light) .ws-sidebar-state-final,
+.stApp:has(.theme-light) section[data-testid="stSidebar"] [role="radiogroup"],
+.stApp:has(.theme-light) section[data-testid="stSidebar"] .stButton > button {
+    background: rgba(255, 255, 255, 0.70) !important;
+    border-color: rgba(15, 23, 42, 0.09) !important;
+    box-shadow: none !important;
+}
+
+.stApp:has(.theme-light) button[data-testid="stSidebarCollapseButton"],
+.stApp:has(.theme-light) div[data-testid="stSidebarCollapseButton"] button,
+.stApp:has(.theme-light) button[data-testid="collapsedControl"],
+.stApp:has(.theme-light) div[data-testid="collapsedControl"] button {
+    background: rgba(255, 255, 255, 0.86) !important;
+    color: rgba(15, 23, 42, 0.92) !important;
+    border-color: rgba(15, 23, 42, 0.10) !important;
+    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.10) !important;
+}
+
+
+/* =========================================================
+   FINAL OVERRIDE: compact sidebar + visible navigation
+   ========================================================= */
+
+section[data-testid="stSidebar"] {
+    border-right: 1px solid rgba(148, 163, 184, 0.20) !important;
+}
+
+section[data-testid="stSidebar"] [data-testid="stSidebarContent"] {
+    padding: 1rem 0.85rem 5.4rem 0.85rem !important;
+    overflow-y: auto !important;
+}
+
+/* Alte Sidebar-Branding-Reste ausblenden */
+.sidebar-brand,
+.sidebar-brand-card,
+.sidebar-home-link,
+.ws-sidebar-logo,
+.ws-logo-mark,
+.ws-logo-title,
+.ws-logo-subtitle,
+.ws-sidebar-note,
+.ws-sidebar-note-compact {
+    display: none !important;
+}
+
+/* Ghost-Kreise entfernen */
+section[data-testid="stSidebar"] button:empty,
+section[data-testid="stSidebar"] .stButton:has(button:empty) {
+    display: none !important;
+}
+
+/* Collapse Button klein und unauffällig */
+button[data-testid="stSidebarCollapseButton"],
+div[data-testid="stSidebarCollapseButton"] button,
+button[data-testid="collapsedControl"],
+div[data-testid="collapsedControl"] button {
+    position: fixed !important;
+    top: 0.75rem !important;
+    left: 0.75rem !important;
+    z-index: 999999 !important;
+
+    width: 30px !important;
+    height: 30px !important;
+    min-width: 30px !important;
+    min-height: 30px !important;
+
+    border-radius: 999px !important;
+    background: rgba(15, 23, 42, 0.74) !important;
+    color: rgba(248, 250, 252, 0.94) !important;
+    border: 1px solid rgba(148, 163, 184, 0.22) !important;
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.18) !important;
+}
+
+/* Home Logo */
+.ws-home-logo-link {
+    text-decoration: none !important;
+    display: block !important;
+    margin: 2.15rem 0 0.75rem 0 !important;
+}
+
+.ws-home-logo-final {
+    border-radius: 20px !important;
+    padding: 0.85rem 0.7rem !important;
+    text-align: center !important;
+    background: rgba(148, 163, 184, 0.07) !important;
+    border: 1px solid rgba(148, 163, 184, 0.16) !important;
+    box-shadow: none !important;
+}
+
+.ws-home-logo-mark-final {
+    width: 32px !important;
+    height: 32px !important;
+    margin: 0 auto 0.42rem auto !important;
+
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+
+    border-radius: 999px !important;
+    font-size: 0.95rem !important;
+    background: rgba(99, 102, 241, 0.16) !important;
+    border: 1px solid rgba(99, 102, 241, 0.28) !important;
+}
+
+.ws-home-logo-title-final {
+    font-size: 1.03rem !important;
+    font-weight: 950 !important;
+    letter-spacing: -0.04em !important;
+}
+
+/* Claim */
+.ws-sidebar-claim-final {
+    margin: 0 0 0.85rem 0 !important;
+    padding: 0.7rem 0.75rem !important;
+    border-radius: 16px !important;
+    font-size: 0.78rem !important;
+    line-height: 1.45 !important;
+    opacity: 0.72 !important;
+
+    background: rgba(148, 163, 184, 0.045) !important;
+    border: 1px solid rgba(148, 163, 184, 0.12) !important;
+}
+
+/* Labels */
+.ws-sidebar-label-final {
+    margin: 0.85rem 0 0.35rem 0.2rem !important;
+    font-size: 0.66rem !important;
+    font-weight: 900 !important;
+    letter-spacing: 0.12em !important;
+    text-transform: uppercase !important;
+    opacity: 0.62 !important;
+}
+
+/* Radio-Gruppen kompakt */
+section[data-testid="stSidebar"] [role="radiogroup"] {
+    border-radius: 15px !important;
+    padding: 0.42rem 0.55rem !important;
+    border: 1px solid rgba(148, 163, 184, 0.14) !important;
+    background: rgba(148, 163, 184, 0.045) !important;
+    box-shadow: none !important;
+}
+
+/* Radio Text kleiner */
+section[data-testid="stSidebar"] [role="radiogroup"] label {
+    font-size: 0.82rem !important;
+}
+
+/* State Box kompakt */
+.ws-sidebar-state-final {
+    border-radius: 15px !important;
+    padding: 0.62rem 0.68rem !important;
+    margin: 0.75rem 0 0.85rem 0 !important;
+
+    background: rgba(148, 163, 184, 0.045) !important;
+    border: 1px solid rgba(148, 163, 184, 0.12) !important;
+}
+
+.ws-sidebar-state-final div {
+    display: flex !important;
+    justify-content: space-between !important;
+    gap: 0.45rem !important;
+    font-size: 0.72rem !important;
+    line-height: 1.45 !important;
+}
+
+.ws-sidebar-state-final span {
+    opacity: 0.66 !important;
+}
+
+.ws-sidebar-state-final b {
+    font-weight: 850 !important;
+}
+
+/* Navigation sichtbar direkt nach State */
+.ws-nav-label-final {
+    margin-top: 0.85rem !important;
+}
+
+section[data-testid="stSidebar"] .stButton {
+    margin-bottom: 0.35rem !important;
+}
+
+section[data-testid="stSidebar"] .stButton > button {
+    min-height: 36px !important;
+    height: 36px !important;
+    border-radius: 13px !important;
+    justify-content: flex-start !important;
+    font-weight: 800 !important;
+    font-size: 0.78rem !important;
+    padding: 0.35rem 0.65rem !important;
+
+    background: rgba(148, 163, 184, 0.04) !important;
+    border: 1px solid rgba(148, 163, 184, 0.12) !important;
+    box-shadow: none !important;
+}
+
+section[data-testid="stSidebar"] .stButton > button:hover {
+    background: rgba(99, 102, 241, 0.11) !important;
+    border-color: rgba(99, 102, 241, 0.28) !important;
+}
+
+/* Light Mode */
+.stApp:has(.theme-light) .ws-home-logo-final,
+.stApp:has(.theme-light) .ws-sidebar-claim-final,
+.stApp:has(.theme-light) .ws-sidebar-state-final,
+.stApp:has(.theme-light) section[data-testid="stSidebar"] [role="radiogroup"],
+.stApp:has(.theme-light) section[data-testid="stSidebar"] .stButton > button {
+    background: rgba(255, 255, 255, 0.70) !important;
+    border-color: rgba(15, 23, 42, 0.09) !important;
+    box-shadow: none !important;
+}
+
+.stApp:has(.theme-light) button[data-testid="stSidebarCollapseButton"],
+.stApp:has(.theme-light) div[data-testid="stSidebarCollapseButton"] button,
+.stApp:has(.theme-light) button[data-testid="collapsedControl"],
+.stApp:has(.theme-light) div[data-testid="collapsedControl"] button {
+    background: rgba(255, 255, 255, 0.86) !important;
+    color: rgba(15, 23, 42, 0.92) !important;
+    border-color: rgba(15, 23, 42, 0.10) !important;
+    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.10) !important;
+}
+
+
+/* =========================================================
+   FINAL FIX: sidebar navigation as stable links
+   ========================================================= */
+
+section[data-testid="stSidebar"] [data-testid="stSidebarContent"] {
+    padding: 1rem 0.85rem 5.4rem 0.85rem !important;
+    overflow-y: auto !important;
+}
+
+/* alte / doppelte Branding-Reste ausblenden */
+.sidebar-brand,
+.sidebar-brand-card,
+.sidebar-home-link,
+.ws-sidebar-logo,
+.ws-logo-mark,
+.ws-logo-title,
+.ws-logo-subtitle,
+.ws-sidebar-note,
+.ws-sidebar-note-compact {
+    display: none !important;
+}
+
+/* Ghost-Kreis oben links ausblenden */
+section[data-testid="stSidebar"] button:empty,
+section[data-testid="stSidebar"] .stButton:has(button:empty) {
+    display: none !important;
+}
+
+/* Streamlit Collapse Button dezent */
+button[data-testid="stSidebarCollapseButton"],
+div[data-testid="stSidebarCollapseButton"] button,
+button[data-testid="collapsedControl"],
+div[data-testid="collapsedControl"] button {
+    position: fixed !important;
+    top: 0.75rem !important;
+    left: 0.75rem !important;
+    z-index: 999999 !important;
+    width: 30px !important;
+    height: 30px !important;
+    min-width: 30px !important;
+    min-height: 30px !important;
+    border-radius: 999px !important;
+    background: rgba(15, 23, 42, 0.74) !important;
+    color: rgba(248, 250, 252, 0.94) !important;
+    border: 1px solid rgba(148, 163, 184, 0.22) !important;
+}
+
+/* Logo */
+.ws-home-logo-link {
+    text-decoration: none !important;
+    display: block !important;
+    margin: 2.1rem 0 0.75rem 0 !important;
+}
+
+.ws-home-logo-final {
+    border-radius: 20px !important;
+    padding: 0.85rem 0.7rem !important;
+    text-align: center !important;
+    background: rgba(148, 163, 184, 0.07) !important;
+    border: 1px solid rgba(148, 163, 184, 0.16) !important;
+}
+
+.ws-home-logo-mark-final {
+    width: 32px !important;
+    height: 32px !important;
+    margin: 0 auto 0.42rem auto !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    border-radius: 999px !important;
+    font-size: 0.95rem !important;
+    background: rgba(99, 102, 241, 0.16) !important;
+    border: 1px solid rgba(99, 102, 241, 0.28) !important;
+}
+
+.ws-home-logo-title-final {
+    font-size: 1.03rem !important;
+    font-weight: 950 !important;
+    letter-spacing: -0.04em !important;
+}
+
+/* Claim */
+.ws-sidebar-claim-final {
+    margin: 0 0 0.85rem 0 !important;
+    padding: 0.7rem 0.75rem !important;
+    border-radius: 16px !important;
+    font-size: 0.78rem !important;
+    line-height: 1.45 !important;
+    opacity: 0.72 !important;
+    background: rgba(148, 163, 184, 0.045) !important;
+    border: 1px solid rgba(148, 163, 184, 0.12) !important;
+}
+
+/* Labels */
+.ws-sidebar-label-final {
+    margin: 0.85rem 0 0.35rem 0.2rem !important;
+    font-size: 0.66rem !important;
+    font-weight: 900 !important;
+    letter-spacing: 0.12em !important;
+    text-transform: uppercase !important;
+    opacity: 0.62 !important;
+}
+
+/* Radio-Gruppen */
+section[data-testid="stSidebar"] [role="radiogroup"] {
+    border-radius: 15px !important;
+    padding: 0.42rem 0.55rem !important;
+    border: 1px solid rgba(148, 163, 184, 0.14) !important;
+    background: rgba(148, 163, 184, 0.045) !important;
+    box-shadow: none !important;
+}
+
+section[data-testid="stSidebar"] [role="radiogroup"] label {
+    font-size: 0.82rem !important;
+}
+
+/* State Box */
+.ws-sidebar-state-final {
+    border-radius: 15px !important;
+    padding: 0.62rem 0.68rem !important;
+    margin: 0.75rem 0 0.85rem 0 !important;
+    background: rgba(148, 163, 184, 0.045) !important;
+    border: 1px solid rgba(148, 163, 184, 0.12) !important;
+}
+
+.ws-sidebar-state-final div {
+    display: flex !important;
+    justify-content: space-between !important;
+    gap: 0.45rem !important;
+    font-size: 0.72rem !important;
+    line-height: 1.45 !important;
+}
+
+.ws-sidebar-state-final span {
+    opacity: 0.66 !important;
+}
+
+.ws-sidebar-state-final b {
+    font-weight: 850 !important;
+}
+
+/* Navigation als Links */
+.ws-sidebar-nav-final {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 0.38rem !important;
+    margin-top: 0.35rem !important;
+}
+
+.ws-sidebar-nav-link-final {
+    display: block !important;
+    text-decoration: none !important;
+    min-height: 36px !important;
+    line-height: 36px !important;
+    border-radius: 13px !important;
+    padding: 0 0.72rem !important;
+    font-size: 0.78rem !important;
+    font-weight: 800 !important;
+    color: inherit !important;
+    background: rgba(148, 163, 184, 0.04) !important;
+    border: 1px solid rgba(148, 163, 184, 0.12) !important;
+}
+
+.ws-sidebar-nav-link-final:hover {
+    background: rgba(99, 102, 241, 0.11) !important;
+    border-color: rgba(99, 102, 241, 0.28) !important;
+}
+
+.ws-sidebar-nav-link-final.active {
+    background: rgba(99, 102, 241, 0.16) !important;
+    border-color: rgba(99, 102, 241, 0.34) !important;
+}
+
+/* Light Mode */
+.stApp:has(.theme-light) .ws-home-logo-final,
+.stApp:has(.theme-light) .ws-sidebar-claim-final,
+.stApp:has(.theme-light) .ws-sidebar-state-final,
+.stApp:has(.theme-light) .ws-sidebar-nav-link-final,
+.stApp:has(.theme-light) section[data-testid="stSidebar"] [role="radiogroup"] {
+    background: rgba(255, 255, 255, 0.70) !important;
+    border-color: rgba(15, 23, 42, 0.09) !important;
+}
+
+.stApp:has(.theme-light) .ws-sidebar-nav-link-final.active {
+    background: rgba(99, 102, 241, 0.14) !important;
+    border-color: rgba(99, 102, 241, 0.28) !important;
+}
+
+
+/* =========================================================
+   FINAL HARD OVERRIDE: visible sidebar navigation + no ghost circle
+   ========================================================= */
+
+section[data-testid="stSidebar"] [data-testid="stSidebarContent"] {
+    padding: 1rem 0.85rem 5.4rem 0.85rem !important;
+    overflow-y: auto !important;
+}
+
+/* alte / doppelte Branding-Reste verstecken */
+.sidebar-brand,
+.sidebar-brand-card,
+.sidebar-home-link,
+.ws-sidebar-logo,
+.ws-logo-mark,
+.ws-logo-title,
+.ws-logo-subtitle,
+.ws-sidebar-note,
+.ws-sidebar-note-compact,
+.ws-sidebar-nav-final,
+.ws-sidebar-nav-link-final {
+    display: none !important;
+}
+
+/* Ghost-Kreis oben links entfernen */
+section[data-testid="stSidebar"] button:empty,
+section[data-testid="stSidebar"] .stButton:has(button:empty),
+section[data-testid="stSidebar"] div:has(> button:empty) {
+    display: none !important;
+}
+
+/* Collapse Button nur klein oben links */
+button[data-testid="stSidebarCollapseButton"],
+div[data-testid="stSidebarCollapseButton"] button,
+button[data-testid="collapsedControl"],
+div[data-testid="collapsedControl"] button {
+    position: fixed !important;
+    top: 0.75rem !important;
+    left: 0.75rem !important;
+    z-index: 999999 !important;
+    width: 30px !important;
+    height: 30px !important;
+    min-width: 30px !important;
+    min-height: 30px !important;
+    border-radius: 999px !important;
+    background: rgba(15, 23, 42, 0.74) !important;
+    color: rgba(248, 250, 252, 0.94) !important;
+    border: 1px solid rgba(148, 163, 184, 0.22) !important;
+}
+
+/* Logo */
+.ws-home-logo-link {
+    text-decoration: none !important;
+    display: block !important;
+    margin: 2.1rem 0 0.75rem 0 !important;
+}
+
+.ws-home-logo-final {
+    border-radius: 20px !important;
+    padding: 0.85rem 0.7rem !important;
+    text-align: center !important;
+    background: rgba(148, 163, 184, 0.07) !important;
+    border: 1px solid rgba(148, 163, 184, 0.16) !important;
+}
+
+.ws-home-logo-mark-final {
+    width: 32px !important;
+    height: 32px !important;
+    margin: 0 auto 0.42rem auto !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    border-radius: 999px !important;
+    font-size: 0.95rem !important;
+    background: rgba(99, 102, 241, 0.16) !important;
+    border: 1px solid rgba(99, 102, 241, 0.28) !important;
+}
+
+.ws-home-logo-title-final {
+    font-size: 1.03rem !important;
+    font-weight: 950 !important;
+    letter-spacing: -0.04em !important;
+}
+
+/* Claim */
+.ws-sidebar-claim-final {
+    margin: 0 0 0.85rem 0 !important;
+    padding: 0.7rem 0.75rem !important;
+    border-radius: 16px !important;
+    font-size: 0.78rem !important;
+    line-height: 1.45 !important;
+    opacity: 0.72 !important;
+    background: rgba(148, 163, 184, 0.045) !important;
+    border: 1px solid rgba(148, 163, 184, 0.12) !important;
+}
+
+/* Labels */
+.ws-sidebar-label-final {
+    margin: 0.85rem 0 0.35rem 0.2rem !important;
+    font-size: 0.66rem !important;
+    font-weight: 900 !important;
+    letter-spacing: 0.12em !important;
+    text-transform: uppercase !important;
+    opacity: 0.62 !important;
+}
+
+/* Radio kompakt */
+section[data-testid="stSidebar"] [role="radiogroup"] {
+    border-radius: 15px !important;
+    padding: 0.42rem 0.55rem !important;
+    border: 1px solid rgba(148, 163, 184, 0.14) !important;
+    background: rgba(148, 163, 184, 0.045) !important;
+    box-shadow: none !important;
+}
+
+section[data-testid="stSidebar"] [role="radiogroup"] label {
+    font-size: 0.82rem !important;
+}
+
+/* State Box */
+.ws-sidebar-state-final {
+    border-radius: 15px !important;
+    padding: 0.62rem 0.68rem !important;
+    margin: 0.75rem 0 0.85rem 0 !important;
+    background: rgba(148, 163, 184, 0.045) !important;
+    border: 1px solid rgba(148, 163, 184, 0.12) !important;
+}
+
+.ws-sidebar-state-final div {
+    display: flex !important;
+    justify-content: space-between !important;
+    gap: 0.45rem !important;
+    font-size: 0.72rem !important;
+    line-height: 1.45 !important;
+}
+
+.ws-sidebar-state-final span {
+    opacity: 0.66 !important;
+}
+
+.ws-sidebar-state-final b {
+    font-weight: 850 !important;
+}
+
+/* Navigation als echte Streamlit Buttons sichtbar machen */
+.ws-nav-label-final {
+    margin-top: 0.85rem !important;
+}
+
+section[data-testid="stSidebar"] .stButton {
+    display: block !important;
+    margin-bottom: 0.35rem !important;
+}
+
+section[data-testid="stSidebar"] .stButton > button {
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+
+    min-height: 36px !important;
+    height: 36px !important;
+    border-radius: 13px !important;
+
+    justify-content: flex-start !important;
+    align-items: center !important;
+
+    font-weight: 800 !important;
+    font-size: 0.78rem !important;
+    padding: 0.35rem 0.65rem !important;
+
+    color: inherit !important;
+    background: rgba(148, 163, 184, 0.04) !important;
+    border: 1px solid rgba(148, 163, 184, 0.12) !important;
+    box-shadow: none !important;
+}
+
+section[data-testid="stSidebar"] .stButton > button:hover {
+    background: rgba(99, 102, 241, 0.11) !important;
+    border-color: rgba(99, 102, 241, 0.28) !important;
+}
+
+/* Light Mode */
+.stApp:has(.theme-light) .ws-home-logo-final,
+.stApp:has(.theme-light) .ws-sidebar-claim-final,
+.stApp:has(.theme-light) .ws-sidebar-state-final,
+.stApp:has(.theme-light) section[data-testid="stSidebar"] [role="radiogroup"],
+.stApp:has(.theme-light) section[data-testid="stSidebar"] .stButton > button {
+    background: rgba(255, 255, 255, 0.70) !important;
+    border-color: rgba(15, 23, 42, 0.09) !important;
+}
+
+
+/* =========================================================
+   FINAL: native Streamlit bottom button bar
+   ========================================================= */
+
+.ws-bottom-spacer {
+    height: 96px;
+}
+
+.ws-bottom-native-bar {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 99998;
+
+    min-height: 76px;
+    padding: 0.75rem 1.25rem 0.7rem 1.25rem;
+
+    background: rgba(2, 6, 23, 0.88);
+    border-top: 1px solid rgba(148, 163, 184, 0.18);
+    backdrop-filter: blur(20px);
+}
+
+/* alte HTML-Bottom-Bar ausblenden, falls irgendwo noch vorhanden */
+.bottom-status-bar {
+    display: none !important;
+}
+
+/* Buttons innerhalb der Bottom-Bar */
+.ws-bottom-native-bar ~ div button,
+div:has(.ws-bottom-native-bar) button {
+    min-height: 38px !important;
+    border-radius: 999px !important;
+    font-size: 0.78rem !important;
+    font-weight: 850 !important;
+    padding: 0.35rem 0.65rem !important;
+
+    background: rgba(148, 163, 184, 0.08) !important;
+    border: 1px solid rgba(148, 163, 184, 0.16) !important;
+    color: inherit !important;
+    box-shadow: none !important;
+}
+
+div:has(.ws-bottom-native-bar) button:hover {
+    background: rgba(99, 102, 241, 0.16) !important;
+    border-color: rgba(99, 102, 241, 0.34) !important;
+}
+
+/* Light Mode */
+.stApp:has(.theme-light) .ws-bottom-native-bar {
+    background: rgba(248, 250, 252, 0.86) !important;
+    border-top: 1px solid rgba(15, 23, 42, 0.10) !important;
+}
+
+.stApp:has(.theme-light) div:has(.ws-bottom-native-bar) button {
+    background: rgba(255, 255, 255, 0.78) !important;
+    border-color: rgba(15, 23, 42, 0.10) !important;
+}
+
+
+/* =========================================================
+   FINAL: clean service navigation instead of broken fixed bar
+   ========================================================= */
+
+.bottom-status-bar,
+.ws-bottom-native-bar,
+.ws-bottom-spacer {
+    display: none !important;
+}
+
+.ws-servicebar-anchor {
+    height: 1px;
+    margin-top: 3rem;
+}
+
+.ws-servicebar-title {
+    margin: 2.25rem 0 0.75rem 0;
+    padding-top: 1.25rem;
+    border-top: 1px solid rgba(148, 163, 184, 0.18);
+    font-size: 0.82rem;
+    font-weight: 900;
+    letter-spacing: 0.10em;
+    text-transform: uppercase;
+    opacity: 0.68;
+}
+
+.ws-servicebar-meta {
+    display: flex;
+    justify-content: center;
+    gap: 1.25rem;
+    flex-wrap: wrap;
+
+    margin: 0.85rem 0 2.2rem 0;
+    padding: 0.85rem 1rem;
+    border-radius: 20px;
+
+    background: rgba(148, 163, 184, 0.055);
+    border: 1px solid rgba(148, 163, 184, 0.14);
+    font-size: 0.82rem;
+    opacity: 0.78;
+}
+
+.ws-servicebar-meta b {
+    font-weight: 900;
+}
+
+/* Servicebar Buttons: nur die unteren Navigation-Buttons etwas runder/ruhiger */
+button[kind="secondary"] {
+    border-radius: 999px !important;
+}
+
+.stApp:has(.theme-light) .ws-servicebar-meta {
+    background: rgba(255, 255, 255, 0.70) !important;
+    border-color: rgba(15, 23, 42, 0.09) !important;
+}
+
+
+/* =========================================================
+   WealthScope fixed BottomBar – arsnova inspired
+   ========================================================= */
+
+/* alte Varianten ausblenden */
+.bottom-status-bar,
+.ws-bottom-native-bar,
+.ws-bottom-spacer,
+.ws-servicebar-anchor,
+.ws-servicebar-title,
+.ws-servicebar-meta {
+    display: none !important;
+}
+
+/* Platz unten, damit Content nicht hinter der Bar verschwindet */
+main .block-container {
+    padding-bottom: 7rem !important;
+}
+
+.ws-fixed-bottom-shell {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 99990;
+
+    padding: 0.75rem 1.25rem 0.85rem 1.25rem;
+
+    background:
+        radial-gradient(circle at 20% 0%, rgba(99, 102, 241, 0.22), transparent 36%),
+        radial-gradient(circle at 80% 0%, rgba(236, 72, 153, 0.18), transparent 34%),
+        rgba(2, 6, 23, 0.86);
+
+    border-top: 1px solid rgba(148, 163, 184, 0.18);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    box-shadow: 0 -18px 50px rgba(0, 0, 0, 0.32);
+}
+
+.ws-fixed-bottom-bar {
+    max-width: 980px;
+    margin: 0 auto;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1.05rem;
+    flex-wrap: wrap;
+}
+
+.ws-fixed-bottom-links {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.55rem;
+    flex-wrap: wrap;
+}
+
+.ws-fixed-bottom-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.45rem;
+
+    min-height: 42px;
+    padding: 0.48rem 0.8rem;
+
+    border-radius: 999px;
+    text-decoration: none !important;
+
+    color: rgba(248, 250, 252, 0.90) !important;
+    background: rgba(15, 23, 42, 0.54);
+    border: 1px solid rgba(148, 163, 184, 0.18);
+
+    font-size: 0.86rem;
+    font-weight: 850;
+    line-height: 1;
+
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.07),
+        0 10px 26px rgba(0, 0, 0, 0.18);
+
+    transition:
+        transform 0.16s ease,
+        background 0.16s ease,
+        border-color 0.16s ease,
+        box-shadow 0.16s ease;
+}
+
+.ws-fixed-bottom-link:hover {
+    transform: translateY(-1px);
+    background: rgba(99, 102, 241, 0.22);
+    border-color: rgba(129, 140, 248, 0.45);
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.10),
+        0 14px 32px rgba(99, 102, 241, 0.22);
+}
+
+.ws-fixed-bottom-link.active {
+    background:
+        radial-gradient(circle at 30% 0%, rgba(99, 102, 241, 0.42), transparent 54%),
+        rgba(99, 102, 241, 0.24);
+    border-color: rgba(129, 140, 248, 0.55);
+}
+
+.ws-fixed-bottom-icon {
+    width: 28px;
+    height: 28px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 999px;
+    background: rgba(129, 140, 248, 0.18);
+    border: 1px solid rgba(129, 140, 248, 0.25);
+
+    font-size: 0.9rem;
+    line-height: 1;
+}
+
+.ws-fixed-bottom-label {
+    white-space: nowrap;
+}
+
+.ws-fixed-bottom-meta {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.9rem;
+    flex-wrap: wrap;
+
+    color: rgba(203, 213, 225, 0.78);
+    font-size: 0.78rem;
+    font-weight: 700;
+}
+
+.ws-fixed-bottom-meta b {
+    color: rgba(248, 250, 252, 0.96);
+    font-weight: 900;
+}
+
+/* Light Mode */
+.stApp:has(.theme-light) .ws-fixed-bottom-shell {
+    background:
+        radial-gradient(circle at 20% 0%, rgba(99, 102, 241, 0.18), transparent 36%),
+        radial-gradient(circle at 80% 0%, rgba(59, 130, 246, 0.12), transparent 34%),
+        rgba(248, 250, 252, 0.88) !important;
+
+    border-top: 1px solid rgba(15, 23, 42, 0.10) !important;
+    box-shadow: 0 -18px 46px rgba(15, 23, 42, 0.12) !important;
+}
+
+.stApp:has(.theme-light) .ws-fixed-bottom-link {
+    color: rgba(15, 23, 42, 0.90) !important;
+    background: rgba(255, 255, 255, 0.68) !important;
+    border-color: rgba(15, 23, 42, 0.10) !important;
+}
+
+.stApp:has(.theme-light) .ws-fixed-bottom-link:hover,
+.stApp:has(.theme-light) .ws-fixed-bottom-link.active {
+    background: rgba(99, 102, 241, 0.13) !important;
+    border-color: rgba(99, 102, 241, 0.28) !important;
+}
+
+.stApp:has(.theme-light) .ws-fixed-bottom-icon {
+    background: rgba(99, 102, 241, 0.11) !important;
+    border-color: rgba(99, 102, 241, 0.20) !important;
+}
+
+.stApp:has(.theme-light) .ws-fixed-bottom-meta {
+    color: rgba(71, 85, 105, 0.78) !important;
+}
+
+.stApp:has(.theme-light) .ws-fixed-bottom-meta b {
+    color: rgba(15, 23, 42, 0.92) !important;
+}
+
+/* kleinere Screens */
+@media (max-width: 900px) {
+    .ws-fixed-bottom-shell {
+        padding: 0.65rem 0.65rem 0.75rem 0.65rem;
+    }
+
+    .ws-fixed-bottom-bar {
+        gap: 0.6rem;
+    }
+
+    .ws-fixed-bottom-link {
+        min-height: 38px;
+        padding: 0.42rem 0.62rem;
+        font-size: 0.78rem;
+    }
+
+    .ws-fixed-bottom-icon {
+        width: 24px;
+        height: 24px;
+    }
+
+    .ws-fixed-bottom-meta {
+        font-size: 0.7rem;
+        gap: 0.6rem;
+    }
+}
+
+
+/* =========================================================
+   FINAL FIX: WealthScope fixed BottomBar
+   ========================================================= */
+
+.bottom-status-bar,
+.ws-bottom-native-bar,
+.ws-bottom-spacer,
+.ws-servicebar-anchor,
+.ws-servicebar-title,
+.ws-servicebar-meta {
+    display: none !important;
+}
+
+main .block-container {
+    padding-bottom: 7rem !important;
+}
+
+.ws-fixed-bottom-shell {
+    position: fixed !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    z-index: 99990 !important;
+
+    padding: 0.75rem 1.25rem 0.85rem 1.25rem !important;
+
+    background:
+        radial-gradient(circle at 20% 0%, rgba(99, 102, 241, 0.22), transparent 36%),
+        radial-gradient(circle at 80% 0%, rgba(236, 72, 153, 0.18), transparent 34%),
+        rgba(2, 6, 23, 0.88) !important;
+
+    border-top: 1px solid rgba(148, 163, 184, 0.18) !important;
+    backdrop-filter: blur(24px) !important;
+    -webkit-backdrop-filter: blur(24px) !important;
+    box-shadow: 0 -18px 50px rgba(0, 0, 0, 0.32) !important;
+}
+
+.ws-fixed-bottom-bar {
+    max-width: 1080px !important;
+    margin: 0 auto !important;
+
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 0.85rem !important;
+    flex-wrap: wrap !important;
+}
+
+.ws-fixed-bottom-links {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 0.55rem !important;
+    flex-wrap: wrap !important;
+}
+
+.ws-fixed-bottom-link {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 0.45rem !important;
+
+    min-height: 42px !important;
+    padding: 0.48rem 0.8rem !important;
+
+    border-radius: 999px !important;
+    text-decoration: none !important;
+
+    color: rgba(248, 250, 252, 0.92) !important;
+    background: rgba(15, 23, 42, 0.56) !important;
+    border: 1px solid rgba(148, 163, 184, 0.18) !important;
+
+    font-size: 0.86rem !important;
+    font-weight: 850 !important;
+    line-height: 1 !important;
+}
+
+.ws-fixed-bottom-link:hover {
+    transform: translateY(-1px) !important;
+    background: rgba(99, 102, 241, 0.22) !important;
+    border-color: rgba(129, 140, 248, 0.45) !important;
+}
+
+.ws-fixed-bottom-link.active {
+    background: rgba(99, 102, 241, 0.26) !important;
+    border-color: rgba(129, 140, 248, 0.55) !important;
+}
+
+.ws-fixed-bottom-icon {
+    width: 28px !important;
+    height: 28px !important;
+
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+
+    border-radius: 999px !important;
+    background: rgba(129, 140, 248, 0.18) !important;
+    border: 1px solid rgba(129, 140, 248, 0.25) !important;
+}
+
+.ws-fixed-bottom-label {
+    white-space: nowrap !important;
+}
+
+.ws-fixed-bottom-meta {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 0.9rem !important;
+    flex-wrap: wrap !important;
+
+    color: rgba(203, 213, 225, 0.78) !important;
+    font-size: 0.78rem !important;
+    font-weight: 700 !important;
+}
+
+.ws-fixed-bottom-meta b {
+    color: rgba(248, 250, 252, 0.96) !important;
+    font-weight: 900 !important;
+}
+
+.stApp:has(.theme-light) .ws-fixed-bottom-shell {
+    background:
+        radial-gradient(circle at 20% 0%, rgba(99, 102, 241, 0.18), transparent 36%),
+        radial-gradient(circle at 80% 0%, rgba(59, 130, 246, 0.12), transparent 34%),
+        rgba(248, 250, 252, 0.90) !important;
+
+    border-top: 1px solid rgba(15, 23, 42, 0.10) !important;
+    box-shadow: 0 -18px 46px rgba(15, 23, 42, 0.12) !important;
+}
+
+.stApp:has(.theme-light) .ws-fixed-bottom-link {
+    color: rgba(15, 23, 42, 0.90) !important;
+    background: rgba(255, 255, 255, 0.72) !important;
+    border-color: rgba(15, 23, 42, 0.10) !important;
+}
+
+.stApp:has(.theme-light) .ws-fixed-bottom-link.active,
+.stApp:has(.theme-light) .ws-fixed-bottom-link:hover {
+    background: rgba(99, 102, 241, 0.14) !important;
+    border-color: rgba(99, 102, 241, 0.28) !important;
+}
+
+.stApp:has(.theme-light) .ws-fixed-bottom-meta {
+    color: rgba(71, 85, 105, 0.78) !important;
+}
+
+.stApp:has(.theme-light) .ws-fixed-bottom-meta b {
+    color: rgba(15, 23, 42, 0.92) !important;
+}
+
+
+/* =========================================================
+   FINAL VISUAL FIX: fixed WealthScope BottomBar readability
+   ========================================================= */
+
+main .block-container {
+    padding-bottom: 6.5rem !important;
+}
+
+/* alte BottomBar-Varianten wirklich ausblenden */
+.bottom-status-bar,
+.ws-bottom-native-bar,
+.ws-bottom-spacer,
+.ws-servicebar-anchor,
+.ws-servicebar-title,
+.ws-servicebar-meta {
+    display: none !important;
+}
+
+/* feste Bar unten */
+.ws-fixed-bottom-shell {
+    position: fixed !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    z-index: 999999 !important;
+
+    min-height: 70px !important;
+    padding: 0.65rem 1.1rem 0.75rem 1.1rem !important;
+
+    background:
+        radial-gradient(circle at 20% 0%, rgba(99, 102, 241, 0.20), transparent 38%),
+        radial-gradient(circle at 80% 0%, rgba(236, 72, 153, 0.16), transparent 34%),
+        rgba(2, 6, 23, 0.88) !important;
+
+    border-top: 1px solid rgba(148, 163, 184, 0.20) !important;
+    backdrop-filter: blur(24px) !important;
+    -webkit-backdrop-filter: blur(24px) !important;
+    box-shadow: 0 -18px 50px rgba(0, 0, 0, 0.30) !important;
+
+    opacity: 1 !important;
+}
+
+/* Innenlayout */
+.ws-fixed-bottom-bar {
+    max-width: 1050px !important;
+    margin: 0 auto !important;
+
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 0.75rem !important;
+    flex-wrap: wrap !important;
+
+    opacity: 1 !important;
+}
+
+.ws-fixed-bottom-links {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 0.45rem !important;
+    flex-wrap: wrap !important;
+
+    opacity: 1 !important;
+}
+
+/* Buttons */
+.ws-fixed-bottom-link {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 0.42rem !important;
+
+    min-height: 40px !important;
+    padding: 0.42rem 0.72rem !important;
+
+    border-radius: 999px !important;
+    text-decoration: none !important;
+
+    color: rgba(248, 250, 252, 0.96) !important;
+    background: rgba(15, 23, 42, 0.68) !important;
+    border: 1px solid rgba(148, 163, 184, 0.22) !important;
+
+    font-size: 0.82rem !important;
+    font-weight: 850 !important;
+    line-height: 1 !important;
+
+    opacity: 1 !important;
+    visibility: visible !important;
+
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.08),
+        0 10px 26px rgba(0, 0, 0, 0.20) !important;
+}
+
+.ws-fixed-bottom-link:hover {
+    transform: translateY(-1px) !important;
+    background: rgba(99, 102, 241, 0.24) !important;
+    border-color: rgba(129, 140, 248, 0.52) !important;
+}
+
+.ws-fixed-bottom-link.active {
+    background: rgba(99, 102, 241, 0.30) !important;
+    border-color: rgba(129, 140, 248, 0.60) !important;
+}
+
+/* Icon Kreis */
+.ws-fixed-bottom-icon {
+    width: 26px !important;
+    height: 26px !important;
+
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+
+    border-radius: 999px !important;
+    background: rgba(129, 140, 248, 0.20) !important;
+    border: 1px solid rgba(129, 140, 248, 0.28) !important;
+
+    font-size: 0.84rem !important;
+    opacity: 1 !important;
+}
+
+.ws-fixed-bottom-label {
+    white-space: nowrap !important;
+    color: inherit !important;
+    opacity: 1 !important;
+}
+
+/* Meta kompakt unten/rechts */
+.ws-fixed-bottom-meta {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 0.75rem !important;
+    flex-wrap: wrap !important;
+
+    color: rgba(226, 232, 240, 0.86) !important;
+    font-size: 0.74rem !important;
+    font-weight: 750 !important;
+
+    opacity: 1 !important;
+}
+
+.ws-fixed-bottom-meta span {
+    white-space: nowrap !important;
+    opacity: 1 !important;
+}
+
+.ws-fixed-bottom-meta b {
+    color: rgba(248, 250, 252, 1) !important;
+    font-weight: 950 !important;
+}
+
+/* Light Mode */
+.stApp:has(.theme-light) .ws-fixed-bottom-shell {
+    background:
+        radial-gradient(circle at 20% 0%, rgba(99, 102, 241, 0.18), transparent 38%),
+        radial-gradient(circle at 80% 0%, rgba(59, 130, 246, 0.12), transparent 34%),
+        rgba(248, 250, 252, 0.92) !important;
+
+    border-top: 1px solid rgba(15, 23, 42, 0.10) !important;
+    box-shadow: 0 -18px 46px rgba(15, 23, 42, 0.12) !important;
+}
+
+.stApp:has(.theme-light) .ws-fixed-bottom-link {
+    color: rgba(15, 23, 42, 0.94) !important;
+    background: rgba(255, 255, 255, 0.86) !important;
+    border-color: rgba(15, 23, 42, 0.12) !important;
+}
+
+.stApp:has(.theme-light) .ws-fixed-bottom-link:hover,
+.stApp:has(.theme-light) .ws-fixed-bottom-link.active {
+    background: rgba(99, 102, 241, 0.16) !important;
+    border-color: rgba(99, 102, 241, 0.32) !important;
+}
+
+.stApp:has(.theme-light) .ws-fixed-bottom-icon {
+    background: rgba(99, 102, 241, 0.13) !important;
+    border-color: rgba(99, 102, 241, 0.24) !important;
+}
+
+.stApp:has(.theme-light) .ws-fixed-bottom-meta {
+    color: rgba(51, 65, 85, 0.88) !important;
+}
+
+.stApp:has(.theme-light) .ws-fixed-bottom-meta b {
+    color: rgba(15, 23, 42, 0.96) !important;
+}
+
+/* kleine Bildschirme */
+@media (max-width: 900px) {
+    .ws-fixed-bottom-shell {
+        padding: 0.55rem 0.55rem 0.65rem 0.55rem !important;
+    }
+
+    .ws-fixed-bottom-link {
+        min-height: 36px !important;
+        padding: 0.36rem 0.56rem !important;
+        font-size: 0.74rem !important;
+    }
+
+    .ws-fixed-bottom-icon {
+        width: 23px !important;
+        height: 23px !important;
+    }
+
+    .ws-fixed-bottom-meta {
+        font-size: 0.68rem !important;
+        gap: 0.5rem !important;
+    }
+}
+
+
+/* =========================================================
+   FINAL: News query controls without overlapping selectbox
+   ========================================================= */
+
+.news-query-card {
+    margin-bottom: 1rem !important;
+}
+
+.news-active-query-card {
+    margin-top: 1rem !important;
+}
+
+.ws-section-mini-label {
+    margin: 0.6rem 0 0.45rem 0.1rem !important;
+    font-size: 0.76rem !important;
+    font-weight: 900 !important;
+    letter-spacing: 0.08em !important;
+    text-transform: uppercase !important;
+    color: rgba(226, 232, 240, 0.72) !important;
+}
+
+/* Radio-Auswahl im News-Bereich als Chips */
+main [role="radiogroup"] {
+    gap: 0.45rem !important;
+    flex-wrap: wrap !important;
+}
+
+main [role="radiogroup"] label {
+    min-height: 38px !important;
+    padding: 0.35rem 0.65rem !important;
+    border-radius: 999px !important;
+    background: rgba(148, 163, 184, 0.07) !important;
+    border: 1px solid rgba(148, 163, 184, 0.14) !important;
+}
+
+/* Textinput sauber einbetten */
+main [data-testid="stTextInput"] {
+    margin-top: 0.85rem !important;
+}
+
+main [data-testid="stTextInput"] input {
+    border-radius: 16px !important;
+    min-height: 44px !important;
+}
+
+/* Aktive Query Code-Feld */
+.news-active-query-card code {
+    display: block !important;
+    width: 100% !important;
+    margin-top: 0.45rem !important;
+    padding: 0.65rem 0.75rem !important;
+    border-radius: 12px !important;
+    white-space: normal !important;
+    line-height: 1.5 !important;
+    background: rgba(15, 23, 42, 0.40) !important;
+    border: 1px solid rgba(148, 163, 184, 0.16) !important;
+}
+
+/* Light Mode */
+.stApp:has(.theme-light) .ws-section-mini-label {
+    color: rgba(71, 85, 105, 0.72) !important;
+}
+
+.stApp:has(.theme-light) main [role="radiogroup"] label {
+    background: rgba(255, 255, 255, 0.75) !important;
+    border-color: rgba(15, 23, 42, 0.10) !important;
+}
+
+.stApp:has(.theme-light) .news-active-query-card code {
+    background: rgba(248, 250, 252, 0.82) !important;
+    border-color: rgba(15, 23, 42, 0.10) !important;
+}
+
+
+/* =========================================================
+   FINAL FIX: BottomBar Light Mode wirklich hell
+   ========================================================= */
+
+/* Light Mode BottomBar Shell */
+.stApp:has(.theme-light) .ws-fixed-bottom-shell,
+.theme-light ~ .ws-fixed-bottom-shell,
+body:has(.theme-light) .ws-fixed-bottom-shell {
+    background:
+        linear-gradient(180deg, rgba(255,255,255,0.78), rgba(241,245,249,0.94)),
+        radial-gradient(circle at 18% 0%, rgba(99,102,241,0.13), transparent 36%),
+        radial-gradient(circle at 82% 0%, rgba(59,130,246,0.10), transparent 34%) !important;
+
+    border-top: 1px solid rgba(15, 23, 42, 0.10) !important;
+    box-shadow: 0 -16px 42px rgba(15, 23, 42, 0.12) !important;
+    color: #0f172a !important;
+}
+
+/* Light Mode Links */
+.stApp:has(.theme-light) .ws-fixed-bottom-link,
+.theme-light ~ .ws-fixed-bottom-shell .ws-fixed-bottom-link,
+body:has(.theme-light) .ws-fixed-bottom-link {
+    color: #0f172a !important;
+    background: rgba(255,255,255,0.86) !important;
+    border: 1px solid rgba(15,23,42,0.12) !important;
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.85),
+        0 8px 22px rgba(15,23,42,0.08) !important;
+}
+
+/* Light Mode Hover + Active */
+.stApp:has(.theme-light) .ws-fixed-bottom-link:hover,
+.stApp:has(.theme-light) .ws-fixed-bottom-link.active,
+.theme-light ~ .ws-fixed-bottom-shell .ws-fixed-bottom-link:hover,
+.theme-light ~ .ws-fixed-bottom-shell .ws-fixed-bottom-link.active,
+body:has(.theme-light) .ws-fixed-bottom-link:hover,
+body:has(.theme-light) .ws-fixed-bottom-link.active {
+    color: #0f172a !important;
+    background: rgba(224,231,255,0.92) !important;
+    border-color: rgba(99,102,241,0.34) !important;
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.90),
+        0 10px 28px rgba(99,102,241,0.14) !important;
+}
+
+/* Light Mode Icons */
+.stApp:has(.theme-light) .ws-fixed-bottom-icon,
+.theme-light ~ .ws-fixed-bottom-shell .ws-fixed-bottom-icon,
+body:has(.theme-light) .ws-fixed-bottom-icon {
+    background: rgba(224,231,255,0.90) !important;
+    border-color: rgba(99,102,241,0.24) !important;
+    color: #0f172a !important;
+}
+
+/* Light Mode Labels + Meta */
+.stApp:has(.theme-light) .ws-fixed-bottom-label,
+.stApp:has(.theme-light) .ws-fixed-bottom-meta,
+.stApp:has(.theme-light) .ws-fixed-bottom-meta span,
+.theme-light ~ .ws-fixed-bottom-shell .ws-fixed-bottom-label,
+.theme-light ~ .ws-fixed-bottom-shell .ws-fixed-bottom-meta,
+.theme-light ~ .ws-fixed-bottom-shell .ws-fixed-bottom-meta span,
+body:has(.theme-light) .ws-fixed-bottom-label,
+body:has(.theme-light) .ws-fixed-bottom-meta,
+body:has(.theme-light) .ws-fixed-bottom-meta span {
+    color: rgba(15,23,42,0.88) !important;
+    opacity: 1 !important;
+}
+
+.stApp:has(.theme-light) .ws-fixed-bottom-meta b,
+.theme-light ~ .ws-fixed-bottom-shell .ws-fixed-bottom-meta b,
+body:has(.theme-light) .ws-fixed-bottom-meta b {
+    color: #0f172a !important;
+    font-weight: 950 !important;
+}
+
+/* Falls alte dunkle BottomBar-Regeln später greifen: letzte harte Sicherung */
+.stApp:has(.theme-light) .ws-fixed-bottom-shell * {
+    text-shadow: none !important;
+}
+
+
+/* =========================================================
+   FINAL FIX: BottomBar theme class directly on shell
+   ========================================================= */
+
+.ws-fixed-bottom-shell.theme-light {
+    background:
+        linear-gradient(180deg, rgba(255,255,255,0.82), rgba(241,245,249,0.96)),
+        radial-gradient(circle at 18% 0%, rgba(99,102,241,0.13), transparent 36%),
+        radial-gradient(circle at 82% 0%, rgba(59,130,246,0.10), transparent 34%) !important;
+
+    border-top: 1px solid rgba(15, 23, 42, 0.10) !important;
+    box-shadow: 0 -16px 42px rgba(15, 23, 42, 0.12) !important;
+    color: #0f172a !important;
+}
+
+.ws-fixed-bottom-shell.theme-light .ws-fixed-bottom-link {
+    color: #0f172a !important;
+    background: rgba(255,255,255,0.88) !important;
+    border: 1px solid rgba(15,23,42,0.12) !important;
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.90),
+        0 8px 22px rgba(15,23,42,0.08) !important;
+}
+
+.ws-fixed-bottom-shell.theme-light .ws-fixed-bottom-link:hover,
+.ws-fixed-bottom-shell.theme-light .ws-fixed-bottom-link.active {
+    color: #0f172a !important;
+    background: rgba(224,231,255,0.94) !important;
+    border-color: rgba(99,102,241,0.34) !important;
+}
+
+.ws-fixed-bottom-shell.theme-light .ws-fixed-bottom-icon {
+    background: rgba(224,231,255,0.95) !important;
+    border-color: rgba(99,102,241,0.24) !important;
+    color: #0f172a !important;
+}
+
+.ws-fixed-bottom-shell.theme-light .ws-fixed-bottom-label,
+.ws-fixed-bottom-shell.theme-light .ws-fixed-bottom-meta,
+.ws-fixed-bottom-shell.theme-light .ws-fixed-bottom-meta span {
+    color: rgba(15,23,42,0.88) !important;
+    opacity: 1 !important;
+}
+
+.ws-fixed-bottom-shell.theme-light .ws-fixed-bottom-meta b {
+    color: #0f172a !important;
+    font-weight: 950 !important;
+}
+
+/* Dark explizit lassen */
+.ws-fixed-bottom-shell.theme-dark {
+    background:
+        radial-gradient(circle at 20% 0%, rgba(99, 102, 241, 0.20), transparent 38%),
+        radial-gradient(circle at 80% 0%, rgba(236, 72, 153, 0.16), transparent 34%),
+        rgba(2, 6, 23, 0.88) !important;
+
+    border-top: 1px solid rgba(148, 163, 184, 0.20) !important;
+    box-shadow: 0 -18px 50px rgba(0, 0, 0, 0.30) !important;
+}
+
+
+/* =========================================================
+   FINAL: Top-left Home Logo
+   ========================================================= */
+
+.ws-top-left-home-logo {
+    position: fixed !important;
+    top: 0.78rem !important;
+    left: 1.05rem !important;
+    z-index: 1000000 !important;
+
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 0.55rem !important;
+
+    min-height: 44px !important;
+    padding: 0.42rem 0.86rem 0.42rem 0.48rem !important;
+
+    border-radius: 999px !important;
+    text-decoration: none !important;
+
+    color: rgba(248, 250, 252, 0.96) !important;
+    background:
+        radial-gradient(circle at 20% 0%, rgba(99, 102, 241, 0.28), transparent 42%),
+        rgba(2, 6, 23, 0.82) !important;
+
+    border: 1px solid rgba(148, 163, 184, 0.18) !important;
+    backdrop-filter: blur(22px) !important;
+    -webkit-backdrop-filter: blur(22px) !important;
+
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.08),
+        0 14px 36px rgba(0, 0, 0, 0.22) !important;
+
+    transition:
+        transform 0.16s ease,
+        background 0.16s ease,
+        border-color 0.16s ease,
+        box-shadow 0.16s ease !important;
+}
+
+.ws-top-left-home-logo:hover {
+    transform: translateY(-1px) !important;
+    background:
+        radial-gradient(circle at 20% 0%, rgba(99, 102, 241, 0.40), transparent 42%),
+        rgba(15, 23, 42, 0.90) !important;
+    border-color: rgba(129, 140, 248, 0.42) !important;
+}
+
+.ws-top-left-home-icon {
+    width: 31px !important;
+    height: 31px !important;
+
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+
+    border-radius: 999px !important;
+
+    color: rgba(248, 250, 252, 0.98) !important;
+    background: rgba(99, 102, 241, 0.24) !important;
+    border: 1px solid rgba(129, 140, 248, 0.30) !important;
+
+    font-size: 0.95rem !important;
+    line-height: 1 !important;
+}
+
+.ws-top-left-home-text {
+    color: inherit !important;
+    font-size: 0.92rem !important;
+    font-weight: 950 !important;
+    letter-spacing: -0.02em !important;
+    white-space: nowrap !important;
+}
+
+/* Light Mode */
+.ws-top-left-home-logo:has(+ .theme-light),
+.stApp:has(.theme-light) .ws-top-left-home-logo,
+body:has(.theme-light) .ws-top-left-home-logo {
+    color: rgba(15, 23, 42, 0.95) !important;
+    background:
+        radial-gradient(circle at 20% 0%, rgba(99, 102, 241, 0.14), transparent 42%),
+        rgba(255, 255, 255, 0.86) !important;
+
+    border-color: rgba(15, 23, 42, 0.10) !important;
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.80),
+        0 14px 34px rgba(15, 23, 42, 0.10) !important;
+}
+
+.stApp:has(.theme-light) .ws-top-left-home-icon,
+body:has(.theme-light) .ws-top-left-home-icon {
+    color: rgba(15, 23, 42, 0.95) !important;
+    background: rgba(224, 231, 255, 0.90) !important;
+    border-color: rgba(99, 102, 241, 0.24) !important;
+}
+
+/* Auf kleinen Screens nur Icon anzeigen */
+@media (max-width: 760px) {
+    .ws-top-left-home-logo {
+        padding: 0.42rem !important;
+    }
+
+    .ws-top-left-home-text {
+        display: none !important;
+    }
+}
+
+
+/* =========================================================
+   FINAL: Strong WealthScope Brand Logo + Sidebar Collapse
+   ========================================================= */
+
+/* alten kleinen Kreis/alte Home-Logo-Varianten ausblenden */
+.ws-top-left-home-logo {
+    display: none !important;
+}
+
+/* Brand-Logo links oben */
+.ws-brand-home-logo {
+    position: fixed !important;
+    top: 0.78rem !important;
+    left: 0.95rem !important;
+    z-index: 1000002 !important;
+
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 0.62rem !important;
+
+    min-height: 46px !important;
+    padding: 0.42rem 0.95rem 0.42rem 0.45rem !important;
+
+    border-radius: 999px !important;
+    text-decoration: none !important;
+
+    color: rgba(248, 250, 252, 0.98) !important;
+    background:
+        radial-gradient(circle at 15% 0%, rgba(34, 197, 94, 0.22), transparent 34%),
+        radial-gradient(circle at 85% 0%, rgba(99, 102, 241, 0.24), transparent 36%),
+        rgba(2, 6, 23, 0.88) !important;
+
+    border: 1px solid rgba(148, 163, 184, 0.22) !important;
+    backdrop-filter: blur(22px) !important;
+    -webkit-backdrop-filter: blur(22px) !important;
+
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.10),
+        0 16px 42px rgba(0, 0, 0, 0.28) !important;
+
+    transition: transform 0.16s ease, border-color 0.16s ease, box-shadow 0.16s ease !important;
+}
+
+.ws-brand-home-logo:hover {
+    transform: translateY(-1px) !important;
+    border-color: rgba(34, 197, 94, 0.48) !important;
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.12),
+        0 18px 48px rgba(34, 197, 94, 0.13),
+        0 18px 48px rgba(99, 102, 241, 0.16) !important;
+}
+
+.ws-brand-mark {
+    width: 34px !important;
+    height: 34px !important;
+
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+
+    border-radius: 14px !important;
+
+    color: #ffffff !important;
+    background:
+        linear-gradient(135deg, rgba(34, 197, 94, 0.98), rgba(99, 102, 241, 0.92)) !important;
+
+    font-size: 1.02rem !important;
+    font-weight: 950 !important;
+    letter-spacing: -0.06em !important;
+
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.28),
+        0 10px 22px rgba(34, 197, 94, 0.18) !important;
+}
+
+.ws-brand-text {
+    display: inline-flex !important;
+    align-items: baseline !important;
+    gap: 0.18rem !important;
+    white-space: nowrap !important;
+}
+
+.ws-brand-name {
+    color: inherit !important;
+    font-size: 0.98rem !important;
+    font-weight: 950 !important;
+    letter-spacing: -0.035em !important;
+}
+
+.ws-brand-ai {
+    font-size: 0.78rem !important;
+    font-weight: 950 !important;
+    letter-spacing: 0.02em !important;
+    color: rgba(52, 211, 153, 0.98) !important;
+}
+
+/* Light Mode Brand */
+.stApp:has(.theme-light) .ws-brand-home-logo,
+body:has(.theme-light) .ws-brand-home-logo {
+    color: rgba(15, 23, 42, 0.96) !important;
+    background:
+        radial-gradient(circle at 15% 0%, rgba(34, 197, 94, 0.15), transparent 34%),
+        radial-gradient(circle at 85% 0%, rgba(99, 102, 241, 0.14), transparent 36%),
+        rgba(255, 255, 255, 0.88) !important;
+
+    border-color: rgba(15, 23, 42, 0.10) !important;
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.78),
+        0 16px 36px rgba(15, 23, 42, 0.10) !important;
+}
+
+.stApp:has(.theme-light) .ws-brand-ai,
+body:has(.theme-light) .ws-brand-ai {
+    color: rgba(16, 185, 129, 0.95) !important;
+}
+
+/* Sidebar Toggle Button */
+section[data-testid="stSidebar"] button[kind="secondary"],
+section[data-testid="stSidebar"] .stButton > button {
+    border-radius: 999px !important;
+}
+
+/* Sidebar einklappen über Klasse */
+.stApp:has(.ws-app-frame-state.sidebar-collapsed) section[data-testid="stSidebar"] {
+    width: 82px !important;
+    min-width: 82px !important;
+    max-width: 82px !important;
+}
+
+.stApp:has(.ws-app-frame-state.sidebar-collapsed) section[data-testid="stSidebar"] [data-testid="stMarkdownContainer"],
+.stApp:has(.ws-app-frame-state.sidebar-collapsed) section[data-testid="stSidebar"] [role="radiogroup"],
+.stApp:has(.ws-app-frame-state.sidebar-collapsed) section[data-testid="stSidebar"] .stButton:not(:first-child) {
+    opacity: 0 !important;
+    pointer-events: none !important;
+    max-height: 0 !important;
+    overflow: hidden !important;
+}
+
+.stApp:has(.ws-app-frame-state.sidebar-collapsed) .ws-brand-home-logo {
+    left: 0.72rem !important;
+    padding: 0.42rem !important;
+}
+
+.stApp:has(.ws-app-frame-state.sidebar-collapsed) .ws-brand-text {
+    display: none !important;
+}
+
+/* Mehr Platz oben, damit Logo nicht mit Sidebar-Inhalten kollidiert */
+section[data-testid="stSidebar"] > div:first-child {
+    padding-top: 5.3rem !important;
+}
+
+/* Kleine Screens: nur Markenzeichen zeigen */
+@media (max-width: 900px) {
+    .ws-brand-home-logo {
+        padding: 0.42rem !important;
+    }
+
+    .ws-brand-text {
+        display: none !important;
+    }
+}
+
+
+/* =========================================================
+   FINAL POLISH: Real visible WealthScope brand top-left
+   ========================================================= */
+
+/* alte Mini-Logo-Varianten ausblenden */
+.ws-top-left-home-logo,
+.ws-top-left-home-icon,
+.ws-top-left-home-text {
+    display: none !important;
+}
+
+/* deutliches Logo oben links */
+.ws-brand-home-logo {
+    position: fixed !important;
+    top: 0.92rem !important;
+    left: 1.05rem !important;
+    z-index: 2147483000 !important;
+
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 0.58rem !important;
+
+    min-height: 48px !important;
+    padding: 0.42rem 0.92rem 0.42rem 0.46rem !important;
+
+    border-radius: 999px !important;
+    text-decoration: none !important;
+
+    background:
+        radial-gradient(circle at 12% 20%, rgba(34,197,94,0.34), transparent 32%),
+        radial-gradient(circle at 88% 0%, rgba(99,102,241,0.32), transparent 34%),
+        rgba(2, 6, 23, 0.92) !important;
+
+    border: 1px solid rgba(148,163,184,0.26) !important;
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.12),
+        0 18px 46px rgba(0,0,0,0.34) !important;
+
+    backdrop-filter: blur(24px) !important;
+    -webkit-backdrop-filter: blur(24px) !important;
+
+    color: rgba(248,250,252,0.98) !important;
+}
+
+.ws-brand-home-logo:hover {
+    transform: translateY(-1px) !important;
+    border-color: rgba(34,197,94,0.52) !important;
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.14),
+        0 20px 52px rgba(34,197,94,0.16),
+        0 20px 52px rgba(99,102,241,0.18) !important;
+}
+
+.ws-brand-mark {
+    width: 36px !important;
+    height: 36px !important;
+
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+
+    border-radius: 15px !important;
+
+    background: linear-gradient(135deg, #22c55e, #6366f1) !important;
+    color: #ffffff !important;
+
+    font-size: 1.05rem !important;
+    font-weight: 950 !important;
+    letter-spacing: -0.06em !important;
+
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.30),
+        0 10px 24px rgba(34,197,94,0.20) !important;
+}
+
+.ws-brand-word {
+    color: inherit !important;
+    font-size: 1.02rem !important;
+    font-weight: 950 !important;
+    letter-spacing: -0.04em !important;
+    line-height: 1 !important;
+    white-space: nowrap !important;
+}
+
+.ws-brand-pill {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+
+    min-width: 28px !important;
+    height: 22px !important;
+    padding: 0 0.34rem !important;
+
+    border-radius: 999px !important;
+
+    background: rgba(34,197,94,0.16) !important;
+    border: 1px solid rgba(34,197,94,0.30) !important;
+    color: #34d399 !important;
+
+    font-size: 0.72rem !important;
+    font-weight: 950 !important;
+    letter-spacing: 0.04em !important;
+}
+
+/* Light Mode Logo */
+.stApp:has(.theme-light) .ws-brand-home-logo,
+body:has(.theme-light) .ws-brand-home-logo {
+    background:
+        radial-gradient(circle at 12% 20%, rgba(34,197,94,0.16), transparent 32%),
+        radial-gradient(circle at 88% 0%, rgba(99,102,241,0.14), transparent 34%),
+        rgba(255,255,255,0.94) !important;
+
+    color: #0f172a !important;
+    border-color: rgba(15,23,42,0.12) !important;
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.88),
+        0 18px 42px rgba(15,23,42,0.12) !important;
+}
+
+.stApp:has(.theme-light) .ws-brand-pill,
+body:has(.theme-light) .ws-brand-pill {
+    background: rgba(34,197,94,0.12) !important;
+    border-color: rgba(34,197,94,0.22) !important;
+    color: #059669 !important;
+}
+
+/* Sidebar-Inhalt etwas tiefer, damit Logo nicht kollidiert */
+section[data-testid="stSidebar"] > div:first-child {
+    padding-top: 6.2rem !important;
+}
+
+/* Streamlit Sidebar Collapse Button oben besser sichtbar */
+button[data-testid="stSidebarCollapseButton"],
+div[data-testid="stSidebarCollapseButton"] button,
+button[data-testid="collapsedControl"],
+div[data-testid="collapsedControl"] button {
+    border-radius: 999px !important;
+    background: rgba(99,102,241,0.18) !important;
+    border: 1px solid rgba(148,163,184,0.22) !important;
+}
+
+/* auf kleinen Breiten nur W + AI */
+@media (max-width: 900px) {
+    .ws-brand-home-logo {
+        padding: 0.42rem 0.54rem 0.42rem 0.44rem !important;
+    }
+
+    .ws-brand-word {
+        display: none !important;
+    }
+}
+
+
+/* =========================================================
+   FINAL: Global Top Header / Brand Navigation
+   ========================================================= */
+
+/* altes Floating-Logo sicher ausblenden */
+.ws-top-left-home-logo,
+.ws-brand-home-logo {
+    display: none !important;
+}
+
+/* Hauptcontent unter Header schieben */
+main .block-container {
+    padding-top: 6.5rem !important;
+}
+
+/* Sidebar ebenfalls unter Header optisch sauber starten */
+section[data-testid="stSidebar"] > div:first-child {
+    padding-top: 6.5rem !important;
+}
+
+.ws-global-top-header {
+    position: fixed !important;
+    top: 0.75rem !important;
+    left: 0.95rem !important;
+    right: 0.95rem !important;
+    z-index: 2147483000 !important;
+
+    min-height: 58px !important;
+    padding: 0.5rem 0.7rem !important;
+
+    display: grid !important;
+    grid-template-columns: auto 1fr auto !important;
+    align-items: center !important;
+    gap: 0.8rem !important;
+
+    border-radius: 24px !important;
+
+    background:
+        radial-gradient(circle at 8% 0%, rgba(34,197,94,0.20), transparent 30%),
+        radial-gradient(circle at 92% 0%, rgba(99,102,241,0.22), transparent 32%),
+        rgba(2, 6, 23, 0.86) !important;
+
+    border: 1px solid rgba(148,163,184,0.20) !important;
+
+    backdrop-filter: blur(24px) !important;
+    -webkit-backdrop-filter: blur(24px) !important;
+
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.09),
+        0 16px 44px rgba(0,0,0,0.24) !important;
+}
+
+.ws-header-brand {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 0.62rem !important;
+
+    min-width: 190px !important;
+    padding: 0.34rem 0.72rem 0.34rem 0.36rem !important;
+
+    border-radius: 999px !important;
+    text-decoration: none !important;
+
+    color: rgba(248,250,252,0.98) !important;
+    background: rgba(15,23,42,0.46) !important;
+    border: 1px solid rgba(148,163,184,0.16) !important;
+}
+
+.ws-header-brand-mark {
+    width: 36px !important;
+    height: 36px !important;
+
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+
+    border-radius: 14px !important;
+
+    color: #ffffff !important;
+    background: linear-gradient(135deg, #22c55e, #6366f1) !important;
+
+    font-size: 1.05rem !important;
+    font-weight: 950 !important;
+    letter-spacing: -0.06em !important;
+}
+
+.ws-header-brand-copy {
+    display: inline-flex !important;
+    align-items: baseline !important;
+    gap: 0.22rem !important;
+    white-space: nowrap !important;
+}
+
+.ws-header-brand-name {
+    font-size: 1.02rem !important;
+    font-weight: 950 !important;
+    letter-spacing: -0.045em !important;
+    color: inherit !important;
+}
+
+.ws-header-brand-ai {
+    font-size: 0.76rem !important;
+    font-weight: 950 !important;
+    color: #34d399 !important;
+}
+
+.ws-top-nav {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 0.35rem !important;
+    flex-wrap: wrap !important;
+}
+
+.ws-top-nav-link {
+    min-height: 34px !important;
+    padding: 0.38rem 0.62rem !important;
+
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+
+    border-radius: 999px !important;
+    text-decoration: none !important;
+
+    color: rgba(226,232,240,0.88) !important;
+    background: rgba(15,23,42,0.34) !important;
+    border: 1px solid rgba(148,163,184,0.12) !important;
+
+    font-size: 0.78rem !important;
+    font-weight: 850 !important;
+    line-height: 1 !important;
+}
+
+.ws-top-nav-link:hover,
+.ws-top-nav-link.active {
+    color: rgba(248,250,252,0.98) !important;
+    background: rgba(99,102,241,0.24) !important;
+    border-color: rgba(129,140,248,0.38) !important;
+}
+
+.ws-header-status {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+    gap: 0.35rem !important;
+    flex-wrap: wrap !important;
+
+    min-width: 150px !important;
+}
+
+.ws-header-status span {
+    padding: 0.3rem 0.52rem !important;
+    border-radius: 999px !important;
+
+    color: rgba(226,232,240,0.84) !important;
+    background: rgba(15,23,42,0.34) !important;
+    border: 1px solid rgba(148,163,184,0.12) !important;
+
+    font-size: 0.72rem !important;
+    font-weight: 850 !important;
+}
+
+/* Light Mode */
+.stApp:has(.theme-light) .ws-global-top-header,
+body:has(.theme-light) .ws-global-top-header {
+    background:
+        radial-gradient(circle at 8% 0%, rgba(34,197,94,0.13), transparent 30%),
+        radial-gradient(circle at 92% 0%, rgba(99,102,241,0.13), transparent 32%),
+        rgba(255,255,255,0.88) !important;
+
+    border-color: rgba(15,23,42,0.10) !important;
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.80),
+        0 16px 38px rgba(15,23,42,0.10) !important;
+}
+
+.stApp:has(.theme-light) .ws-header-brand,
+body:has(.theme-light) .ws-header-brand {
+    color: #0f172a !important;
+    background: rgba(255,255,255,0.70) !important;
+    border-color: rgba(15,23,42,0.10) !important;
+}
+
+.stApp:has(.theme-light) .ws-top-nav-link,
+body:has(.theme-light) .ws-top-nav-link,
+.stApp:has(.theme-light) .ws-header-status span,
+body:has(.theme-light) .ws-header-status span {
+    color: rgba(15,23,42,0.86) !important;
+    background: rgba(255,255,255,0.68) !important;
+    border-color: rgba(15,23,42,0.10) !important;
+}
+
+.stApp:has(.theme-light) .ws-top-nav-link:hover,
+.stApp:has(.theme-light) .ws-top-nav-link.active,
+body:has(.theme-light) .ws-top-nav-link:hover,
+body:has(.theme-light) .ws-top-nav-link.active {
+    color: #0f172a !important;
+    background: rgba(224,231,255,0.88) !important;
+    border-color: rgba(99,102,241,0.28) !important;
+}
+
+/* Responsive */
+@media (max-width: 1180px) {
+    .ws-global-top-header {
+        grid-template-columns: auto 1fr !important;
+    }
+
+    .ws-header-status {
+        display: none !important;
+    }
+}
+
+@media (max-width: 900px) {
+    .ws-global-top-header {
+        left: 0.6rem !important;
+        right: 0.6rem !important;
+        grid-template-columns: auto 1fr !important;
+    }
+
+    .ws-header-brand {
+        min-width: unset !important;
+        padding-right: 0.42rem !important;
+    }
+
+    .ws-header-brand-copy {
+        display: none !important;
+    }
+
+    .ws-top-nav {
+        justify-content: flex-end !important;
+        overflow: hidden !important;
+        max-height: 42px !important;
+    }
+
+    .ws-top-nav-link {
+        font-size: 0.72rem !important;
+        padding: 0.34rem 0.5rem !important;
+    }
+}
+
+
+/* =========================================================
+   FINAL: Visible Content Header like app sketch
+   ========================================================= */
+
+/* Floating-Header/Floating-Logo deaktivieren */
+.ws-global-top-header,
+.ws-brand-home-logo,
+.ws-top-left-home-logo {
+    display: none !important;
+}
+
+/* Content nicht unnötig weit nach unten drücken */
+main .block-container {
+    padding-top: 2.2rem !important;
+}
+
+/* Der echte sichtbare Header im Content */
+.ws-content-top-header {
+    width: 100% !important;
+    margin: 0 0 1.6rem 0 !important;
+    padding: 0.72rem 0.82rem !important;
+
+    display: grid !important;
+    grid-template-columns: auto 1fr auto !important;
+    align-items: center !important;
+    gap: 0.85rem !important;
+
+    border-radius: 28px !important;
+
+    background:
+        radial-gradient(circle at 6% 10%, rgba(34,197,94,0.22), transparent 30%),
+        radial-gradient(circle at 96% 0%, rgba(99,102,241,0.25), transparent 34%),
+        rgba(2, 6, 23, 0.78) !important;
+
+    border: 1px solid rgba(148,163,184,0.20) !important;
+
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.10),
+        0 18px 46px rgba(0,0,0,0.22) !important;
+
+    backdrop-filter: blur(22px) !important;
+    -webkit-backdrop-filter: blur(22px) !important;
+}
+
+.ws-content-brand {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 0.62rem !important;
+
+    min-width: 210px !important;
+    padding: 0.38rem 0.82rem 0.38rem 0.42rem !important;
+
+    border-radius: 999px !important;
+    text-decoration: none !important;
+
+    color: rgba(248,250,252,0.98) !important;
+    background: rgba(15,23,42,0.48) !important;
+    border: 1px solid rgba(148,163,184,0.18) !important;
+}
+
+.ws-content-brand:hover {
+    border-color: rgba(34,197,94,0.48) !important;
+    background: rgba(15,23,42,0.62) !important;
+}
+
+.ws-content-brand-mark {
+    width: 38px !important;
+    height: 38px !important;
+
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+
+    border-radius: 15px !important;
+
+    background: linear-gradient(135deg, #22c55e, #6366f1) !important;
+    color: #ffffff !important;
+
+    font-size: 1.08rem !important;
+    font-weight: 950 !important;
+    letter-spacing: -0.06em !important;
+
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.32),
+        0 10px 24px rgba(34,197,94,0.20) !important;
+}
+
+.ws-content-brand-text {
+    display: inline-flex !important;
+    align-items: baseline !important;
+    gap: 0.22rem !important;
+    white-space: nowrap !important;
+}
+
+.ws-content-brand-name {
+    color: inherit !important;
+    font-size: 1.08rem !important;
+    font-weight: 950 !important;
+    letter-spacing: -0.045em !important;
+}
+
+.ws-content-brand-ai {
+    color: #34d399 !important;
+    font-size: 0.78rem !important;
+    font-weight: 950 !important;
+    letter-spacing: 0.04em !important;
+}
+
+.ws-content-header-nav {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 0.38rem !important;
+    flex-wrap: wrap !important;
+}
+
+.ws-content-header-link {
+    min-height: 35px !important;
+    padding: 0.4rem 0.66rem !important;
+
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+
+    border-radius: 999px !important;
+    text-decoration: none !important;
+
+    color: rgba(226,232,240,0.88) !important;
+    background: rgba(15,23,42,0.38) !important;
+    border: 1px solid rgba(148,163,184,0.13) !important;
+
+    font-size: 0.78rem !important;
+    font-weight: 850 !important;
+    line-height: 1 !important;
+}
+
+.ws-content-header-link:hover,
+.ws-content-header-link.active {
+    color: rgba(248,250,252,0.98) !important;
+    background: rgba(99,102,241,0.26) !important;
+    border-color: rgba(129,140,248,0.40) !important;
+}
+
+.ws-content-header-mode {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+    gap: 0.38rem !important;
+    flex-wrap: wrap !important;
+}
+
+.ws-content-header-mode span {
+    padding: 0.32rem 0.55rem !important;
+    border-radius: 999px !important;
+
+    color: rgba(226,232,240,0.84) !important;
+    background: rgba(15,23,42,0.38) !important;
+    border: 1px solid rgba(148,163,184,0.13) !important;
+
+    font-size: 0.72rem !important;
+    font-weight: 850 !important;
+}
+
+/* Light Mode */
+.stApp:has(.theme-light) .ws-content-top-header,
+body:has(.theme-light) .ws-content-top-header {
+    background:
+        radial-gradient(circle at 6% 10%, rgba(34,197,94,0.14), transparent 30%),
+        radial-gradient(circle at 96% 0%, rgba(99,102,241,0.14), transparent 34%),
+        rgba(255,255,255,0.88) !important;
+
+    border-color: rgba(15,23,42,0.10) !important;
+
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.82),
+        0 18px 42px rgba(15,23,42,0.10) !important;
+}
+
+.stApp:has(.theme-light) .ws-content-brand,
+body:has(.theme-light) .ws-content-brand {
+    color: #0f172a !important;
+    background: rgba(255,255,255,0.76) !important;
+    border-color: rgba(15,23,42,0.10) !important;
+}
+
+.stApp:has(.theme-light) .ws-content-header-link,
+body:has(.theme-light) .ws-content-header-link,
+.stApp:has(.theme-light) .ws-content-header-mode span,
+body:has(.theme-light) .ws-content-header-mode span {
+    color: rgba(15,23,42,0.86) !important;
+    background: rgba(255,255,255,0.72) !important;
+    border-color: rgba(15,23,42,0.10) !important;
+}
+
+.stApp:has(.theme-light) .ws-content-header-link:hover,
+.stApp:has(.theme-light) .ws-content-header-link.active,
+body:has(.theme-light) .ws-content-header-link:hover,
+body:has(.theme-light) .ws-content-header-link.active {
+    color: #0f172a !important;
+    background: rgba(224,231,255,0.90) !important;
+    border-color: rgba(99,102,241,0.30) !important;
+}
+
+/* Responsiv */
+@media (max-width: 1200px) {
+    .ws-content-top-header {
+        grid-template-columns: auto 1fr !important;
+    }
+
+    .ws-content-header-mode {
+        display: none !important;
+    }
+}
+
+@media (max-width: 900px) {
+    .ws-content-top-header {
+        grid-template-columns: 1fr !important;
+        gap: 0.7rem !important;
+    }
+
+    .ws-content-brand {
+        min-width: unset !important;
+        width: 100% !important;
+        justify-content: center !important;
+    }
+
+    .ws-content-header-nav {
+        justify-content: center !important;
+    }
+}
+
+
+/* =========================================================
+   FINAL CLEANUP: calmer top header layout
+   ========================================================= */
+
+.ws-content-top-header-clean {
+    max-width: 1040px !important;
+    margin: 0 auto 2.0rem auto !important;
+
+    min-height: 62px !important;
+    padding: 0.58rem 0.7rem !important;
+
+    grid-template-columns: 240px 1fr auto !important;
+    gap: 0.75rem !important;
+}
+
+.ws-content-top-header-clean .ws-content-brand {
+    min-width: 220px !important;
+    justify-content: flex-start !important;
+}
+
+.ws-content-top-header-clean .ws-content-header-nav {
+    justify-content: center !important;
+    gap: 0.45rem !important;
+}
+
+.ws-content-top-header-clean .ws-content-header-link {
+    min-height: 36px !important;
+    padding: 0.42rem 0.78rem !important;
+    font-size: 0.80rem !important;
+}
+
+.ws-content-top-header-clean .ws-content-header-mode {
+    min-width: 118px !important;
+    justify-content: flex-end !important;
+}
+
+.ws-content-top-header-clean .ws-content-header-mode span {
+    min-height: 32px !important;
+    padding: 0.34rem 0.58rem !important;
+}
+
+/* Sidebar soll nicht mehr wie zweite Navigation wirken */
+section[data-testid="stSidebar"] .ws-sidebar-nav-final,
+section[data-testid="stSidebar"] [aria-label="Navigation"] {
+    opacity: 0.82 !important;
+}
+
+/* Content oben ruhiger */
+main .block-container {
+    padding-top: 2.0rem !important;
+}
+
+/* BottomBar weniger dominant */
+.ws-fixed-bottom-shell {
+    min-height: 62px !important;
+    padding-top: 0.5rem !important;
+    padding-bottom: 0.55rem !important;
+}
+
+.ws-fixed-bottom-link {
+    min-height: 36px !important;
+    padding: 0.36rem 0.66rem !important;
+    font-size: 0.78rem !important;
+}
+
+.ws-fixed-bottom-icon {
+    width: 24px !important;
+    height: 24px !important;
+}
+
+/* Responsive: auf kleineren Breiten Header nicht quetschen */
+@media (max-width: 1180px) {
+    .ws-content-top-header-clean {
+        grid-template-columns: 1fr !important;
+        justify-items: center !important;
+        max-width: 880px !important;
+    }
+
+    .ws-content-top-header-clean .ws-content-brand {
+        justify-content: center !important;
+    }
+
+    .ws-content-top-header-clean .ws-content-header-mode {
+        display: none !important;
+    }
+}
+
+
+/* =========================================================
+   HARD FIX: Header sichtbar + Sidebar Collapse sichtbar
+   ========================================================= */
+
+/* alte Floating-Header/Logo-Varianten komplett ausblenden */
+.ws-global-top-header,
+.ws-brand-home-logo,
+.ws-top-left-home-logo {
+    display: none !important;
+}
+
+/* Header im normalen Content sichtbar machen */
+.ws-content-top-header-clean {
+    width: 100% !important;
+    max-width: 1040px !important;
+    margin: 0 auto 2.0rem auto !important;
+
+    min-height: 62px !important;
+    padding: 0.58rem 0.72rem !important;
+
+    display: grid !important;
+    grid-template-columns: 230px 1fr auto !important;
+    align-items: center !important;
+    gap: 0.75rem !important;
+
+    border-radius: 28px !important;
+
+    background:
+        radial-gradient(circle at 8% 0%, rgba(34,197,94,0.18), transparent 32%),
+        radial-gradient(circle at 92% 0%, rgba(99,102,241,0.22), transparent 34%),
+        rgba(2, 6, 23, 0.82) !important;
+
+    border: 1px solid rgba(148,163,184,0.20) !important;
+
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.10),
+        0 18px 46px rgba(0,0,0,0.22) !important;
+
+    backdrop-filter: blur(22px) !important;
+    -webkit-backdrop-filter: blur(22px) !important;
+}
+
+.ws-content-brand {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 0.62rem !important;
+
+    min-width: 210px !important;
+    padding: 0.36rem 0.76rem 0.36rem 0.38rem !important;
+
+    border-radius: 999px !important;
+    text-decoration: none !important;
+
+    color: rgba(248,250,252,0.98) !important;
+    background: rgba(15,23,42,0.46) !important;
+    border: 1px solid rgba(148,163,184,0.16) !important;
+}
+
+.ws-content-brand-mark {
+    width: 36px !important;
+    height: 36px !important;
+
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+
+    border-radius: 14px !important;
+    background: linear-gradient(135deg, #22c55e, #6366f1) !important;
+    color: #ffffff !important;
+
+    font-size: 1.05rem !important;
+    font-weight: 950 !important;
+}
+
+.ws-content-brand-text {
+    display: inline-flex !important;
+    align-items: baseline !important;
+    gap: 0.22rem !important;
+    white-space: nowrap !important;
+}
+
+.ws-content-brand-name {
+    color: inherit !important;
+    font-size: 1.02rem !important;
+    font-weight: 950 !important;
+    letter-spacing: -0.04em !important;
+}
+
+.ws-content-brand-ai {
+    color: #34d399 !important;
+    font-size: 0.76rem !important;
+    font-weight: 950 !important;
+}
+
+.ws-content-header-nav {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 0.42rem !important;
+    flex-wrap: wrap !important;
+}
+
+.ws-content-header-link {
+    min-height: 35px !important;
+    padding: 0.40rem 0.72rem !important;
+
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+
+    border-radius: 999px !important;
+    text-decoration: none !important;
+
+    color: rgba(226,232,240,0.88) !important;
+    background: rgba(15,23,42,0.36) !important;
+    border: 1px solid rgba(148,163,184,0.13) !important;
+
+    font-size: 0.78rem !important;
+    font-weight: 850 !important;
+    line-height: 1 !important;
+}
+
+.ws-content-header-link:hover,
+.ws-content-header-link.active {
+    color: rgba(248,250,252,0.98) !important;
+    background: rgba(99,102,241,0.26) !important;
+    border-color: rgba(129,140,248,0.40) !important;
+}
+
+.ws-content-header-mode {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+    gap: 0.36rem !important;
+}
+
+.ws-content-header-mode span {
+    padding: 0.32rem 0.55rem !important;
+    border-radius: 999px !important;
+
+    color: rgba(226,232,240,0.84) !important;
+    background: rgba(15,23,42,0.36) !important;
+    border: 1px solid rgba(148,163,184,0.13) !important;
+
+    font-size: 0.72rem !important;
+    font-weight: 850 !important;
+}
+
+/* Light Mode Header */
+.stApp:has(.theme-light) .ws-content-top-header-clean,
+body:has(.theme-light) .ws-content-top-header-clean {
+    background:
+        radial-gradient(circle at 8% 0%, rgba(34,197,94,0.13), transparent 32%),
+        radial-gradient(circle at 92% 0%, rgba(99,102,241,0.13), transparent 34%),
+        rgba(255,255,255,0.90) !important;
+
+    border-color: rgba(15,23,42,0.10) !important;
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.82),
+        0 18px 42px rgba(15,23,42,0.10) !important;
+}
+
+.stApp:has(.theme-light) .ws-content-brand,
+body:has(.theme-light) .ws-content-brand,
+.stApp:has(.theme-light) .ws-content-header-link,
+body:has(.theme-light) .ws-content-header-link,
+.stApp:has(.theme-light) .ws-content-header-mode span,
+body:has(.theme-light) .ws-content-header-mode span {
+    color: rgba(15,23,42,0.90) !important;
+    background: rgba(255,255,255,0.76) !important;
+    border-color: rgba(15,23,42,0.10) !important;
+}
+
+/* Streamlit Sidebar Collapse Button sichtbar machen */
+button[data-testid="stSidebarCollapseButton"],
+div[data-testid="stSidebarCollapseButton"] button,
+button[data-testid="collapsedControl"],
+div[data-testid="collapsedControl"] button {
+    opacity: 1 !important;
+    visibility: visible !important;
+
+    width: 42px !important;
+    height: 42px !important;
+
+    border-radius: 999px !important;
+    background: rgba(99,102,241,0.22) !important;
+    border: 1px solid rgba(99,102,241,0.30) !important;
+    box-shadow: 0 10px 28px rgba(15,23,42,0.16) !important;
+}
+
+/* Light Mode Sidebar Collapse Button */
+.stApp:has(.theme-light) button[data-testid="stSidebarCollapseButton"],
+.stApp:has(.theme-light) div[data-testid="stSidebarCollapseButton"] button,
+.stApp:has(.theme-light) button[data-testid="collapsedControl"],
+.stApp:has(.theme-light) div[data-testid="collapsedControl"] button {
+    background: rgba(255,255,255,0.92) !important;
+    border-color: rgba(15,23,42,0.14) !important;
+}
+
+/* Content oben nicht zu weit schieben */
+main .block-container {
+    padding-top: 2.0rem !important;
+    padding-bottom: 6.8rem !important;
+}
+
+/* Sidebar oben weniger Leerraum */
+section[data-testid="stSidebar"] > div:first-child {
+    padding-top: 4.4rem !important;
+}
+
+/* Responsive */
+@media (max-width: 1180px) {
+    .ws-content-top-header-clean {
+        grid-template-columns: 1fr !important;
+        justify-items: center !important;
+        max-width: 880px !important;
+    }
+
+    .ws-content-header-mode {
+        display: none !important;
+    }
+
+    .ws-content-brand {
+        min-width: unset !important;
+    }
+}
+
+
+/* =========================================================
+   INLINE HEADER: clean compact app header
+   ========================================================= */
+
+.ws-inline-header {
+    width: 100% !important;
+    max-width: 1050px !important;
+    margin: 0 auto 2rem auto !important;
+    padding: 0.62rem 0.72rem !important;
+
+    display: grid !important;
+    grid-template-columns: auto 1fr auto !important;
+    align-items: center !important;
+    gap: 0.8rem !important;
+
+    border-radius: 26px !important;
+
+    background:
+        radial-gradient(circle at 8% 0%, rgba(34,197,94,0.18), transparent 32%),
+        radial-gradient(circle at 92% 0%, rgba(99,102,241,0.22), transparent 34%),
+        rgba(2, 6, 23, 0.82) !important;
+
+    border: 1px solid rgba(148,163,184,0.20) !important;
+
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.10),
+        0 18px 46px rgba(0,0,0,0.22) !important;
+
+    backdrop-filter: blur(22px) !important;
+    -webkit-backdrop-filter: blur(22px) !important;
+}
+
+.ws-inline-brand {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 0.55rem !important;
+
+    min-width: 205px !important;
+    padding: 0.36rem 0.78rem 0.36rem 0.38rem !important;
+
+    border-radius: 999px !important;
+    text-decoration: none !important;
+
+    color: rgba(248,250,252,0.98) !important;
+    background: rgba(15,23,42,0.46) !important;
+    border: 1px solid rgba(148,163,184,0.16) !important;
+}
+
+.ws-inline-brand-mark {
+    width: 36px !important;
+    height: 36px !important;
+
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+
+    border-radius: 14px !important;
+    background: linear-gradient(135deg, #22c55e, #6366f1) !important;
+    color: #ffffff !important;
+
+    font-size: 1.05rem !important;
+    font-weight: 950 !important;
+}
+
+.ws-inline-brand-name {
+    color: inherit !important;
+    font-size: 1.02rem !important;
+    font-weight: 950 !important;
+    letter-spacing: -0.04em !important;
+}
+
+.ws-inline-brand-ai {
+    color: #34d399 !important;
+    font-size: 0.76rem !important;
+    font-weight: 950 !important;
+}
+
+.ws-inline-nav {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 0.42rem !important;
+    flex-wrap: wrap !important;
+}
+
+.ws-header-link {
+    min-height: 35px !important;
+    padding: 0.40rem 0.74rem !important;
+
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+
+    border-radius: 999px !important;
+    text-decoration: none !important;
+
+    color: rgba(226,232,240,0.88) !important;
+    background: rgba(15,23,42,0.36) !important;
+    border: 1px solid rgba(148,163,184,0.13) !important;
+
+    font-size: 0.78rem !important;
+    font-weight: 850 !important;
+    line-height: 1 !important;
+}
+
+.ws-header-link:hover,
+.ws-header-link.active {
+    color: rgba(248,250,252,0.98) !important;
+    background: rgba(99,102,241,0.26) !important;
+    border-color: rgba(129,140,248,0.40) !important;
+}
+
+.ws-inline-status {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+    gap: 0.36rem !important;
+}
+
+.ws-inline-status span {
+    padding: 0.32rem 0.55rem !important;
+    border-radius: 999px !important;
+
+    color: rgba(226,232,240,0.84) !important;
+    background: rgba(15,23,42,0.36) !important;
+    border: 1px solid rgba(148,163,184,0.13) !important;
+
+    font-size: 0.72rem !important;
+    font-weight: 850 !important;
+}
+
+/* Light Mode */
+.stApp:has(.theme-light) .ws-inline-header,
+body:has(.theme-light) .ws-inline-header {
+    background:
+        radial-gradient(circle at 8% 0%, rgba(34,197,94,0.13), transparent 32%),
+        radial-gradient(circle at 92% 0%, rgba(99,102,241,0.13), transparent 34%),
+        rgba(255,255,255,0.90) !important;
+
+    border-color: rgba(15,23,42,0.10) !important;
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.82),
+        0 18px 42px rgba(15,23,42,0.10) !important;
+}
+
+.stApp:has(.theme-light) .ws-inline-brand,
+body:has(.theme-light) .ws-inline-brand,
+.stApp:has(.theme-light) .ws-header-link,
+body:has(.theme-light) .ws-header-link,
+.stApp:has(.theme-light) .ws-inline-status span,
+body:has(.theme-light) .ws-inline-status span {
+    color: rgba(15,23,42,0.90) !important;
+    background: rgba(255,255,255,0.76) !important;
+    border-color: rgba(15,23,42,0.10) !important;
+}
+
+.stApp:has(.theme-light) .ws-header-link:hover,
+.stApp:has(.theme-light) .ws-header-link.active,
+body:has(.theme-light) .ws-header-link:hover,
+body:has(.theme-light) .ws-header-link.active {
+    color: #0f172a !important;
+    background: rgba(224,231,255,0.90) !important;
+    border-color: rgba(99,102,241,0.30) !important;
+}
+
+/* Alte Header-Versuche ausblenden */
+.ws-global-top-header,
+.ws-content-top-header,
+.ws-content-top-header-clean,
+.ws-brand-home-logo,
+.ws-top-left-home-logo {
+    display: none !important;
+}
+
+/* Responsive */
+@media (max-width: 1180px) {
+    .ws-inline-header {
+        grid-template-columns: 1fr !important;
+        justify-items: center !important;
+    }
+
+    .ws-inline-status {
+        display: none !important;
+    }
+
+    .ws-inline-brand {
+        min-width: unset !important;
+    }
+}
+
+
+/* =========================================================
+   FINAL LAYOUT: Full-width top header, sidebar starts below
+   ========================================================= */
+
+/* Der Header soll über die komplette App laufen */
+.ws-inline-header {
+    position: fixed !important;
+    top: 0.78rem !important;
+    left: 1rem !important;
+    right: 1rem !important;
+    width: auto !important;
+    max-width: none !important;
+
+    z-index: 2147483000 !important;
+
+    margin: 0 !important;
+    min-height: 62px !important;
+    padding: 0.58rem 0.72rem !important;
+
+    display: grid !important;
+    grid-template-columns: 250px 1fr auto !important;
+    align-items: center !important;
+    gap: 0.85rem !important;
+
+    border-radius: 26px !important;
+
+    background:
+        radial-gradient(circle at 5% 0%, rgba(34,197,94,0.22), transparent 30%),
+        radial-gradient(circle at 95% 0%, rgba(99,102,241,0.24), transparent 34%),
+        rgba(2, 6, 23, 0.88) !important;
+
+    border: 1px solid rgba(148,163,184,0.20) !important;
+
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.10),
+        0 18px 46px rgba(0,0,0,0.24) !important;
+
+    backdrop-filter: blur(24px) !important;
+    -webkit-backdrop-filter: blur(24px) !important;
+}
+
+/* Hauptinhalt unter Header schieben */
+main .block-container {
+    padding-top: 7.2rem !important;
+    padding-bottom: 7.2rem !important;
+}
+
+/* Sidebar beginnt ebenfalls unter Header */
+section[data-testid="stSidebar"] {
+    padding-top: 6.6rem !important;
+}
+
+/* Sidebar-Innenabstand nicht nochmal übertreiben */
+section[data-testid="stSidebar"] > div:first-child {
+    padding-top: 0.8rem !important;
+}
+
+/* Der native Streamlit-Collapse-Button soll im Headerbereich nicht stören */
+button[data-testid="stSidebarCollapseButton"],
+div[data-testid="stSidebarCollapseButton"] button,
+button[data-testid="collapsedControl"],
+div[data-testid="collapsedControl"] button {
+    position: fixed !important;
+    top: 6.05rem !important;
+    left: 1.05rem !important;
+    z-index: 2147483001 !important;
+
+    width: 38px !important;
+    height: 38px !important;
+    border-radius: 999px !important;
+
+    background: rgba(15,23,42,0.78) !important;
+    border: 1px solid rgba(148,163,184,0.26) !important;
+    box-shadow: 0 10px 28px rgba(0,0,0,0.22) !important;
+}
+
+/* Header-Brand etwas stärker */
+.ws-inline-brand {
+    min-width: 230px !important;
+    height: 44px !important;
+    justify-content: flex-start !important;
+}
+
+.ws-inline-brand-mark {
+    width: 38px !important;
+    height: 38px !important;
+}
+
+.ws-inline-brand-name {
+    font-size: 1.04rem !important;
+}
+
+.ws-inline-brand-ai {
+    font-size: 0.78rem !important;
+}
+
+/* Navigation sauber mittig */
+.ws-inline-nav {
+    justify-content: center !important;
+    gap: 0.46rem !important;
+}
+
+.ws-header-link {
+    min-height: 36px !important;
+    padding: 0.42rem 0.8rem !important;
+}
+
+/* Status rechts kompakt */
+.ws-inline-status {
+    min-width: 125px !important;
+}
+
+/* Light Mode */
+.stApp:has(.theme-light) .ws-inline-header,
+body:has(.theme-light) .ws-inline-header {
+    background:
+        radial-gradient(circle at 5% 0%, rgba(34,197,94,0.13), transparent 30%),
+        radial-gradient(circle at 95% 0%, rgba(99,102,241,0.13), transparent 34%),
+        rgba(255,255,255,0.92) !important;
+
+    border-color: rgba(15,23,42,0.10) !important;
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.86),
+        0 18px 42px rgba(15,23,42,0.11) !important;
+}
+
+.stApp:has(.theme-light) button[data-testid="stSidebarCollapseButton"],
+.stApp:has(.theme-light) div[data-testid="stSidebarCollapseButton"] button,
+.stApp:has(.theme-light) button[data-testid="collapsedControl"],
+.stApp:has(.theme-light) div[data-testid="collapsedControl"] button {
+    background: rgba(255,255,255,0.94) !important;
+    border-color: rgba(15,23,42,0.14) !important;
+    box-shadow: 0 10px 28px rgba(15,23,42,0.12) !important;
+}
+
+/* Auf kleineren Screens Navigation umbrechen */
+@media (max-width: 1180px) {
+    .ws-inline-header {
+        grid-template-columns: 230px 1fr !important;
+        min-height: 88px !important;
+    }
+
+    .ws-inline-status {
+        display: none !important;
+    }
+
+    main .block-container {
+        padding-top: 9rem !important;
+    }
+
+    section[data-testid="stSidebar"] {
+        padding-top: 8.5rem !important;
+    }
+
+    button[data-testid="stSidebarCollapseButton"],
+    div[data-testid="stSidebarCollapseButton"] button,
+    button[data-testid="collapsedControl"],
+    div[data-testid="collapsedControl"] button {
+        top: 7.9rem !important;
+    }
+}
+
+@media (max-width: 820px) {
+    .ws-inline-header {
+        grid-template-columns: 1fr !important;
+        left: 0.6rem !important;
+        right: 0.6rem !important;
+        min-height: 112px !important;
+        justify-items: center !important;
+    }
+
+    .ws-inline-brand {
+        min-width: unset !important;
+        justify-content: center !important;
+    }
+
+    .ws-inline-nav {
+        justify-content: center !important;
+    }
+
+    main .block-container {
+        padding-top: 11rem !important;
+    }
+
+    section[data-testid="stSidebar"] {
+        padding-top: 10.5rem !important;
+    }
+}
+
+
+/* =========================================================
+   FINAL SIDEBAR CLEANUP
+   Sidebar = Controls only
+   Header/BottomBar = Navigation
+   ========================================================= */
+
+/* Sidebar unter Full-Width Header starten */
+section[data-testid="stSidebar"] {
+    padding-top: 6.8rem !important;
+}
+
+/* Sidebar allgemein ruhiger und sauberer */
+section[data-testid="stSidebar"] {
+    background:
+        radial-gradient(circle at 50% 0%, rgba(99,102,241,0.08), transparent 35%),
+        rgba(2, 6, 23, 0.78) !important;
+
+    border-right: 1px solid rgba(148,163,184,0.14) !important;
+}
+
+/* Light Mode Sidebar */
+.stApp:has(.theme-light) section[data-testid="stSidebar"],
+body:has(.theme-light) section[data-testid="stSidebar"] {
+    background:
+        radial-gradient(circle at 50% 0%, rgba(99,102,241,0.08), transparent 35%),
+        rgba(248,250,252,0.92) !important;
+
+    border-right: 1px solid rgba(15,23,42,0.10) !important;
+}
+
+/* Alte/duplizierte Sidebar-Brand-Karten ausblenden */
+section[data-testid="stSidebar"] .ws-sidebar-logo,
+section[data-testid="stSidebar"] .ws-sidebar-logo-final,
+section[data-testid="stSidebar"] .ws-home-logo,
+section[data-testid="stSidebar"] .ws-home-logo-final,
+section[data-testid="stSidebar"] .ws-sidebar-brand-card,
+section[data-testid="stSidebar"] .ws-sidebar-claim,
+section[data-testid="stSidebar"] .ws-sidebar-claim-final,
+section[data-testid="stSidebar"] .ws-sidebar-note,
+section[data-testid="stSidebar"] .ws-sidebar-note-compact,
+section[data-testid="stSidebar"] .ws-sidebar-note-final {
+    display: none !important;
+}
+
+/* Falls die Branding-Karten generische Card-Container sind: erste Markdown/HTML-Karten oben entschärfen */
+section[data-testid="stSidebar"] div:has(> .ws-sidebar-logo),
+section[data-testid="stSidebar"] div:has(> .ws-sidebar-logo-final),
+section[data-testid="stSidebar"] div:has(> .ws-home-logo),
+section[data-testid="stSidebar"] div:has(> .ws-home-logo-final),
+section[data-testid="stSidebar"] div:has(> .ws-sidebar-brand-card),
+section[data-testid="stSidebar"] div:has(> .ws-sidebar-claim),
+section[data-testid="stSidebar"] div:has(> .ws-sidebar-claim-final) {
+    display: none !important;
+}
+
+/* Sidebar-Navigation links ausblenden, weil Navigation oben/unten sitzt */
+section[data-testid="stSidebar"] .ws-sidebar-nav-final,
+section[data-testid="stSidebar"] .ws-sidebar-nav,
+section[data-testid="stSidebar"] div:has(> .ws-sidebar-nav-final),
+section[data-testid="stSidebar"] div:has(> .ws-sidebar-nav) {
+    display: none !important;
+}
+
+/* Letzte Navigation-Radio-Gruppe links optisch verstecken, falls sie noch Streamlit-native ist */
+section[data-testid="stSidebar"] [aria-label="Navigation"] {
+    display: none !important;
+}
+
+/* Sidebar Überschriften sauber */
+section[data-testid="stSidebar"] label,
+section[data-testid="stSidebar"] p,
+section[data-testid="stSidebar"] span {
+    letter-spacing: -0.01em !important;
+}
+
+/* Radio-Gruppen als kompakte Kontrollkarten */
+section[data-testid="stSidebar"] [role="radiogroup"] {
+    padding: 0.55rem 0.65rem !important;
+    border-radius: 18px !important;
+
+    background: rgba(15,23,42,0.34) !important;
+    border: 1px solid rgba(148,163,184,0.14) !important;
+
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.05),
+        0 10px 26px rgba(0,0,0,0.12) !important;
+}
+
+/* Light Mode Radio-Karten */
+.stApp:has(.theme-light) section[data-testid="stSidebar"] [role="radiogroup"],
+body:has(.theme-light) section[data-testid="stSidebar"] [role="radiogroup"] {
+    background: rgba(255,255,255,0.76) !important;
+    border: 1px solid rgba(15,23,42,0.09) !important;
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.80),
+        0 10px 26px rgba(15,23,42,0.07) !important;
+}
+
+/* Statuskarte kompakter */
+section[data-testid="stSidebar"] .ws-sidebar-state,
+section[data-testid="stSidebar"] .ws-sidebar-state-final,
+section[data-testid="stSidebar"] .ws-sidebar-state-compact {
+    margin-top: 0.9rem !important;
+    padding: 0.65rem 0.75rem !important;
+    border-radius: 18px !important;
+    font-size: 0.78rem !important;
+}
+
+/* Native Sidebar Collapse Button deutlich sichtbar */
+button[data-testid="stSidebarCollapseButton"],
+div[data-testid="stSidebarCollapseButton"] button,
+button[data-testid="collapsedControl"],
+div[data-testid="collapsedControl"] button {
+    opacity: 1 !important;
+    visibility: visible !important;
+
+    position: fixed !important;
+    top: 5.9rem !important;
+    left: 1.05rem !important;
+    z-index: 2147483001 !important;
+
+    width: 40px !important;
+    height: 40px !important;
+    border-radius: 999px !important;
+
+    background: rgba(15,23,42,0.86) !important;
+    border: 1px solid rgba(148,163,184,0.25) !important;
+    color: rgba(248,250,252,0.95) !important;
+
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.08),
+        0 12px 30px rgba(0,0,0,0.24) !important;
+}
+
+/* Light Mode Collapse Button */
+.stApp:has(.theme-light) button[data-testid="stSidebarCollapseButton"],
+.stApp:has(.theme-light) div[data-testid="stSidebarCollapseButton"] button,
+.stApp:has(.theme-light) button[data-testid="collapsedControl"],
+.stApp:has(.theme-light) div[data-testid="collapsedControl"] button {
+    background: rgba(255,255,255,0.94) !important;
+    border-color: rgba(15,23,42,0.14) !important;
+    color: rgba(15,23,42,0.92) !important;
+    box-shadow: 0 12px 30px rgba(15,23,42,0.12) !important;
+}
+
+/* Sidebar bei Collapse nicht zerstören */
+section[data-testid="stSidebar"][aria-expanded="false"] {
+    min-width: 0 !important;
+}
+
+/* Etwas Abstand unten wegen BottomBar */
+section[data-testid="stSidebar"] > div:first-child {
+    padding-bottom: 7rem !important;
+}
+
+
+/* =========================================================
+   FINAL: Sidebar collapse button clearly visible
+   ========================================================= */
+
+button[data-testid="stSidebarCollapseButton"],
+div[data-testid="stSidebarCollapseButton"] button,
+button[data-testid="collapsedControl"],
+div[data-testid="collapsedControl"] button {
+    opacity: 1 !important;
+    visibility: visible !important;
+
+    position: fixed !important;
+    top: 5.9rem !important;
+    left: 1.05rem !important;
+    z-index: 2147483001 !important;
+
+    width: 42px !important;
+    height: 42px !important;
+    border-radius: 999px !important;
+
+    background: rgba(15, 23, 42, 0.88) !important;
+    border: 1px solid rgba(148, 163, 184, 0.28) !important;
+    color: rgba(248, 250, 252, 0.98) !important;
+
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.10),
+        0 14px 34px rgba(0, 0, 0, 0.28) !important;
+}
+
+button[data-testid="stSidebarCollapseButton"]::after,
+div[data-testid="stSidebarCollapseButton"] button::after,
+button[data-testid="collapsedControl"]::after,
+div[data-testid="collapsedControl"] button::after {
+    content: "‹" !important;
+    font-size: 1.5rem !important;
+    font-weight: 900 !important;
+    line-height: 1 !important;
+}
+
+.stApp:has(.theme-light) button[data-testid="stSidebarCollapseButton"],
+.stApp:has(.theme-light) div[data-testid="stSidebarCollapseButton"] button,
+.stApp:has(.theme-light) button[data-testid="collapsedControl"],
+.stApp:has(.theme-light) div[data-testid="collapsedControl"] button {
+    background: rgba(255, 255, 255, 0.96) !important;
+    border-color: rgba(15, 23, 42, 0.16) !important;
+    color: rgba(15, 23, 42, 0.95) !important;
+    box-shadow: 0 14px 34px rgba(15, 23, 42, 0.14) !important;
+}
+

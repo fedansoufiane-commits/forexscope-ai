@@ -33,7 +33,7 @@ except Exception:
 st.set_page_config(
     page_title="WealthScope AI",
     layout="wide",
-    initial_sidebar_state="collapsed",
+    initial_sidebar_state="expanded",
 )
 
 
@@ -478,41 +478,13 @@ st.markdown(
        BOTTOM STATUS BAR
        ========================= */
 
-    .bottom-status-bar {
-        position: sticky;
-        bottom: 0;
-        z-index: 999;
-        margin-top: 2rem;
-        border: 1px solid rgba(255,255,255,0.12);
-        border-radius: 22px;
-        padding: 0.8rem 1rem;
-        background: rgba(12,16,30,0.92);
-        backdrop-filter: blur(18px);
-        box-shadow: 0 -12px 35px rgba(0,0,0,0.22);
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.75rem 1.2rem;
-        align-items: center;
-        font-size: 0.9rem;
-    }
+    
 
-    .bottom-status-item {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.35rem;
-        white-space: nowrap;
-    }
+    
 
-    .bottom-status-link {
-        font-weight: 800;
-        opacity: 0.95;
-    }
+    
 
-    .stApp:has(.theme-light) .bottom-status-bar {
-        background: rgba(255,255,255,0.92);
-        border: 1px solid rgba(15,23,42,0.10);
-        box-shadow: 0 -12px 35px rgba(15,23,42,0.10);
-    }
+    .stApp:has(.theme-light) 
     .status-dot {
         display: inline-block;
         width: 13px;
@@ -550,62 +522,13 @@ st.markdown(
        FINAL OVERRIDE: ARSNOVA-LIKE FIXED BOTTOM BAR
        ===================================================== */
 
-    .bottom-status-bar {
-        position: fixed !important;
-        left: 0 !important;
-        right: 0 !important;
-        bottom: 0 !important;
-        width: 100vw !important;
-        min-height: 72px !important;
-        z-index: 2147483647 !important;
-        border-radius: 0 !important;
-        border-top: 1px solid rgba(255,255,255,0.18) !important;
-        border-left: none !important;
-        border-right: none !important;
-        border-bottom: none !important;
-        padding: 0.85rem 1.25rem !important;
-        background:
-            linear-gradient(180deg, rgba(95, 15, 170, 0.96), rgba(98, 0, 185, 0.98)) !important;
-        backdrop-filter: blur(24px) !important;
-        -webkit-backdrop-filter: blur(24px) !important;
-        box-shadow:
-            0 -18px 45px rgba(0,0,0,0.40),
-            inset 0 1px 0 rgba(255,255,255,0.14) !important;
-        display: flex !important;
-        flex-wrap: wrap !important;
-        justify-content: center !important;
-        align-items: center !important;
-        gap: 0.7rem 2rem !important;
-        font-size: 0.98rem !important;
-    }
+    
 
-    .bottom-status-item {
-        display: inline-flex !important;
-        align-items: center !important;
-        gap: 0.45rem !important;
-        white-space: nowrap !important;
-        color: #ffffff !important;
-        font-weight: 800 !important;
-        text-decoration: none !important;
-        opacity: 0.96 !important;
-    }
+    
 
-    .bottom-status-item:hover {
-        opacity: 1 !important;
-        transform: translateY(-1px);
-    }
+    
 
-    .bottom-status-icon {
-        display: inline-flex !important;
-        width: 25px !important;
-        height: 25px !important;
-        border-radius: 999px !important;
-        align-items: center !important;
-        justify-content: center !important;
-        background: rgba(255,255,255,0.16) !important;
-        border: 1px solid rgba(255,255,255,0.16) !important;
-        font-size: 0.9rem !important;
-    }
+    
 
     .bottom-spacer {
         height: 110px !important;
@@ -621,11 +544,7 @@ st.markdown(
     }
 
     /* Light Mode für feste Bottom-Bar */
-    .stApp:has(.theme-light) .bottom-status-bar {
-        background:
-            linear-gradient(180deg, rgba(110, 32, 190, 0.95), rgba(117, 0, 205, 0.97)) !important;
-        border-top: 1px solid rgba(15,23,42,0.12) !important;
-    }
+    .stApp:has(.theme-light) 
 
 
     /* =====================================================
@@ -651,68 +570,15 @@ st.markdown(
         border-color: rgba(111,140,255,0.22) !important;
     }
 
-    .bottom-status-bar {
-        position: fixed !important;
-        left: 0 !important;
-        right: 0 !important;
-        bottom: 0 !important;
-        width: 100vw !important;
-        min-height: 70px !important;
-        z-index: 2147483647 !important;
-        border-radius: 0 !important;
-        border-top: 1px solid rgba(255,255,255,0.12) !important;
-        border-left: none !important;
-        border-right: none !important;
-        border-bottom: none !important;
-        padding: 0.8rem 1.4rem !important;
-        background:
-            linear-gradient(180deg, rgba(12, 18, 34, 0.98), rgba(6, 10, 20, 0.99)) !important;
-        backdrop-filter: blur(26px) !important;
-        -webkit-backdrop-filter: blur(26px) !important;
-        box-shadow:
-            0 -18px 45px rgba(0,0,0,0.46),
-            inset 0 1px 0 rgba(255,255,255,0.08) !important;
-        display: flex !important;
-        flex-wrap: wrap !important;
-        justify-content: center !important;
-        align-items: center !important;
-        gap: 0.65rem 1.45rem !important;
-        font-size: 0.94rem !important;
-    }
+    
 
-    .bottom-status-item {
-        display: inline-flex !important;
-        align-items: center !important;
-        gap: 0.45rem !important;
-        white-space: nowrap !important;
-        color: #eef3ff !important;
-        font-weight: 780 !important;
-        text-decoration: none !important;
-        opacity: 0.93 !important;
-    }
+    
 
-    .bottom-status-item:hover {
-        opacity: 1 !important;
-        color: #ffffff !important;
-        transform: translateY(-1px);
-    }
+    
 
-    .bottom-status-icon {
-        display: inline-flex !important;
-        width: 25px !important;
-        height: 25px !important;
-        border-radius: 999px !important;
-        align-items: center !important;
-        justify-content: center !important;
-        background: rgba(111, 140, 255, 0.16) !important;
-        border: 1px solid rgba(111, 140, 255, 0.24) !important;
-        font-size: 0.9rem !important;
-    }
+    
 
-    .bottom-status-meta {
-        opacity: 0.78 !important;
-        font-weight: 650 !important;
-    }
+    
 
     .bottom-spacer {
         height: 115px !important;
@@ -726,21 +592,11 @@ st.markdown(
         visibility: hidden !important;
     }
 
-    .stApp:has(.theme-light) .bottom-status-bar {
-        background:
-            linear-gradient(180deg, rgba(248,250,255,0.98), rgba(232,237,247,0.98)) !important;
-        border-top: 1px solid rgba(15,23,42,0.12) !important;
-        box-shadow: 0 -18px 45px rgba(15,23,42,0.12) !important;
-    }
+    .stApp:has(.theme-light) 
 
-    .stApp:has(.theme-light) .bottom-status-item {
-        color: #172033 !important;
-    }
+    .stApp:has(.theme-light) 
 
-    .stApp:has(.theme-light) .bottom-status-icon {
-        background: rgba(47, 78, 180, 0.10) !important;
-        border: 1px solid rgba(47, 78, 180, 0.16) !important;
-    }
+    .stApp:has(.theme-light) 
 
 
     /* =====================================================
@@ -787,63 +643,15 @@ st.markdown(
        FINAL CLEAN WEALTHSCOPE UI
        ===================================================== */
 
-    .bottom-status-bar {
-        position: fixed !important;
-        left: 0 !important;
-        right: 0 !important;
-        bottom: 0 !important;
-        width: 100vw !important;
-        min-height: 70px !important;
-        z-index: 2147483647 !important;
-        border-radius: 0 !important;
-        border-top: 1px solid rgba(111, 140, 255, 0.18) !important;
-        padding: 0.8rem 1.4rem !important;
-        background:
-            linear-gradient(180deg, rgba(10, 16, 30, 0.98), rgba(5, 9, 18, 0.99)) !important;
-        backdrop-filter: blur(26px) !important;
-        -webkit-backdrop-filter: blur(26px) !important;
-        box-shadow: 0 -18px 45px rgba(0,0,0,0.46) !important;
-        display: flex !important;
-        flex-wrap: wrap !important;
-        justify-content: center !important;
-        align-items: center !important;
-        gap: 0.65rem 1.45rem !important;
-        font-size: 0.94rem !important;
-    }
+    
 
-    .bottom-status-item {
-        display: inline-flex !important;
-        align-items: center !important;
-        gap: 0.45rem !important;
-        white-space: nowrap !important;
-        color: #eef3ff !important;
-        font-weight: 780 !important;
-        text-decoration: none !important;
-        opacity: 0.94 !important;
-    }
+    
 
-    .bottom-status-item:hover {
-        opacity: 1 !important;
-        color: #ffffff !important;
-        transform: translateY(-1px);
-    }
+    
 
-    .bottom-status-icon {
-        display: inline-flex !important;
-        width: 25px !important;
-        height: 25px !important;
-        border-radius: 999px !important;
-        align-items: center !important;
-        justify-content: center !important;
-        background: rgba(111, 140, 255, 0.16) !important;
-        border: 1px solid rgba(111, 140, 255, 0.24) !important;
-        font-size: 0.9rem !important;
-    }
+    
 
-    .bottom-status-meta {
-        opacity: 0.78 !important;
-        font-weight: 650 !important;
-    }
+    
 
     .bottom-spacer {
         height: 115px !important;
@@ -870,21 +678,11 @@ st.markdown(
         visibility: hidden !important;
     }
 
-    .stApp:has(.theme-light) .bottom-status-bar {
-        background:
-            linear-gradient(180deg, rgba(248,250,255,0.98), rgba(232,237,247,0.98)) !important;
-        border-top: 1px solid rgba(15,23,42,0.12) !important;
-        box-shadow: 0 -18px 45px rgba(15,23,42,0.12) !important;
-    }
+    .stApp:has(.theme-light) 
 
-    .stApp:has(.theme-light) .bottom-status-item {
-        color: #172033 !important;
-    }
+    .stApp:has(.theme-light) 
 
-    .stApp:has(.theme-light) .bottom-status-icon {
-        background: rgba(47, 78, 180, 0.10) !important;
-        border: 1px solid rgba(47, 78, 180, 0.16) !important;
-    }
+    .stApp:has(.theme-light) 
 
 
     /* =====================================================
@@ -942,15 +740,9 @@ st.markdown(
         border-left: 5px solid rgba(34, 197, 94, 0.65) !important;
     }
 
-    .stApp:has(.theme-light) .bottom-status-bar {
-        background:
-            linear-gradient(180deg, rgba(248,250,255,0.98), rgba(232,237,247,0.98)) !important;
-        border-top: 1px solid rgba(15,23,42,0.12) !important;
-    }
+    .stApp:has(.theme-light) 
 
-    .stApp:has(.theme-light) .bottom-status-item {
-        color: #172033 !important;
-    }
+    .stApp:has(.theme-light) 
 
 </style>
     """,
@@ -1219,18 +1011,13 @@ def apply_dynamic_ui_mode(theme_mode, app_mode):
             font-weight: 800 !important;
         }}
 
-        .bottom-status-bar {{
-            background: {bottom_bg} !important;
+         !important;
             border-top: 1px solid {card_border} !important;
         }}
 
-        .bottom-status-item {{
-            color: {bottom_text} !important;
+         !important;
         }}
 
-        .bottom-status-item * {{
-            color: {bottom_text} !important;
-        }}
 
         input, textarea, select,
         div[data-baseweb="select"] > div,
@@ -1391,14 +1178,11 @@ def apply_final_ui_mode(theme_mode, app_mode):
                 color: {text} !important;
             }}
 
-            .bottom-status-bar {{
-                background: {bottom_bg} !important;
+             !important;
                 border-top: 1px solid {card_border} !important;
             }}
 
-            .bottom-status-item,
-            .bottom-status-item * {{
-                color: {bottom_text} !important;
+             !important;
             }}
 
             [data-testid="stMetricValue"],
@@ -2957,86 +2741,19 @@ def privacy_status_table():
 
 
 
-# =========================================================
-# ROUTING HELPERS
-# =========================================================
-
-
-
-def get_query_page():
-    try:
-        value = st.query_params.get("page", None)
-        if isinstance(value, list):
-            return value[0] if value else None
-        return value
-    except Exception:
-        return None
-
-
-def route_to_page(target_page):
-    st.session_state["current_page"] = target_page
-    try:
-        st.query_params["page"] = target_page
-    except Exception:
-        pass
-    st.rerun()
-
-
-
 
 # =========================================================
-# ROUTING + SIDEBAR
+# ROUTING + UI STATE – SINGLE SOURCE OF TRUTH
 # =========================================================
 
-def normalize_page_name(value):
-    if value is None:
-        return None
+import urllib.parse
+from datetime import datetime
+import textwrap
 
-    try:
-        value = unquote(str(value)).strip()
-    except Exception:
-        value = str(value).strip()
+VALID_THEMES = ["Dark Mode", "Light Mode"]
+VALID_VIEWS = ["Geführte Ansicht", "Expertenansicht"]
 
-    aliases = {
-        "So funktioniert%27s": "So funktioniert's",
-        "So funktioniert’s": "So funktioniert's",
-        "Projekt": "Über das Projekt",
-        "Status": "Betriebsstatus",
-        "News": "News-Archiv",
-        "Outlook": "Wealth Outlook",
-        "Portfolio": "Portfolio-Simulator",
-    }
-
-    return aliases.get(value, value) if value else None
-
-
-def get_query_page():
-    try:
-        value = st.query_params.get("page", None)
-        if isinstance(value, list):
-            value = value[0] if value else None
-        return normalize_page_name(value)
-    except Exception:
-        return None
-
-
-
-def route_to_page(target_page):
-    target_page = normalize_page_name(target_page)
-    if not target_page:
-        return
-
-    st.session_state["current_page"] = target_page
-
-    try:
-        st.query_params["page"] = target_page
-    except Exception:
-        pass
-
-    st.rerun()
-
-
-main_pages = [
+MAIN_PAGES = [
     "Start",
     "Wealth Outlook",
     "Kapital-Kompass",
@@ -3044,120 +2761,123 @@ main_pages = [
     "Watchlist-Vergleich",
 ]
 
-bottom_pages = [
-    "News & Aktualität",
+BOTTOM_PAGES = [
     "News-Archiv",
     "So funktioniert's",
-    "Betriebsstatus",
-    "Datenschutz",
-    "Impressum",
     "Über das Projekt",
-    "Methodik & Grenzen",
+    "Professor-Export",
+    "Impressum",
+    "Datenschutz",
+    "Betriebsstatus",
 ]
 
-internal_pages = [
+INTERNAL_PAGES = [
+    "News & Aktualität",
     "Entscheidungsjournal",
-    "Professor-Export",
     "Stabilität & QA",
     "Expertenanalyse",
     "Modell & Datenbasis",
+    "Methodik & Grenzen",
 ]
 
-all_pages = main_pages + bottom_pages + internal_pages
-
-query_page = get_query_page()
-
-# Query-Parameter hat immer Vorrang.
-if query_page in all_pages:
-    page = query_page
-    st.session_state["current_page"] = page
-else:
-    page = st.session_state.get("current_page", "Start")
-    if page not in all_pages:
-        page = "Start"
-    st.session_state["current_page"] = page
+ALL_PAGES = MAIN_PAGES + BOTTOM_PAGES + INTERNAL_PAGES
 
 
-# =========================================================
-# CLEAN SIDEBAR
-# =========================================================
-
-st.sidebar.caption("Kapital verstehen. Risiken prüfen. Entscheidungen simulieren.")
-
-# =========================================================
-# UI MODE STATE
-# =========================================================
-
-if "ui_theme_mode" not in st.session_state:
-    st.session_state["ui_theme_mode"] = "Dark Mode"
-
-if "ui_app_mode" not in st.session_state:
-    st.session_state["ui_app_mode"] = "Geführte Ansicht"
-
-# =========================================================
-# DARSTELLUNG + ANSICHT
-# =========================================================
+def _first_query_value(value):
+    """Streamlit query params können String oder Liste sein."""
+    if isinstance(value, list):
+        return value[0] if value else None
+    return value
 
 
-# URL-State für Theme/View übernehmen
-try:
-    qp = st.query_params
-    url_theme = qp.get("theme")
-    url_view = qp.get("view")
+def normalize_page_name(value):
+    """Normalisiert URL- und Linkwerte auf interne Seitennamen."""
+    if value is None:
+        return None
 
-    if url_theme in ["Dark Mode", "Light Mode"]:
-        st.session_state["theme_mode"] = url_theme
+    value = urllib.parse.unquote(str(value)).strip()
 
-    if url_view in ["Geführte Ansicht", "Expertenansicht"]:
-        st.session_state["app_mode"] = url_view
-except Exception:
-    pass
+    aliases = {
+        "": "Start",
+        "Home": "Start",
+        "home": "Start",
+        "start": "Start",
+        "Projekt": "Über das Projekt",
+        "Über%20das%20Projekt": "Über das Projekt",
+        "Professor Export": "Professor-Export",
+        "Professor%20Export": "Professor-Export",
+        "So funktioniert%27s": "So funktioniert's",
+        "So funktioniert’s": "So funktioniert's",
+        "Status": "Betriebsstatus",
+        "News": "News-Archiv",
+        "Outlook": "Wealth Outlook",
+        "Portfolio": "Portfolio-Simulator",
+        "Watchlist": "Watchlist-Vergleich",
+    }
+
+    value = aliases.get(value, value)
+    return value if value in ALL_PAGES else None
 
 
-# =========================================================
-# CENTRAL UI STATE HELPERS
-# =========================================================
-
-VALID_THEMES = ["Dark Mode", "Light Mode"]
-VALID_VIEWS = ["Geführte Ansicht", "Expertenansicht"]
+def get_query_param(name, default=None):
+    try:
+        value = _first_query_value(st.query_params.get(name, default))
+        return value if value is not None else default
+    except Exception:
+        return default
 
 
 def init_ui_state():
-    """Initialisiert Theme, Ansicht und Seite zentral."""
-    qp = st.query_params
+    """
+    URL hat Vorrang.
+    Danach Session State.
+    Danach Default.
+    """
+    url_page = normalize_page_name(get_query_param("page"))
+    url_theme = get_query_param("theme")
+    url_view = get_query_param("view")
 
-    url_theme = qp.get("theme", None)
-    url_view = qp.get("view", None)
-    url_page = qp.get("page", None)
+    if url_theme not in VALID_THEMES:
+        url_theme = None
 
-    if isinstance(url_theme, list):
-        url_theme = url_theme[0] if url_theme else None
+    if url_view not in VALID_VIEWS:
+        url_view = None
 
-    if isinstance(url_view, list):
-        url_view = url_view[0] if url_view else None
+    session_page = normalize_page_name(st.session_state.get("current_page"))
+    session_theme = st.session_state.get("theme_mode")
+    session_view = st.session_state.get("app_mode")
 
-    if isinstance(url_page, list):
-        url_page = url_page[0] if url_page else None
+    page = url_page or session_page or "Start"
+    theme_mode = url_theme or session_theme or "Dark Mode"
+    app_mode = url_view or session_view or "Geführte Ansicht"
 
-    if "theme_mode" not in st.session_state:
-        st.session_state["theme_mode"] = url_theme if url_theme in VALID_THEMES else "Dark Mode"
+    if page not in ALL_PAGES:
+        page = "Start"
 
-    if "app_mode" not in st.session_state:
-        st.session_state["app_mode"] = url_view if url_view in VALID_VIEWS else "Geführte Ansicht"
+    if theme_mode not in VALID_THEMES:
+        theme_mode = "Dark Mode"
 
-    if "current_page" not in st.session_state:
-        st.session_state["current_page"] = url_page if url_page else "Start"
+    if app_mode not in VALID_VIEWS:
+        app_mode = "Geführte Ansicht"
 
-    # URL darf bestehenden Session-State nicht ungewollt überschreiben,
-    # außer der Wert ist explizit gültig vorhanden.
-    if url_theme in VALID_THEMES:
-        st.session_state["theme_mode"] = url_theme
+    st.session_state["current_page"] = page
+    st.session_state["theme_mode"] = theme_mode
+    st.session_state["app_mode"] = app_mode
 
-    if url_view in VALID_VIEWS:
-        st.session_state["app_mode"] = url_view
+    return theme_mode, app_mode, page
 
-    if url_page:
-        st.session_state["current_page"] = url_page
+
+def route_link(page_name):
+    """Erzeugt stabile interne Links mit Page, Theme und View."""
+    page_name = normalize_page_name(page_name) or "Start"
+
+    params = {
+        "page": page_name,
+        "theme": st.session_state.get("theme_mode", "Dark Mode"),
+        "view": st.session_state.get("app_mode", "Geführte Ansicht"),
+    }
+
+    return "?" + urllib.parse.urlencode(params)
 
 
 def sync_query_params():
@@ -3171,16 +2891,21 @@ def sync_query_params():
 
 
 def route_to_page(page_name):
-    """Wechselt Seite und behält Theme/View bei."""
+    """Programmgesteuerter Seitenwechsel."""
+    page_name = normalize_page_name(page_name) or "Start"
     st.session_state["current_page"] = page_name
     sync_query_params()
     st.rerun()
 
 
+# URL-State direkt initialisieren, bevor Sidebar oder Seiten gerendert werden.
+theme_mode, app_mode, page = init_ui_state()
+
 
 # =========================================================
 # START
 # =========================================================
+
 
 
 
@@ -3246,15 +2971,8 @@ except Exception:
     asset_type = "ETF"
 
 # Gemeinsame Marktdaten für Service-Seiten wie Betriebsstatus, News-Archiv, Export
-try:
-    period
-except NameError:
-    period = "5y"
-
-try:
-    interval
-except NameError:
-    interval = "1d"
+period = st.session_state.get("period", "5y")
+interval = st.session_state.get("interval", "1d")
 
 try:
     market_data = load_market_data(ticker, period, interval)
@@ -3287,105 +3005,117 @@ def route_link(page_name):
     return "?" + urllib.parse.urlencode(params)
 
 
+
+
+
+
+
+
+
+
+
+
 def render_sidebar():
-    """Harmonische Sidebar: klickbares Branding, Darstellung, Ansicht und Hauptnavigation."""
-    home_link = route_link("Start")
+    if "sidebar_collapsed" not in st.session_state:
+        st.session_state["sidebar_collapsed"] = False
+
+    toggle_label = "☰" if st.session_state["sidebar_collapsed"] else "‹"
+    if st.sidebar.button(toggle_label, key="sidebar_collapse_toggle_button", help="Sidebar ein-/ausklappen"):
+        st.session_state["sidebar_collapsed"] = not st.session_state["sidebar_collapsed"]
+        st.rerun()
+
+    """"""
+
+    current_theme = st.session_state.get("theme_mode", "Dark Mode")
+    current_view = st.session_state.get("app_mode", "Geführte Ansicht")
+    current_page = st.session_state.get("current_page", "Start")
+
+    main_pages_local = MAIN_PAGES
+
+    current_nav_index = main_pages_local.index(current_page) if current_page in main_pages_local else 0
 
     with st.sidebar:
+        home_url = route_link("Start") if "route_link" in globals() else "?page=Start"
+
         st.markdown(
             f"""
-            <a class="sidebar-home-link" href="{home_link}" target="_self">
-                <div class="sidebar-brand-card">
-                    <div class="sidebar-brand-title">WealthScope AI</div>
-                    <div class="sidebar-brand-subtitle">
-                        Kapital verstehen.<br>
-                        Risiken prüfen.<br>
-                        Entscheidungen simulieren.
-                    </div>
+            <a class="ws-home-logo-link" href="{home_url}" target="_self" title="Zur Startseite">
+                <div class="ws-home-logo-final">
+                    <div class="ws-home-logo-mark-final">♛</div>
+                    <div class="ws-home-logo-title-final">WealthScope AI</div>
                 </div>
             </a>
+
+            <div class="ws-sidebar-claim-final">
+                Kapital verstehen. Risiken prüfen.<br>
+                Entscheidungen simulieren.
+            </div>
             """,
             unsafe_allow_html=True,
         )
 
-        st.markdown('<div class="sidebar-section-label">Darstellung</div>', unsafe_allow_html=True)
+        st.markdown('<div class="ws-sidebar-label-final">Darstellung</div>', unsafe_allow_html=True)
 
         theme_mode = st.radio(
             "Darstellung",
-            VALID_THEMES,
-            index=VALID_THEMES.index(st.session_state.get("theme_mode", "Dark Mode")),
+            ["Dark Mode", "Light Mode"],
+            index=0 if current_theme == "Dark Mode" else 1,
             key="sidebar_theme_mode",
             label_visibility="collapsed",
         )
-
         st.session_state["theme_mode"] = theme_mode
 
-        st.markdown('<div class="sidebar-section-label">Ansicht</div>', unsafe_allow_html=True)
+        st.markdown('<div class="ws-sidebar-label-final">Ansicht</div>', unsafe_allow_html=True)
 
         app_mode = st.radio(
             "Ansicht",
-            VALID_VIEWS,
-            index=VALID_VIEWS.index(st.session_state.get("app_mode", "Geführte Ansicht")),
+            ["Geführte Ansicht", "Expertenansicht"],
+            index=0 if current_view == "Geführte Ansicht" else 1,
             key="sidebar_app_mode",
             label_visibility="collapsed",
         )
-
         st.session_state["app_mode"] = app_mode
 
         st.markdown(
             f"""
-            <div class="sidebar-state-box">
-                <span>Darstellung aktiv:</span>
-                <b>{theme_mode}</b>
-                <span>Ansicht aktiv:</span>
-                <b>{app_mode}</b>
+            <div class="ws-sidebar-state-final">
+                <div><span>Darstellung</span><b>{theme_mode}</b></div>
+                <div><span>Ansicht</span><b>{app_mode}</b></div>
             </div>
             """,
             unsafe_allow_html=True,
         )
 
-        st.markdown('<div class="sidebar-divider"></div>', unsafe_allow_html=True)
-        st.markdown('<div class="sidebar-section-label">Hauptnavigation</div>', unsafe_allow_html=True)
+        st.markdown('<div class="ws-sidebar-label-final ws-nav-label-final">Navigation</div>', unsafe_allow_html=True)
 
-        main_pages = [
-            "Start",
-            "Wealth Outlook",
-            "Kapital-Kompass",
-            "Portfolio-Simulator",
-            "Watchlist-Vergleich",
-        ]
+        # Wichtig:
+        # Die Sidebar darf nur Seiten aus der Hauptnavigation aktiv routen.
+        # Service-Seiten aus der BottomBar wie Impressum, Datenschutz, Betriebsstatus
+        # dürfen NICHT automatisch wieder auf Start zurückgesetzt werden.
+        nav_page = st.radio(
+            "Navigation",
+            main_pages_local,
+            index=current_nav_index,
+            key="sidebar_page_navigation",
+            label_visibility="collapsed",
+        )
 
-        current_page = st.session_state.get("current_page", "Start")
-
-        for nav_page in main_pages:
-            active = "• " if current_page == nav_page else ""
-            if st.button(
-                f"{active}{nav_page}",
-                key=f"sidebar_nav_{nav_page}",
-                use_container_width=True,
-            ):
-                st.session_state["current_page"] = nav_page
+        if current_page in main_pages_local and nav_page != current_page:
+            st.session_state["current_page"] = nav_page
+            if "sync_query_params" in globals():
                 sync_query_params()
-                st.rerun()
+            st.rerun()
 
-        st.markdown(
-            """
-            <div class="sidebar-help-box">
-                Weitere Seiten wie Impressum, Datenschutz, Export und Betriebsstatus findest du unten in der festen Statusleiste.
-            </div>
-            """,
-            unsafe_allow_html=True,
-        )
-
-    return st.session_state["theme_mode"], st.session_state["app_mode"], st.session_state.get("current_page", "Start")
-
+    return (
+        st.session_state.get("theme_mode", "Dark Mode"),
+        st.session_state.get("app_mode", "Geführte Ansicht"),
+        st.session_state.get("current_page", "Start"),
+    )
 
 def render_analysis_settings():
-    """Zentrale Analyse-Einstellungen im Hauptbereich."""
-    st.markdown("")
-
+    """Zentrale Analyse-Einstellungen im Hauptbereich ohne Freitext-Ticker."""
     with st.expander("Analyse-Einstellungen", expanded=True):
-        c_asset, c_custom, c_period, c_interval = st.columns([2.2, 1.2, 0.8, 0.8])
+        c_asset, c_period, c_interval = st.columns([2.8, 0.9, 0.9])
 
         asset_options = [
             "ETF – S&P 500 (SPY)",
@@ -3407,6 +3137,9 @@ def render_analysis_settings():
         if st.session_state["selected_asset"] not in asset_options:
             st.session_state["selected_asset"] = "ETF – S&P 500 (SPY)"
 
+        period_options = ["6mo", "1y", "2y", "5y", "10y", "max"]
+        interval_options = ["1d", "1wk", "1mo"]
+
         with c_asset:
             selected_asset = st.selectbox(
                 "Asset auswählen",
@@ -3415,64 +3148,100 @@ def render_analysis_settings():
                 key="selected_asset_selector",
             )
 
-        with c_custom:
-            custom_ticker = st.text_input(
-                "Optional eigener Ticker",
-                value=st.session_state.get("custom_ticker", ""),
-                key="custom_ticker_selector",
-                placeholder="z. B. AMD",
-            )
-
         with c_period:
             period = st.selectbox(
                 "Zeitraum",
-                ["6mo", "1y", "2y", "5y", "10y", "max"],
-                index=["6mo", "1y", "2y", "5y", "10y", "max"].index(st.session_state.get("period", "5y")),
+                period_options,
+                index=period_options.index(st.session_state.get("period", "5y")),
                 key="period_selector",
             )
 
         with c_interval:
             interval = st.selectbox(
                 "Intervall",
-                ["1d", "1wk", "1mo"],
-                index=["1d", "1wk", "1mo"].index(st.session_state.get("interval", "1d")),
+                interval_options,
+                index=interval_options.index(st.session_state.get("interval", "1d")),
                 key="interval_selector",
             )
 
+        asset_label = selected_asset
+        ticker = selected_asset.split("(")[-1].replace(")", "").strip() if "(" in selected_asset else "SPY"
+
         st.session_state["selected_asset"] = selected_asset
-        st.session_state["custom_ticker"] = custom_ticker
+        st.session_state["asset_label"] = asset_label
+        st.session_state["ticker"] = ticker
         st.session_state["period"] = period
         st.session_state["interval"] = interval
-
-        if custom_ticker.strip():
-            ticker = custom_ticker.strip().upper()
-            asset_label = f"Eigener Ticker ({ticker})"
-        else:
-            asset_label = selected_asset
-            ticker = selected_asset.split("(")[-1].replace(")", "").strip() if "(" in selected_asset else "SPY"
-
-        st.session_state["ticker"] = ticker
-        st.session_state["asset_label"] = asset_label
+        st.session_state["custom_ticker"] = ""
 
         st.caption("Keine Finanzberatung. Analyse, Lernen und Simulation. Die Einstellungen gelten für die aktuelle Auswertung.")
 
         return selected_asset, asset_label, ticker, period, interval
 
 
-# Zentralen UI-State initialisieren, bevor Seiten gerendert werden
-init_ui_state()
-
-theme_mode = st.session_state.get("theme_mode", "Dark Mode")
-app_mode = st.session_state.get("app_mode", "Geführte Ansicht")
-page = st.session_state.get("current_page", page if "page" in globals() else "Start")
-
-# Sidebar immer rendern und UI-State daraus übernehmen
+# Sidebar rendern und globalen UI-State übernehmen
 theme_mode, app_mode, page = render_sidebar()
-sync_query_params()
+
+# THEME EARLY RENDER: CSS vor dem Seiteninhalt laden
+load_base_css()
+render_runtime_theme(theme_mode, app_mode)
 
 
-# Zentrale Analyse-Einstellungen oben im Hauptbereich anzeigen
-selected_asset, asset_label, ticker, period, interval = render_analysis_settings()
+
+
+
+# =========================================================
+# CONTENT HEADER
+# =========================================================
+theme_mode_header = st.session_state.get("theme_mode", "Dark Mode")
+app_mode_header = st.session_state.get("app_mode", "Geführte Ansicht")
+current_page_header = st.session_state.get("current_page", page if "page" in globals() else "Start")
+
+def _ws_header_href(page_name):
+    return (
+        "/?page=" + urllib.parse.quote_plus(page_name)
+        + "&theme=" + urllib.parse.quote_plus(theme_mode_header)
+        + "&view=" + urllib.parse.quote_plus(app_mode_header)
+    )
+
+_ws_header_items = [
+    ("Start", "Start"),
+    ("Outlook", "Wealth Outlook"),
+    ("Kompass", "Kapital-Kompass"),
+    ("Simulator", "Portfolio-Simulator"),
+    ("Watchlist", "Watchlist-Vergleich"),
+]
+
+_ws_header_nav = ""
+for _label, _page_name in _ws_header_items:
+    _active = " active" if current_page_header == _page_name else ""
+    _ws_header_nav += (
+        f'<a class="ws-header-link{_active}" '
+        f'href="{_ws_header_href(_page_name)}" target="_self">{_label}</a>'
+    )
+
+_ws_mode_short = "Dark" if theme_mode_header == "Dark Mode" else "Light"
+_ws_view_short = "Geführt" if app_mode_header == "Geführte Ansicht" else "Experte"
+
+st.markdown(
+    f"""
+    <div class="ws-inline-header">
+        <a class="ws-inline-brand" href="{_ws_header_href("Start")}" target="_self" aria-label="Zur Startseite">
+            <span class="ws-inline-brand-mark">W</span>
+            <span class="ws-inline-brand-name">WealthScope</span>
+            <span class="ws-inline-brand-ai">AI</span>
+        </a>
+        <nav class="ws-inline-nav">
+            {_ws_header_nav}
+        </nav>
+        <div class="ws-inline-status">
+            <span>{_ws_mode_short}</span>
+            <span>{_ws_view_short}</span>
+        </div>
+    </div>
+    """,
+    unsafe_allow_html=True,
+)
 
 
 if page == "Start":
@@ -3632,9 +3401,9 @@ if page == "Start":
         )
 
 
-# =========================================================
-# WEALTH OUTLOOK
-# =========================================================
+    # =========================================================
+    # WEALTH OUTLOOK
+    # =========================================================
 
 if page == "Wealth Outlook":
     st.header("Wealth Outlook")
@@ -5124,50 +4893,69 @@ if page == "Methodik & Grenzen":
 
 
 
-def render_bottom_status_bar():
-    """Feste untere Statusleiste mit stabilen Links inkl. Theme/View."""
-    import datetime
 
-    market_status = "Aktuell"
-    news_status = "Mittel"
-    checked = datetime.datetime.now().strftime("%H:%M")
 
-    news_link = route_link("News-Archiv")
-    howto_link = route_link("So funktioniert's")
-    project_link = route_link("Über das Projekt")
-    export_link = route_link("Professor-Export")
-    impressum_link = route_link("Impressum")
-    privacy_link = route_link("Datenschutz")
-    status_link = route_link("Betriebsstatus")
 
-    bottom_bar_html = f"""
-    <nav class="bottom-status-bar">
-        <a class="bottom-status-item bottom-status-link" href="{news_link}" target="_self">
-            <span class="bottom-status-icon">📰</span>News-Archiv
-        </a>
-        <a class="bottom-status-item bottom-status-link" href="{howto_link}" target="_self">
-            <span class="bottom-status-icon">📖</span>So funktioniert's
-        </a>
-        <a class="bottom-status-item bottom-status-link" href="{project_link}" target="_self">
-            <span class="bottom-status-icon">🎓</span>Projekt
-        </a>
-        <a class="bottom-status-item bottom-status-link" href="{export_link}" target="_self">
-            <span class="bottom-status-icon">📦</span>Export
-        </a>
-        <a class="bottom-status-item bottom-status-link" href="{impressum_link}" target="_self">
-            <span class="bottom-status-icon">⚖️</span>Impressum
-        </a>
-        <a class="bottom-status-item bottom-status-link" href="{privacy_link}" target="_self">
-            <span class="bottom-status-icon">🛡️</span>Datenschutz
-        </a>
-        <a class="bottom-status-item bottom-status-link" href="{status_link}" target="_self">
-            <span class="bottom-status-icon">🟢</span>Betriebsstatus
-        </a>
 
-    </nav>
-    """
 
-    st.markdown(bottom_bar_html, unsafe_allow_html=True)
+
+
+
+
+
+
+def render_bottom_status_bar(market_status="Aktuell", news_status="Mittel", checked=None):
+    """Feste BottomBar ohne Markdown-Codeblock-Problem."""
+
+    if checked is None:
+        checked = datetime.now().strftime("%H:%M")
+
+    current_page = st.session_state.get("current_page", "Start")
+
+    nav_items = [
+        ("📰", "News-Archiv", "News-Archiv"),
+        ("📖", "So funktioniert's", "So funktioniert's"),
+        ("🎓", "Projekt", "Über das Projekt"),
+        ("📦", "Export", "Professor-Export"),
+        ("⚖️", "Impressum", "Impressum"),
+        ("🛡️", "Datenschutz", "Datenschutz"),
+        ("🟢", "Betriebsstatus", "Betriebsstatus"),
+    ]
+
+    link_parts = []
+
+    for icon, label, target_page in nav_items:
+        active = " active" if current_page == target_page else ""
+        href = route_link(target_page)
+
+        if href.startswith("?"):
+            href = "/" + href
+
+        link_parts.append(
+            f'<a class="ws-fixed-bottom-link{active}" href="{href}" target="_self">'
+            f'<span class="ws-fixed-bottom-icon">{icon}</span>'
+            f'<span class="ws-fixed-bottom-label">{label}</span>'
+            f'</a>'
+        )
+
+    theme_class = "theme-light" if st.session_state.get("theme_mode", "Dark Mode") == "Light Mode" else "theme-dark"
+
+    html = (
+        f'<div class="ws-fixed-bottom-shell {theme_class}">'
+        '<nav class="ws-fixed-bottom-bar">'
+        '<div class="ws-fixed-bottom-links">'
+        + "".join(link_parts)
+        + '</div>'
+        + '<div class="ws-fixed-bottom-meta">'
+        + f'<span>Marktdaten: <b>{market_status}</b></span>'
+        + f'<span>News: <b>{news_status}</b></span>'
+        + f'<span>Check: <b>{checked}</b></span>'
+        + '</div>'
+        + '</nav>'
+        + '</div>'
+    )
+
+    st.markdown(html, unsafe_allow_html=True)
 
 
 def markdown_to_pdf_bytes(title, markdown_text):
@@ -5459,6 +5247,84 @@ def render_qua3ck_detail_cards():
 # BOTTOM BAR PAGES - FINAL CONTENT
 # =========================================================
 
+
+
+def render_news_query_controls(ticker="SPY", asset_label="S&P 500", category="US stock market"):
+    """News-Suche: Empfehlung + eigene Freitextsuche ohne kaputtes Dropdown."""
+
+    st.markdown(
+        """
+        <div class="info-card news-query-card">
+            <h3>News-Suche steuern</h3>
+            <p>
+                Du kannst eine empfohlene Suchlogik auswählen oder selbst einen Suchtext eingeben.
+                Die Suche beeinflusst, welche Nachrichten für die News Intelligence ausgewertet werden.
+            </p>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+    preset_queries = {
+        "Automatische Empfehlung": None,
+        "S&P 500, US-Markt & Federal Reserve": '"S&P 500" OR "US stock market" OR "Federal Reserve" OR inflation',
+        "Inflation, Zinsen & Geldpolitik": 'inflation OR interest rates OR "Federal Reserve" OR ECB OR monetary policy',
+        "Tech, KI & Wachstum": 'technology stocks OR artificial intelligence OR semiconductors OR "Nasdaq 100"',
+        "ETF-Markt & langfristiges Investieren": 'ETF investing OR passive investing OR index funds OR portfolio risk',
+        "Gold, Krise & Sicherheit": 'gold OR safe haven OR geopolitical risk OR recession fears',
+        "Anleihen, Renditen & Zinsrisiko": 'bonds OR treasury yields OR interest rate risk OR fixed income',
+        "Europa, EZB & Konjunktur": 'ECB OR Eurozone economy OR European inflation OR interest rates',
+        "Eigene Suche": "CUSTOM",
+    }
+
+    st.markdown('<div class="ws-section-mini-label">Empfohlene Suchlogik</div>', unsafe_allow_html=True)
+
+    preset = st.radio(
+        "Empfohlene Suchlogik",
+        list(preset_queries.keys()),
+        index=0,
+        key="news_query_preset",
+        horizontal=True,
+        label_visibility="collapsed",
+    )
+
+    custom_query = st.text_input(
+        "Eigene News-Suche",
+        placeholder="z. B. NVIDIA earnings AI chip demand oder EZB Zinssenkung Inflation",
+        key="news_custom_query",
+    )
+
+    if preset == "Eigene Suche":
+        if custom_query.strip():
+            query = custom_query.strip()
+            source = "Eigene Suche"
+        else:
+            query = build_news_query(ticker, asset_label, category)
+            source = "Fallback: automatische Empfehlung"
+    elif custom_query.strip():
+        query = custom_query.strip()
+        source = "Eigene Suche"
+    elif preset_queries[preset] is None:
+        query = build_news_query(ticker, asset_label, category)
+        source = "Automatische Empfehlung"
+    else:
+        query = preset_queries[preset]
+        source = preset
+
+    st.markdown(
+        f"""
+        <div class="info-card news-active-query-card">
+            <h4>Aktive News-Suchlogik</h4>
+            <p><b>Quelle:</b> {source}</p>
+            <code>{query}</code>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+    return query
+
+
 if page == "News-Archiv":
     st.header("News-Archiv")
     st.caption("Nachrichtenübersicht mit Bewertung, Quelle und Relevanz.")
@@ -5477,7 +5343,7 @@ if page == "News-Archiv":
     )
 
     api_key = get_news_api_key()
-    query = build_news_query(ticker, asset_label, category)
+    query = render_news_query_controls(ticker, asset_label, category)
 
     st.markdown(f"**Aktuelle Suchlogik:** `{query}`")
 
@@ -6128,12 +5994,3 @@ st.markdown(
 
 render_bottom_status_bar()
 
-# Final runtime theme override
-
-# Absolute final visual override
-
-# Finaler Design-Override nach allen Seiteninhalten
-
-# Finaler Design-Override nach allen Seiteninhalten
-load_base_css()
-render_runtime_theme(theme_mode, app_mode)

@@ -5,6 +5,7 @@ import json
 import math
 import time
 import urllib.parse
+import requests
 from dataclasses import dataclass, asdict
 from datetime import datetime
 from pathlib import Path
@@ -465,6 +466,176 @@ def make_news_query(ticker: str, mode: str, custom_query: str) -> str:
     return presets.get(mode, ticker)
 
 
+
+@st.cache_data(show_spinner=False, ttl=1800)
+def fetch_real_newsapi(query: str, api_key: str, language: str = "en", page_size: int = 10) -> Tuple[pd.DataFrame, str]:
+    """
+    Echte NewsAPI-Abfrage.
+    Nutzt /v2/everything mit q, language, sortBy und pageSize.
+    """
+    if not api_key:
+        return pd.DataFrame(), "NO_API_KEY"
+
+    url = "https://newsapi.org/v2/everything"
+    params = {
+        "q": query[:500],
+        "language": language,
+        "sortBy": "publishedAt",
+        "pageSize": int(page_size),
+    }
+    headers = {"X-Api-Key": api_key}
+
+    try:
+        response = requests.get(url, params=params, headers=headers, timeout=12)
+    except Exception as exc:
+        return pd.DataFrame([{
+            "Titel": "NewsAPI Request fehlgeschlagen",
+            "Quelle": "NewsAPI",
+            "Datum": "",
+            "URL": "",
+            "Beschreibung": str(exc),
+        }]), "REQUEST_ERROR"
+
+    if response.status_code != 200:
+        try:
+            err = response.json()
+        except Exception:
+            err = {"message": response.text}
+        return pd.DataFrame([{
+            "Titel": "NewsAPI Fehler",
+            "Quelle": "NewsAPI",
+            "Datum": "",
+            "URL": "",
+            "Beschreibung": f"HTTP {response.status_code}: {err}",
+        }]), f"HTTP_{response.status_code}"
+
+    payload = response.json()
+    articles = payload.get("articles", [])
+
+    rows = []
+    for article in articles:
+        source = article.get("source") or {}
+        rows.append({
+            "Titel": article.get("title") or "",
+            "Quelle": source.get("name") or "",
+            "Autor": article.get("author") or "",
+            "Datum": article.get("publishedAt") or "",
+            "URL": article.get("url") or "",
+            "Beschreibung": article.get("description") or "",
+            "Content": article.get("content") or "",
+        })
+
+    return pd.DataFrame(rows), "REAL_NEWSAPI"
+
+
+def simple_news_sentiment(text_value: str) -> float:
+    value = str(text_value).lower()
+
+    positive_terms = [
+        "growth", "strong", "record", "rally", "beat", "profit", "optimistic",
+        "surge", "gain", "recovery", "upgrade", "cut rates", "soft landing"
+    ]
+    negative_terms = [
+        "risk", "crisis", "inflation", "recession", "weak", "loss", "selloff",
+        "war", "default", "downgrade", "rate hike", "lawsuit", "miss"
+    ]
+
+    score = 0.0
+    for term in positive_terms:
+        if term in value:
+            score += 0.6
+    for term in negative_terms:
+        if term in value:
+            score -= 0.6
+
+    return max(-3.0, min(3.0, score))
+
+
+def analyze_real_news_df(news_df: pd.DataFrame, query: str) -> Tuple[pd.DataFrame, float, str]:
+    if news_df.empty:
+        return news_df, 0.0, "Keine echten News gefunden"
+
+    rows = []
+    scores = []
+
+    for _, row in news_df.iterrows():
+        joined = " ".join([
+            str(row.get("Titel", "")),
+            str(row.get("Beschreibung", "")),
+            str(row.get("Content", "")),
+        ])
+        score = simple_news_sentiment(joined)
+        scores.append(score)
+
+        if score >= 1.0:
+            label = "positiv"
+        elif score <= -1.0:
+            label = "negativ"
+        elif score > 0:
+            label = "leicht positiv"
+        elif score < 0:
+            label = "leicht negativ"
+        else:
+            label = "neutral"
+
+        rows.append({
+            "Titel": row.get("Titel", ""),
+            "Quelle": row.get("Quelle", ""),
+            "Datum": row.get("Datum", ""),
+            "Sentiment": round(score, 2),
+            "Relevanz": "Hoch" if abs(score) >= 1.2 else "Mittel",
+            "Impact": "Hoch" if abs(score) >= 1.5 else "Mittel",
+            "Kurzinterpretation": label,
+            "URL": row.get("URL", ""),
+            "Suchlogik": query,
+        })
+
+    avg_score = float(sum(scores) / len(scores)) if scores else 0.0
+
+    if avg_score >= 1.0:
+        news_label = "Echte News-Lage positiv"
+    elif avg_score >= 0.2:
+        news_label = "Echte News-Lage leicht positiv"
+    elif avg_score <= -1.0:
+        news_label = "Echte News-Lage negativ"
+    elif avg_score <= -0.2:
+        news_label = "Echte News-Lage leicht negativ"
+    else:
+        news_label = "Echte News-Lage neutral"
+
+    return pd.DataFrame(rows), avg_score, news_label
+
+
+def get_news_api_key() -> str:
+    try:
+        return str(st.secrets.get("NEWS_API_KEY", "")).strip()
+    except Exception:
+        return ""
+
+
+def analyze_news_runtime(query: str) -> Tuple[pd.DataFrame, float, str, str]:
+    """
+    Nutzt echte NewsAPI, falls NEWS_API_KEY vorhanden ist.
+    Sonst Demo-Fallback.
+    """
+    api_key = get_news_api_key()
+
+    if api_key:
+        real_df, status = fetch_real_newsapi(query=query, api_key=api_key, language="en", page_size=10)
+        if status == "REAL_NEWSAPI" and not real_df.empty:
+            scored_df, score, label = analyze_real_news_df(real_df, query)
+            return scored_df, score, label, "REAL_NEWSAPI"
+
+        demo_df, demo_score, demo_label = analyze_news(query)
+        demo_df["Hinweis"] = f"NewsAPI Status: {status}. Demo-Fallback verwendet."
+        return demo_df, demo_score, demo_label, f"NEWSAPI_FALLBACK_{status}"
+
+    demo_df, demo_score, demo_label = analyze_news(query)
+    demo_df["Hinweis"] = "Kein NEWS_API_KEY in .streamlit/secrets.toml gefunden. Demo-Newslogik aktiv."
+    return demo_df, demo_score, demo_label, "DEMO_NO_NEWS_API_KEY"
+
+
+
 def analyze_news(query: str) -> Tuple[pd.DataFrame, float, str]:
     q = query.lower()
     positive_terms = ["growth", "strong", "optimistic", "record", "rally", "profit", "cut", "stabil", "boom", "beat"]
@@ -649,6 +820,97 @@ def compute_scores(
 def money(value: float) -> str:
     return f"{value:,.2f} €".replace(",", "X").replace(".", ",").replace("X", ".")
 
+def data_proof(market_df: pd.DataFrame) -> Dict[str, Any]:
+    source = getattr(market_df, "attrs", {}).get("data_source", "UNKNOWN")
+
+    file_used = "Unbekannt"
+    file_size_mb = 0.0
+
+    if "DATA_FEATURES_PARQUET_PATH" in globals() and DATA_FEATURES_PARQUET_PATH.exists():
+        file_used = str(DATA_FEATURES_PARQUET_PATH)
+        file_size_mb = DATA_FEATURES_PARQUET_PATH.stat().st_size / (1024 * 1024)
+    elif DATA_FEATURES_PATH.exists():
+        file_used = str(DATA_FEATURES_PATH)
+        file_size_mb = DATA_FEATURES_PATH.stat().st_size / (1024 * 1024)
+    elif DATA_MARKET_PATH.exists():
+        file_used = str(DATA_MARKET_PATH)
+        file_size_mb = DATA_MARKET_PATH.stat().st_size / (1024 * 1024)
+
+    date_min = None
+    date_max = None
+    if "date" in market_df.columns and not market_df.empty:
+        date_min = pd.to_datetime(market_df["date"], errors="coerce").min()
+        date_max = pd.to_datetime(market_df["date"], errors="coerce").max()
+
+    feature_cols = [
+        c for c in market_df.columns
+        if c not in ["date", "ticker", "asset_type", "source_file", "open", "high", "low", "close", "volume"]
+    ]
+
+    return {
+        "source": source,
+        "file_used": file_used,
+        "file_size_mb": round(file_size_mb, 2),
+        "rows": int(len(market_df)),
+        "columns": int(len(market_df.columns)),
+        "tickers": int(market_df["ticker"].nunique()) if "ticker" in market_df.columns else 0,
+        "date_min": date_min.strftime("%Y-%m-%d") if pd.notna(date_min) else "Unbekannt",
+        "date_max": date_max.strftime("%Y-%m-%d") if pd.notna(date_max) else "Unbekannt",
+        "feature_count": len(feature_cols),
+        "feature_cols": feature_cols,
+        "has_target_20d": "target_20d" in market_df.columns,
+        "has_future_return_20d": "future_return_20d" in market_df.columns,
+    }
+
+
+def render_data_badge(market_df: pd.DataFrame) -> None:
+    proof = data_proof(market_df)
+    source = proof["source"]
+
+    if str(source).startswith("REAL"):
+        label = "ECHTE DATEN AKTIV"
+        color = "#22c55e"
+    else:
+        label = "DEMO-DATEN AKTIV"
+        color = "#ef4444"
+
+    st.markdown(
+        f"""
+<div style="
+    margin: 0 0 1.1rem 0;
+    padding: 0.85rem 1rem;
+    border-radius: 18px;
+    border: 1px solid rgba(148,163,184,0.20);
+    background: rgba(15,23,42,0.38);
+    display: flex;
+    flex-wrap: wrap;
+    gap: .55rem;
+    align-items: center;
+">
+    <span style="
+        background:{color};
+        color:white;
+        font-weight:900;
+        font-size:.72rem;
+        letter-spacing:.06em;
+        padding:.35rem .55rem;
+        border-radius:999px;
+    ">{label}</span>
+    <span><b>{proof["rows"]:,}</b> Zeilen</span>
+    <span>·</span>
+    <span><b>{proof["columns"]}</b> Spalten</span>
+    <span>·</span>
+    <span><b>{proof["tickers"]}</b> Ticker</span>
+    <span>·</span>
+    <span><b>{proof["date_min"]}</b> bis <b>{proof["date_max"]}</b></span>
+    <span>·</span>
+    <span>Datei: <b>{proof["file_used"]}</b></span>
+</div>
+        """.replace(",", "."),
+        unsafe_allow_html=True,
+    )
+
+
 
 def pct(value: float) -> str:
     return f"{value * 100:.2f} %"
@@ -699,25 +961,11 @@ main .block-container {
     padding-bottom: 7.8rem !important;
 }
 
-section[data-testid="stSidebar"] {
-    padding-top: 6.8rem !important;
-    background:
-        radial-gradient(circle at 50% 0%, rgba(99,102,241,0.08), transparent 35%),
-        rgba(2, 6, 23, 0.78) !important;
-    border-right: 1px solid rgba(148,163,184,0.14) !important;
-}
 
-.stApp:has(.theme-light) section[data-testid="stSidebar"] {
-    background:
-        radial-gradient(circle at 50% 0%, rgba(99,102,241,0.08), transparent 35%),
-        rgba(248,250,252,0.92) !important;
-    border-right: 1px solid rgba(15,23,42,0.10) !important;
-}
 
-section[data-testid="stSidebar"] > div:first-child {
-    padding-top: 0.9rem !important;
-    padding-bottom: 7rem !important;
-}
+.stApp:has(.theme-light) 
+
+
 
 section[data-testid="stSidebar"] [role="radiogroup"] {
     padding: 0.58rem 0.65rem !important;
@@ -731,317 +979,6 @@ section[data-testid="stSidebar"] [role="radiogroup"] {
     border: 1px solid rgba(15,23,42,0.09) !important;
 }
 
-button[data-testid="stSidebarCollapseButton"],
-div[data-testid="stSidebarCollapseButton"] button,
-button[data-testid="collapsedControl"],
-div[data-testid="collapsedControl"] button {
-    opacity: 1 !important;
-    visibility: visible !important;
-    position: fixed !important;
-    top: 5.95rem !important;
-    left: 1.05rem !important;
-    z-index: 2147483001 !important;
-    width: 40px !important;
-    height: 40px !important;
-    border-radius: 999px !important;
-    background: rgba(15,23,42,0.88) !important;
-    border: 1px solid rgba(148,163,184,0.28) !important;
-    color: rgba(248,250,252,0.98) !important;
-    box-shadow: 0 14px 34px rgba(0,0,0,0.26) !important;
-}
-
-.stApp:has(.theme-light) button[data-testid="stSidebarCollapseButton"],
-.stApp:has(.theme-light) div[data-testid="stSidebarCollapseButton"] button,
-.stApp:has(.theme-light) button[data-testid="collapsedControl"],
-.stApp:has(.theme-light) div[data-testid="collapsedControl"] button {
-    background: rgba(255,255,255,0.96) !important;
-    color: rgba(15,23,42,0.95) !important;
-    border-color: rgba(15,23,42,0.16) !important;
-}
-
-.ws-header {
-    position: fixed !important;
-    top: 0.72rem !important;
-    left: 1rem !important;
-    right: 1rem !important;
-    z-index: 2147482000 !important;
-    min-height: 62px !important;
-    padding: 0.58rem 0.72rem !important;
-    display: grid !important;
-    grid-template-columns: 260px 1fr auto !important;
-    align-items: center !important;
-    gap: 0.85rem !important;
-    border-radius: 26px !important;
-    background:
-        radial-gradient(circle at 5% 0%, rgba(34,197,94,0.22), transparent 30%),
-        radial-gradient(circle at 95% 0%, rgba(99,102,241,0.24), transparent 34%),
-        rgba(2, 6, 23, 0.88) !important;
-    border: 1px solid rgba(148,163,184,0.20) !important;
-    box-shadow:
-        inset 0 1px 0 rgba(255,255,255,0.10),
-        0 18px 46px rgba(0,0,0,0.24) !important;
-    backdrop-filter: blur(24px) !important;
-    -webkit-backdrop-filter: blur(24px) !important;
-}
-
-.stApp:has(.theme-light) .ws-header {
-    background:
-        radial-gradient(circle at 5% 0%, rgba(34,197,94,0.13), transparent 30%),
-        radial-gradient(circle at 95% 0%, rgba(99,102,241,0.13), transparent 34%),
-        rgba(255,255,255,0.92) !important;
-    border-color: rgba(15,23,42,0.10) !important;
-    box-shadow:
-        inset 0 1px 0 rgba(255,255,255,0.86),
-        0 18px 42px rgba(15,23,42,0.11) !important;
-}
-
-.ws-brand {
-    display: inline-flex !important;
-    align-items: center !important;
-    gap: 0.58rem !important;
-    height: 44px !important;
-    padding: 0.34rem 0.8rem 0.34rem 0.38rem !important;
-    border-radius: 999px !important;
-    text-decoration: none !important;
-    color: rgba(248,250,252,0.98) !important;
-    background: rgba(15,23,42,0.46) !important;
-    border: 1px solid rgba(148,163,184,0.16) !important;
-}
-
-.stApp:has(.theme-light) .ws-brand {
-    color: rgba(15,23,42,0.94) !important;
-    background: rgba(255,255,255,0.76) !important;
-    border-color: rgba(15,23,42,0.10) !important;
-}
-
-.ws-brand-mark {
-    width: 38px !important;
-    height: 38px !important;
-    display: inline-flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    border-radius: 15px !important;
-    background: linear-gradient(135deg, #22c55e, #6366f1) !important;
-    color: white !important;
-    font-size: 1.05rem !important;
-    font-weight: 950 !important;
-}
-
-.ws-brand-name {
-    font-size: 1.02rem !important;
-    font-weight: 950 !important;
-    letter-spacing: -0.04em !important;
-}
-
-.ws-brand-ai {
-    color: #34d399 !important;
-    font-size: 0.76rem !important;
-    font-weight: 950 !important;
-}
-
-.ws-nav {
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    gap: 0.45rem !important;
-    flex-wrap: wrap !important;
-}
-
-.ws-nav-link {
-    min-height: 36px !important;
-    padding: 0.42rem 0.80rem !important;
-    display: inline-flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    border-radius: 999px !important;
-    text-decoration: none !important;
-    color: rgba(226,232,240,0.88) !important;
-    background: rgba(15,23,42,0.36) !important;
-    border: 1px solid rgba(148,163,184,0.13) !important;
-    font-size: 0.80rem !important;
-    font-weight: 850 !important;
-    line-height: 1 !important;
-}
-
-.ws-nav-link:hover,
-.ws-nav-link.active {
-    color: rgba(248,250,252,0.98) !important;
-    background: rgba(99,102,241,0.26) !important;
-    border-color: rgba(129,140,248,0.40) !important;
-}
-
-.stApp:has(.theme-light) .ws-nav-link {
-    color: rgba(15,23,42,0.88) !important;
-    background: rgba(255,255,255,0.72) !important;
-    border-color: rgba(15,23,42,0.10) !important;
-}
-
-.stApp:has(.theme-light) .ws-nav-link:hover,
-.stApp:has(.theme-light) .ws-nav-link.active {
-    background: rgba(224,231,255,0.92) !important;
-    border-color: rgba(99,102,241,0.30) !important;
-}
-
-.ws-header-status {
-    display: inline-flex !important;
-    align-items: center !important;
-    justify-content: flex-end !important;
-    gap: 0.36rem !important;
-}
-
-.ws-header-status span {
-    padding: 0.34rem 0.58rem !important;
-    border-radius: 999px !important;
-    color: rgba(226,232,240,0.84) !important;
-    background: rgba(15,23,42,0.36) !important;
-    border: 1px solid rgba(148,163,184,0.13) !important;
-    font-size: 0.72rem !important;
-    font-weight: 850 !important;
-}
-
-.stApp:has(.theme-light) .ws-header-status span {
-    color: rgba(15,23,42,0.88) !important;
-    background: rgba(255,255,255,0.72) !important;
-    border-color: rgba(15,23,42,0.10) !important;
-}
-
-.ws-card {
-    border-radius: 28px !important;
-    padding: 1.8rem !important;
-    background: var(--ws-card) !important;
-    border: 1px solid var(--ws-border) !important;
-    box-shadow: 0 18px 46px rgba(0,0,0,0.18) !important;
-    margin-bottom: 1rem !important;
-}
-
-.stApp:has(.theme-light) .ws-card {
-    background: rgba(255,255,255,0.86) !important;
-    border-color: rgba(15,23,42,0.10) !important;
-    box-shadow: 0 18px 42px rgba(15,23,42,0.08) !important;
-}
-
-.ws-hero {
-    border-left: 7px solid #22c55e !important;
-}
-
-.ws-muted {
-    color: var(--ws-muted) !important;
-}
-
-.stApp:has(.theme-light) .ws-muted {
-    color: rgba(71,85,105,0.86) !important;
-}
-
-.ws-metric-grid {
-    display: grid !important;
-    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
-    gap: 1rem !important;
-    margin-bottom: 1rem !important;
-}
-
-.ws-metric {
-    border-radius: 22px !important;
-    padding: 1.1rem !important;
-    background: rgba(15,23,42,0.34) !important;
-    border: 1px solid rgba(148,163,184,0.14) !important;
-}
-
-.stApp:has(.theme-light) .ws-metric {
-    background: rgba(255,255,255,0.74) !important;
-    border-color: rgba(15,23,42,0.09) !important;
-}
-
-.ws-metric small {
-    display: block !important;
-    color: var(--ws-muted) !important;
-    font-weight: 800 !important;
-    margin-bottom: 0.4rem !important;
-}
-
-.ws-metric strong {
-    display: block !important;
-    font-size: 1.45rem !important;
-    line-height: 1.1 !important;
-}
-
-.ws-bottom {
-    position: fixed !important;
-    left: 0 !important;
-    right: 0 !important;
-    bottom: 0 !important;
-    z-index: 2147481500 !important;
-    min-height: 72px !important;
-    padding: 0.55rem 1rem 0.48rem 1rem !important;
-    display: flex !important;
-    flex-direction: column !important;
-    align-items: center !important;
-    justify-content: center !important;
-    gap: 0.32rem !important;
-    background:
-        radial-gradient(circle at 20% 0%, rgba(99,102,241,0.24), transparent 26%),
-        radial-gradient(circle at 82% 0%, rgba(236,72,153,0.15), transparent 28%),
-        rgba(2,6,23,0.86) !important;
-    border-top: 1px solid rgba(148,163,184,0.16) !important;
-    backdrop-filter: blur(24px) !important;
-    -webkit-backdrop-filter: blur(24px) !important;
-}
-
-.stApp:has(.theme-light) .ws-bottom {
-    background:
-        radial-gradient(circle at 20% 0%, rgba(99,102,241,0.14), transparent 26%),
-        radial-gradient(circle at 82% 0%, rgba(236,72,153,0.08), transparent 28%),
-        rgba(255,255,255,0.86) !important;
-    border-top: 1px solid rgba(15,23,42,0.10) !important;
-}
-
-.ws-bottom-links {
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    gap: 0.48rem !important;
-    flex-wrap: wrap !important;
-}
-
-.ws-bottom-link {
-    min-height: 36px !important;
-    padding: 0.36rem 0.72rem !important;
-    display: inline-flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    gap: 0.34rem !important;
-    border-radius: 999px !important;
-    text-decoration: none !important;
-    color: rgba(226,232,240,0.90) !important;
-    background: rgba(15,23,42,0.46) !important;
-    border: 1px solid rgba(148,163,184,0.16) !important;
-    font-size: 0.78rem !important;
-    font-weight: 850 !important;
-}
-
-.ws-bottom-link.active,
-.ws-bottom-link:hover {
-    background: rgba(99,102,241,0.26) !important;
-    border-color: rgba(129,140,248,0.38) !important;
-}
-
-.stApp:has(.theme-light) .ws-bottom-link {
-    color: rgba(15,23,42,0.88) !important;
-    background: rgba(255,255,255,0.76) !important;
-    border-color: rgba(15,23,42,0.10) !important;
-}
-
-.ws-bottom-meta {
-    display: flex !important;
-    gap: 0.9rem !important;
-    color: rgba(203,213,225,0.76) !important;
-    font-size: 0.70rem !important;
-    font-weight: 850 !important;
-}
-
-.stApp:has(.theme-light) .ws-bottom-meta {
-    color: rgba(71,85,105,0.86) !important;
-}
-
 @media (max-width: 1180px) {
     .ws-header {
         grid-template-columns: 230px 1fr !important;
@@ -1053,9 +990,7 @@ div[data-testid="collapsedControl"] button {
     main .block-container {
         padding-top: 9.3rem !important;
     }
-    section[data-testid="stSidebar"] {
-        padding-top: 8.6rem !important;
-    }
+    
     .ws-metric-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
     }
@@ -1072,13 +1007,58 @@ div[data-testid="collapsedControl"] button {
     main .block-container {
         padding-top: 11.2rem !important;
     }
-    section[data-testid="stSidebar"] {
-        padding-top: 10.8rem !important;
-    }
+    
     .ws-metric-grid {
         grid-template-columns: 1fr !important;
     }
 }
+
+
+/* =========================================================
+   NATIVE STREAMLIT SIDEBAR RESTORE
+   Sidebar bleibt native, einklappbar und sauber sichtbar.
+   ========================================================= */
+
+section[data-testid="stSidebar"] {
+    background:
+        radial-gradient(circle at 50% 0%, rgba(99,102,241,0.08), transparent 35%),
+        rgba(2, 6, 23, 0.88) !important;
+    border-right: 1px solid rgba(148,163,184,0.14) !important;
+}
+
+section[data-testid="stSidebar"] > div:first-child {
+    padding-top: 1.1rem !important;
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+    padding-bottom: 7rem !important;
+}
+
+.stApp:has(.theme-light) section[data-testid="stSidebar"] {
+    background:
+        radial-gradient(circle at 50% 0%, rgba(99,102,241,0.08), transparent 35%),
+        rgba(248,250,252,0.96) !important;
+    border-right: 1px solid rgba(15,23,42,0.10) !important;
+}
+
+/* Header bleibt im normalen Main-Bereich, nicht über der Sidebar */
+.ws-header {
+    left: 1rem !important;
+    right: 1rem !important;
+}
+
+/* BottomBar bleibt volle Breite und überdeckt nicht die Sidebar-Logik */
+.ws-bottom {
+    left: 0 !important;
+    width: 100% !important;
+}
+
+/* Hauptcontent bekommt genug Abstand zum Header */
+main .block-container {
+    padding-top: 7.8rem !important;
+}
+
+/* Collapse-Button nicht aggressiv stylen. Streamlit darf ihn selbst platzieren. */
+
 </style>
         """,
         unsafe_allow_html=True,
@@ -1171,13 +1151,105 @@ def render_sidebar(df: pd.DataFrame) -> Optional[pd.DataFrame]:
     uploaded_df = None
 
     with st.sidebar:
-        st.caption("KONTROLLZENTRUM")
+        st.markdown("### 💠 WealthScope AI")
+        st.caption("Analyse-Steuerung für Kapital, Risiko und Portfolio.")
+
+        st.divider()
+
+        st.caption("SCHNELLSTART")
+        c1, c2 = st.columns(2)
+        with c1:
+            if st.button("📈 Analyse", width="stretch"):
+                route_to("Wealth Outlook")
+        with c2:
+            if st.button("🧬 Daten", width="stretch"):
+                route_to("Betriebsstatus")
+
+        st.divider()
+
+        st.caption("ASSET & ZEITRAUM")
+
+        asset_options = list(DEFAULT_ASSET_MAP.keys())
+        current_asset = st.session_state.get("selected_asset_label", asset_options[0])
+        if current_asset not in asset_options:
+            current_asset = asset_options[0]
+
+        st.session_state["selected_asset_label"] = st.selectbox(
+            "Asset auswählen",
+            asset_options,
+            index=asset_options.index(current_asset),
+            help="Wähle das Asset, für das die Analyse berechnet werden soll.",
+        )
+
+        st.session_state["period"] = st.select_slider(
+            "Zeitraum",
+            options=list(PERIODS.keys()),
+            value=st.session_state.get("period", "5Y"),
+            help="Bestimmt, wie viele historische Datenpunkte in die Analyse einfließen.",
+        )
+
+        st.divider()
+
+        st.caption("PORTFOLIO & KAPITAL")
+
+        with st.form("capital_form", border=True):
+            st.session_state["capital"] = st.number_input(
+                "Kapitalbetrag",
+                min_value=1000.0,
+                max_value=10_000_000.0,
+                value=float(st.session_state.get("capital", 100000.0)),
+                step=1000.0,
+                help="Gesamtkapital, das du für die Szenarioanalyse betrachten möchtest.",
+            )
+
+            st.session_state["asset_weight"] = st.slider(
+                "Geplante Gewichtung im Portfolio (%)",
+                min_value=1.0,
+                max_value=100.0,
+                value=float(st.session_state.get("asset_weight", 10.0)),
+                step=1.0,
+                help="Wie viel Prozent deines Kapitals maximal in dieses Asset fließen sollen.",
+            )
+
+            st.session_state["risk_drawdown"] = st.slider(
+                "Tolerierbarer Rückgang (%)",
+                min_value=1.0,
+                max_value=60.0,
+                value=float(st.session_state.get("risk_drawdown", 10.0)),
+                step=1.0,
+                help="Wie viel Rückgang auf das Gesamtportfolio du gedanklich tragen könntest.",
+            )
+
+            submitted = st.form_submit_button("Szenario übernehmen", width="stretch")
+            if submitted:
+                st.toast("Portfolio-Szenario aktualisiert.", icon="✅")
+
+        capital = float(st.session_state.get("capital", 100000.0))
+        weight = float(st.session_state.get("asset_weight", 10.0))
+        drawdown = float(st.session_state.get("risk_drawdown", 10.0))
+
+        max_position = capital * weight / 100
+        tolerated_loss = capital * drawdown / 100
+
+        st.markdown(
+            f"""
+**Szenario kurz:**  
+Kapital: **{money(capital)}**  
+Max. Position: **{money(max_position)}**  
+Tolerierter Rückgang: **{money(tolerated_loss)}**
+            """
+        )
+
+        st.divider()
+
+        st.caption("DARSTELLUNG")
 
         theme = st.radio(
-            "Darstellung",
+            "Theme",
             ["Dark Mode", "Light Mode"],
             index=0 if st.session_state.get("theme_mode") == "Dark Mode" else 1,
             key="theme_radio",
+            horizontal=False,
         )
         if theme != st.session_state.get("theme_mode"):
             st.session_state["theme_mode"] = theme
@@ -1185,10 +1257,11 @@ def render_sidebar(df: pd.DataFrame) -> Optional[pd.DataFrame]:
             st.rerun()
 
         view = st.radio(
-            "Ansicht",
+            "Analysemodus",
             ["Geführte Ansicht", "Expertenansicht"],
             index=0 if st.session_state.get("app_mode") == "Geführte Ansicht" else 1,
             key="view_radio",
+            horizontal=False,
         )
         if view != st.session_state.get("app_mode"):
             st.session_state["app_mode"] = view
@@ -1200,58 +1273,30 @@ def render_sidebar(df: pd.DataFrame) -> Optional[pd.DataFrame]:
         st.toggle("Expertenmetriken erweitern", key="show_advanced_metrics")
 
         st.divider()
-        st.caption("ANALYSE")
 
-        asset_options = list(DEFAULT_ASSET_MAP.keys())
-        current_asset = st.session_state.get("selected_asset_label", asset_options[0])
-        if current_asset not in asset_options:
-            current_asset = asset_options[0]
+        st.caption("NAVIGATION")
+        current = st.session_state.get("current_page", "Start")
+        nav_options = MAIN_PAGES + SERVICE_PAGES
+        nav_index = nav_options.index(current) if current in nav_options else 0
 
-        st.session_state["selected_asset_label"] = st.selectbox(
-            "Asset",
-            asset_options,
-            index=asset_options.index(current_asset),
+        nav_page = st.selectbox(
+            "Seite öffnen",
+            nav_options,
+            index=nav_index,
+            format_func=lambda p: f"{PAGE_ICONS.get(p, '•')} {p}",
         )
-
-        st.session_state["period"] = st.select_slider(
-            "Zeitraum",
-            options=list(PERIODS.keys()),
-            value=st.session_state.get("period", "5Y"),
-        )
-
-        with st.form("capital_form", border=True):
-            st.session_state["capital"] = st.number_input(
-                "Kapitalbetrag",
-                min_value=1000.0,
-                max_value=10_000_000.0,
-                value=float(st.session_state.get("capital", 100000.0)),
-                step=1000.0,
-            )
-            st.session_state["asset_weight"] = st.slider(
-                "Geplante Gewichtung (%)",
-                min_value=1.0,
-                max_value=100.0,
-                value=float(st.session_state.get("asset_weight", 10.0)),
-                step=1.0,
-            )
-            st.session_state["risk_drawdown"] = st.slider(
-                "Tolerierbarer Rückgang (%)",
-                min_value=1.0,
-                max_value=60.0,
-                value=float(st.session_state.get("risk_drawdown", 10.0)),
-                step=1.0,
-            )
-            submitted = st.form_submit_button("Analyse aktualisieren")
-            if submitted:
-                st.toast("Analyseparameter aktualisiert.", icon="✅")
+        if nav_page != current:
+            route_to(nav_page)
 
         st.divider()
-        st.caption("DATEN-UPLOAD")
 
+        st.caption("DATEN-UPLOAD")
         upload = st.file_uploader(
-            "Eigene CSV/Excel mit date, ticker, close",
+            "Eigene CSV/Excel laden",
             type=["csv", "xlsx", "xls"],
+            help="Erwartete Mindestspalten: date, ticker, close.",
         )
+
         uploaded_df = load_uploaded_data(upload)
         if uploaded_df is not None:
             st.session_state["uploaded_override_active"] = st.toggle(
@@ -1261,21 +1306,19 @@ def render_sidebar(df: pd.DataFrame) -> Optional[pd.DataFrame]:
             st.success(f"Upload erkannt: {len(uploaded_df):,} Zeilen".replace(",", "."))
 
         st.divider()
+
         st.caption("STATUS")
+        data_source = getattr(df, "attrs", {}).get("data_source", "Unbekannt")
+
         st.markdown(
             f"""
-**Darstellung:** {st.session_state.get("theme_mode")}  
-**Ansicht:** {st.session_state.get("app_mode")}  
-**Seite:** {st.session_state.get("current_page")}  
+Datenquelle: **{data_source}**  
+Seite: **{st.session_state.get("current_page")}**  
+Version: **{APP_VERSION}**
             """
         )
 
-        with st.popover("App-Hilfe"):
-            st.write("Sidebar = Steuerung. Header = Hauptnavigation. BottomBar = Service-Navigation.")
-            st.write("Die Diagramme sind interaktiv. Daten hinter den Diagrammen findest du in den Expandern.")
-
     return uploaded_df
-
 
 # =========================================================
 # CHARTS
@@ -1396,7 +1439,7 @@ def build_context(market_df: pd.DataFrame) -> Dict[str, Any]:
         st.session_state.get("news_mode", "Automatische Empfehlung"),
         st.session_state.get("news_custom_query", ""),
     )
-    news_df, news_score, news_label = analyze_news(news_query)
+    news_df, news_score, news_label, news_source = analyze_news_runtime(news_query)
 
     result = compute_scores(
         features,
@@ -1418,6 +1461,7 @@ def build_context(market_df: pd.DataFrame) -> Dict[str, Any]:
         "news_df": news_df,
         "news_score": news_score,
         "news_label": news_label,
+        "news_source": news_source,
         "result": result,
         "model": load_demo_model(),
     }
@@ -1532,10 +1576,16 @@ def page_start(ctx: Dict[str, Any]) -> None:
 
     c1, c2, c3 = st.columns(3)
     with c1:
+        if st.button("📈 Analyse starten", width="stretch"):
+            route_to("Wealth Outlook")
         card("Geführte Ansicht", "Klartext, Kapital-Schutz und nächste Schritte für nicht-technische Nutzer.")
     with c2:
-        card("Expertenansicht", "Charts, Indikatoren, Rohdaten, Modellwerte und Score-Zerlegung.")
+        if st.button("🧬 Datenbasis prüfen", width="stretch"):
+            route_to("Betriebsstatus")
+        card("Echte Datenbasis", "Zeilen, Ticker, Zeitraum, Features und Zielvariable werden offen angezeigt.")
     with c3:
+        if st.button("📦 Ergebnis exportieren", width="stretch"):
+            route_to("Professor-Export")
         card("Reproduzierbarkeit", "Downloadbare Daten, Exporte, URL-Zustand und sichtbare Annahmen.")
 
     st.tabs(["Überblick", "Demo-Ablauf", "Präsentationsnutzen"])
@@ -1805,10 +1855,15 @@ def page_news(ctx: Dict[str, Any]) -> None:
         )
 
     query = make_news_query(result.ticker, st.session_state["news_mode"], st.session_state.get("news_custom_query", ""))
-    news_df, news_score, news_label = analyze_news(query)
+    news_df, news_score, news_label, news_source = analyze_news_runtime(query)
+
+    if news_source == "REAL_NEWSAPI":
+        st.success("Echte NewsAPI-Daten aktiv.")
+    else:
+        st.warning(f"News-Fallback aktiv: {news_source}")
 
     st.markdown(f"**Aktive Suchlogik:** `{query}`")
-    st.markdown(f"**News Intelligence:** {news_label} · Score: `{round(news_score, 2)}`")
+    st.markdown(f"**News Intelligence:** {news_label} · Score: `{round(news_score, 2)}` · Quelle: `{news_source}`")
     st.dataframe(news_df, width="stretch", hide_index=True)
 
     st.download_button(
@@ -1936,36 +1991,61 @@ def page_status(ctx: Dict[str, Any]) -> None:
     df = ctx["features"]
     model = ctx["model"]
     result = ctx["result"]
+    proof = data_proof(raw)
 
-    page_title("Betriebsstatus", "Statusübersicht für Daten, Modell, News, Performance und lokale Betriebsbereitschaft.")
+    page_title("Betriebsstatus", "Professoren-Check: Datenbasis, Features, Modellstatus und Reproduzierbarkeit.")
 
-    score = 96 if not raw.empty and not df.empty else 62
+    real_data_active = str(proof["source"]).startswith("REAL")
+    score = 98 if real_data_active and not raw.empty and not df.empty else 62
+
     card(
-        f"🟢 Systemstatus: {'OK' if score >= 90 else 'Prüfen'}",
-        f"Gesamtscore: {score} / 100. Letzter Check: {datetime.now().strftime('%d.%m.%Y %H:%M:%S')}.",
+        f"🟢 Systemstatus: {'ECHTE DATEN AKTIV' if real_data_active else 'DEMO-FALLBACK AKTIV'}",
+        f"Gesamtscore: {score} / 100. Letzter Check: {datetime.now().strftime('%d.%m.%Y %H:%M:%S')}. Datenquelle: {proof['source']}.",
         hero=True,
     )
 
     metric_grid(
         [
-            ("Marktdaten", "Verfügbar" if not raw.empty else "Fehlen"),
-            ("Aktiver Ticker", result.ticker),
-            ("Zeilen geladen", f"{len(raw):,}".replace(",", ".")),
-            ("Modell", model["version"]),
+            ("Datenquelle", proof["source"]),
+            ("Zeilen", f"{proof['rows']:,}".replace(",", ".")),
+            ("Ticker", str(proof["tickers"])),
+            ("Zeitraum", f"{proof['date_min']} bis {proof['date_max']}"),
         ]
     )
 
+    metric_grid(
+        [
+            ("Spalten", str(proof["columns"])),
+            ("Feature-Spalten", str(proof["feature_count"])),
+            ("Target 20d", "Ja" if proof["has_target_20d"] else "Nein"),
+            ("Dateigröße", f"{proof['file_size_mb']} MB"),
+        ]
+    )
+
+    st.subheader("Datenbasis-Nachweis")
+    st.code(proof["file_used"], language="text")
+
     status_df = pd.DataFrame(
         [
-            {"Komponente": "Marktdaten", "Status": "OK" if not raw.empty else "Fehler", "Details": f"{len(raw)} Zeilen"},
-            {"Komponente": "Feature-Berechnung", "Status": "OK" if not df.empty else "Fehler", "Details": f"{len(df)} Zeilen"},
-            {"Komponente": "News Intelligence", "Status": "OK", "Details": result.news_label},
+            {"Komponente": "Marktdaten", "Status": "OK" if not raw.empty else "Fehler", "Details": f"{proof['rows']} Zeilen · Quelle: {proof['source']}"},
+            {"Komponente": "Feature-Berechnung", "Status": "OK" if not df.empty else "Fehler", "Details": f"{len(df)} Zeilen für {result.ticker}"},
+            {"Komponente": "Zielvariable", "Status": "OK" if proof["has_target_20d"] else "Prüfen", "Details": "target_20d vorhanden" if proof["has_target_20d"] else "target_20d fehlt"},
+            {"Komponente": "Future Return", "Status": "OK" if proof["has_future_return_20d"] else "Prüfen", "Details": "future_return_20d vorhanden" if proof["has_future_return_20d"] else "future_return_20d fehlt"},
+            {"Komponente": "Modell", "Status": "Demo-Modell", "Details": model["version"]},
+            {"Komponente": "News Intelligence", "Status": "Demo-Logik", "Details": result.news_label},
             {"Komponente": "Export", "Status": "OK", "Details": "CSV, JSON, Markdown"},
-            {"Komponente": "UI", "Status": "OK", "Details": "Header, Sidebar, BottomBar aktiv"},
-            {"Komponente": "Caching", "Status": "OK", "Details": "cache_data/cache_resource aktiv"},
+            {"Komponente": "Reproduzierbarkeit", "Status": "OK", "Details": "URL-Parameter, lokale Datei, sichtbare Datenbasis"},
         ]
     )
     st.dataframe(status_df, width="stretch", hide_index=True)
+
+    st.subheader("Feature-Spalten")
+    st.write(", ".join(proof["feature_cols"]) if proof["feature_cols"] else "Keine zusätzlichen Feature-Spalten erkannt.")
+
+    st.subheader("Ticker-Verteilung")
+    ticker_counts = raw["ticker"].value_counts().reset_index()
+    ticker_counts.columns = ["Ticker", "Zeilen"]
+    st.dataframe(ticker_counts, width="stretch", hide_index=True)
 
     if st.button("Statusanimation testen"):
         progress = st.progress(0, text="Statusprüfung läuft...")
@@ -2034,6 +2114,23 @@ def main() -> None:
     with st.spinner("Analyse wird vorbereitet..."):
         ctx = build_context(market_df)
 
+    proof = data_proof(market_df)
+    news_source = ctx.get("news_source", "UNKNOWN")
+
+    if str(proof["source"]).startswith("REAL"):
+        st.success(
+            f"Echte Kaggle-Daten aktiv: {proof['rows']:,} Zeilen · {proof['tickers']} Ticker · "
+            f"{proof['columns']} Spalten · {proof['date_min']} bis {proof['date_max']} · Quelle: {proof['source']}"
+        )
+    else:
+        st.error("Demo-Daten aktiv. Echte Kaggle-Daten wurden nicht geladen.")
+
+    if news_source == "REAL_NEWSAPI":
+        st.success("Echte NewsAPI aktiv.")
+    else:
+        st.warning(f"News aktuell nicht echt angebunden: {news_source}")
+
+    render_data_badge(market_df)
     route_page(st.session_state.get("current_page", "Start"), ctx)
     render_bottom_bar()
 
