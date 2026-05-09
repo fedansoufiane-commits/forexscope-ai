@@ -33,3 +33,11 @@ styles/*backup*.css
 
 # Streamlit secrets
 .streamlit/secrets.toml
+
+# Local recovery / backup files
+app_max_before_*.py
+app_max_broken_*.py
+app_max_broken_line1_*.py
+backups_cleanup_*/
+styles/*_before_*.css
+styles/*_broken_*.css
