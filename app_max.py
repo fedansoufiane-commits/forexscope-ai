@@ -1373,7 +1373,7 @@ def chart_portfolio(capital: float, weight: float, ticker: str) -> go.Figure:
 
 
 def show_chart_with_data(title: str, fig: go.Figure, data: pd.DataFrame, key: str) -> None:
-    st.plotly_chart(fig, theme="streamlit", config={"responsive": True, "displaylogo": False}, key=key)
+    st.plotly_chart(fig, theme="streamlit", width="stretch", config={"responsive": True, "displayModeBar": True, "displaylogo": False}, key=key)
     if st.session_state.get("show_raw_data", True):
         with st.expander(f"Daten hinter dem Diagramm anzeigen: {title}", expanded=False):
             st.dataframe(data, width="stretch", hide_index=True)
