@@ -62,22 +62,21 @@ EXPORT_DIR.mkdir(exist_ok=True)
 MAIN_PAGES = [
     "Start",
     "Wealth Outlook",
-    "Kapital-Kompass",
-    "Portfolio-Simulator",
-    "Watchlist-Vergleich",
+    "Kompass",
+    "Simulator",
+    "Watchlist",
     "Datenlabor",
     "ML-Labor",
-    "Assistent",
 ]
 
 SERVICE_PAGES = [
     "News-Archiv",
-    "So funktioniert's",
-    "Über das Projekt",
-    "Professor-Export",
+    "Methodik",
+    "Projekt",
+    "Export",
     "Impressum",
     "Datenschutz",
-    "Betriebsstatus",
+    "Status",
 ]
 
 ALL_PAGES = MAIN_PAGES + SERVICE_PAGES
@@ -85,37 +84,35 @@ ALL_PAGES = MAIN_PAGES + SERVICE_PAGES
 PAGE_LABELS = {
     "Start": "Start",
     "Wealth Outlook": "Outlook",
-    "Kapital-Kompass": "Kompass",
-    "Portfolio-Simulator": "Simulator",
-    "Watchlist-Vergleich": "Watchlist",
+    "Kompass": "Kompass",
+    "Simulator": "Simulator",
+    "Watchlist": "Watchlist",
     "Datenlabor": "Daten",
     "ML-Labor": "ML",
-    "Assistent": "Assistent",
     "News-Archiv": "News",
-    "So funktioniert's": "Methodik",
-    "Über das Projekt": "Projekt",
-    "Professor-Export": "Export",
+    "Methodik": "Methodik",
+    "Projekt": "Projekt",
+    "Export": "Export",
     "Impressum": "Impressum",
     "Datenschutz": "Datenschutz",
-    "Betriebsstatus": "Status",
+    "Status": "Status",
 }
 
 PAGE_ICONS = {
     "Start": "🏠",
     "Wealth Outlook": "📈",
-    "Kapital-Kompass": "🧭",
-    "Portfolio-Simulator": "🧪",
-    "Watchlist-Vergleich": "👀",
+    "Kompass": "🧭",
+    "Simulator": "🧪",
+    "Watchlist": "👀",
     "Datenlabor": "🧬",
     "ML-Labor": "🤖",
-    "Assistent": "💬",
     "News-Archiv": "📰",
-    "So funktioniert's": "📖",
-    "Über das Projekt": "🎓",
-    "Professor-Export": "📦",
+    "Methodik": "📖",
+    "Projekt": "🎓",
+    "Export": "📦",
     "Impressum": "⚖️",
     "Datenschutz": "🛡️",
-    "Betriebsstatus": "🟢",
+    "Status": "🟢",
 }
 
 DEFAULT_ASSET_MAP = {
@@ -989,12 +986,12 @@ def render_bottom_bar() -> None:
 
     items = [
         ("📰", "News", "News-Archiv"),
-        ("📖", "Methodik", "So funktioniert's"),
-        ("🎓", "Projekt", "Über das Projekt"),
-        ("📦", "Export", "Professor-Export"),
+        ("📖", "Methodik", "Methodik"),
+        ("🎓", "Projekt", "Projekt"),
+        ("📦", "Export", "Export"),
         ("⚖️", "Impressum", "Impressum"),
         ("🛡️", "Datenschutz", "Datenschutz"),
-        ("🟢", "Status", "Betriebsstatus"),
+        ("🟢", "Status", "Status"),
     ]
 
     links = []
@@ -1174,7 +1171,7 @@ def render_sidebar(df: pd.DataFrame) -> Optional[pd.DataFrame]:
                 route_to("Wealth Outlook")
         with c2:
             if st.button("🧬 Daten", width="stretch"):
-                route_to("Betriebsstatus")
+                route_to("Status")
 
         st.divider()
 
@@ -1573,11 +1570,11 @@ def page_start(ctx: Dict[str, Any]) -> None:
         card("Geführte Ansicht", "Klartext, Kapital-Schutz und nächste Schritte für nicht-technische Nutzer.")
     with c2:
         if st.button("🧬 Datenbasis prüfen", width="stretch"):
-            route_to("Betriebsstatus")
+            route_to("Status")
         card("Echte Datenbasis", "Zeilen, Ticker, Zeitraum, Features und Zielvariable werden offen angezeigt.")
     with c3:
         if st.button("📦 Ergebnis exportieren", width="stretch"):
-            route_to("Professor-Export")
+            route_to("Export")
         card("Reproduzierbarkeit", "Downloadbare Daten, Exporte, URL-Zustand und sichtbare Annahmen.")
 
     tab1, tab2, tab3 = st.tabs(["Überblick", "Demo-Ablauf", "Präsentationsnutzen"])
@@ -1600,6 +1597,7 @@ def page_start(ctx: Dict[str, Any]) -> None:
 # UPGRADE HELPERS: VISUALS, METHODIK, ASSISTANT, EXPORT
 # =========================================================
 
+@st.cache_data(show_spinner=False)
 def build_ticker_ranking(df: pd.DataFrame) -> pd.DataFrame:
     required = {"ticker", "asset_type", "daily_return", "drawdown"}
     missing = required - set(df.columns)
@@ -1695,6 +1693,7 @@ def chart_risk_return_scatter(df: pd.DataFrame) -> go.Figure:
     return fig
 
 
+@st.cache_data(show_spinner=False)
 def chart_feature_correlation(df: pd.DataFrame) -> go.Figure:
     feature_cols = [
         "daily_return",
@@ -1967,7 +1966,7 @@ def page_outlook(ctx: Dict[str, Any]) -> None:
 
 def page_kompass(ctx: Dict[str, Any]) -> None:
     result = ctx["result"]
-    page_title("Kapital-Kompass", "Prüfe, was Risiko bezogen auf dein Kapital konkret bedeutet.")
+    page_title("Kompass", "Prüfe, was Risiko bezogen auf dein Kapital konkret bedeutet.")
 
     card(
         "Was darf Risiko überhaupt bedeuten?",
@@ -2000,7 +1999,7 @@ def page_kompass(ctx: Dict[str, Any]) -> None:
 
 def page_simulator(ctx: Dict[str, Any]) -> None:
     result = ctx["result"]
-    page_title("Portfolio-Simulator", "Simuliere, wie stark eine Position dein Kapital beeinflusst.")
+    page_title("Simulator", "Simuliere, wie stark eine Position dein Kapital beeinflusst.")
 
     show_chart_with_data(
         "Portfolio-Allokation",
@@ -2040,7 +2039,7 @@ def page_simulator(ctx: Dict[str, Any]) -> None:
 def page_watchlist(ctx: Dict[str, Any]) -> None:
     raw = ctx["market"]
     tickers = available_tickers(raw)
-    page_title("Watchlist-Vergleich", "Vergleiche mehrere Assets anhand Rendite, Volatilität und Drawdown.")
+    page_title("Watchlist", "Vergleiche mehrere Assets anhand Rendite, Volatilität und Drawdown.")
 
     default = [t for t in ["SPY", "QQQ", "AAPL", "MSFT", "NVDA"] if t in tickers]
     selected = st.multiselect("Watchlist auswählen", tickers, default=default)
@@ -2068,8 +2067,8 @@ def page_watchlist(ctx: Dict[str, Any]) -> None:
         fig = go.Figure()
         fig.add_trace(go.Bar(x=compare["Ticker"], y=compare["Return 20d"], name="Return 20d %"))
         fig.add_trace(go.Bar(x=compare["Ticker"], y=compare["Volatilität 20d"], name="Volatilität 20d %"))
-        fig.update_layout(title="Watchlist-Vergleich", barmode="group", height=420)
-        show_chart_with_data("Watchlist-Vergleich", fig, compare, "watchlist_compare")
+        fig.update_layout(title="Watchlist", barmode="group", height=420)
+        show_chart_with_data("Watchlist", fig, compare, "watchlist_compare")
 
 
 def page_data_lab(ctx: Dict[str, Any]) -> None:
@@ -2332,7 +2331,7 @@ def page_news(ctx: Dict[str, Any]) -> None:
 
 
 def page_how(ctx: Dict[str, Any]) -> None:
-    page_title("So funktioniert's", "Methodik, Datenlogik und Grenzen der Demo-Anwendung.")
+    page_title("Methodik", "Methodik, Datenlogik und Grenzen der Demo-Anwendung.")
 
     card(
         "QUA3CK-Logik",
@@ -2385,35 +2384,47 @@ Diese App ist keine Finanzberatung. Sie ist eine wissenschaftliche Demo-Anwendun
 
 
 def route_page(page: str, ctx: Dict[str, Any]) -> None:
+    aliases = {
+        "Kompass": "Kompass",
+        "Simulator": "Simulator",
+        "Watchlist": "Watchlist",
+        "Methodik": "Methodik",
+        "Projekt": "Projekt",
+        "Export": "Export",
+        "Status": "Status",
+        "Assistent": "Start",
+        "💬 Assistent": "Start",
+    }
+
+    page = aliases.get(page, page)
+
     if page == "Start":
         page_start(ctx)
     elif page == "Wealth Outlook":
         page_outlook(ctx)
-    elif page == "Kapital-Kompass":
+    elif page == "Kompass":
         page_kompass(ctx)
-    elif page == "Portfolio-Simulator":
+    elif page == "Simulator":
         page_simulator(ctx)
-    elif page == "Watchlist-Vergleich":
+    elif page == "Watchlist":
         page_watchlist(ctx)
     elif page == "Datenlabor":
         page_data_lab(ctx)
     elif page == "ML-Labor":
         page_ml_lab(ctx)
-    elif page == "Assistent":
-        page_assistant(ctx)
     elif page == "News-Archiv":
         page_news(ctx)
-    elif page == "So funktioniert's":
+    elif page == "Methodik":
         page_how(ctx)
-    elif page == "Über das Projekt":
+    elif page == "Projekt":
         page_project(ctx)
-    elif page == "Professor-Export":
+    elif page == "Export":
         page_export(ctx)
     elif page == "Impressum":
         page_impressum(ctx)
     elif page == "Datenschutz":
         page_privacy(ctx)
-    elif page == "Betriebsstatus":
+    elif page == "Status":
         page_status(ctx)
     else:
         page_start(ctx)
