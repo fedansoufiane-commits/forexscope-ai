@@ -1600,6 +1600,7 @@ def page_start(ctx: Dict[str, Any]) -> None:
 # UPGRADE HELPERS: VISUALS, METHODIK, ASSISTANT, EXPORT
 # =========================================================
 
+@st.cache_data(show_spinner=False)
 def build_ticker_ranking(df: pd.DataFrame) -> pd.DataFrame:
     required = {"ticker", "asset_type", "daily_return", "drawdown"}
     missing = required - set(df.columns)
@@ -1695,6 +1696,7 @@ def chart_risk_return_scatter(df: pd.DataFrame) -> go.Figure:
     return fig
 
 
+@st.cache_data(show_spinner=False)
 def chart_feature_correlation(df: pd.DataFrame) -> go.Figure:
     feature_cols = [
         "daily_return",
