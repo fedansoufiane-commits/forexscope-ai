@@ -17,6 +17,7 @@ import numpy as np
 import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
+from google import genai
 
 
 # =========================================================
@@ -1156,6 +1157,35 @@ def render_clickable_sidebar_logo() -> None:
         unsafe_allow_html=True,
     )
 
+
+def inject_sticky_logo_css() -> None:
+    st.markdown(
+        """
+        <style>
+        /*
+        Sticky WealthScope logo in the native Streamlit sidebar.
+        Minimal CSS: only targets the Streamlit logo area, not the whole sidebar.
+        */
+        [data-testid="stSidebar"] [data-testid="stLogo"] {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            background: var(--background-color);
+            padding-top: 0.35rem;
+            padding-bottom: 0.65rem;
+            border-bottom: 1px solid rgba(120, 120, 120, 0.18);
+        }
+
+        [data-testid="stSidebar"] [data-testid="stLogo"] img {
+            max-height: 42px;
+            object-fit: contain;
+        }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
 def render_sidebar(df: pd.DataFrame) -> Optional[pd.DataFrame]:
     uploaded_df = None
 
@@ -1791,7 +1821,177 @@ def methodology_dialog() -> None:
     )
 
 
+
+def secret_str(key: str, default: str = "") -> str:
+    try:
+        value = st.secrets.get(key, default)
+    except Exception:
+        value = default
+
+    if value is None:
+        return default
+
+    return str(value).strip()
+
+
+def get_gemini_client():
+    api_key = secret_str("GEMINI_API_KEY", "")
+
+    if not api_key or api_key.startswith("DEIN_"):
+        return None
+
+    return genai.Client(api_key=api_key)
+
+
+def safe_str(value: Any, default: str = "n/a") -> str:
+    try:
+        if value is None:
+            return default
+        if pd.isna(value):
+            return default
+    except Exception:
+        pass
+
+    return str(value)
+
+
+def build_llm_context(ctx: Dict[str, Any]) -> str:
+    result = ctx.get("result")
+    base_df = ctx.get("base_df", pd.DataFrame())
+    features_df = ctx.get("features_df", pd.DataFrame())
+    news_df = ctx.get("news_df", pd.DataFrame())
+
+    context_parts = []
+
+    context_parts.append("APP: WealthScope AI")
+    context_parts.append("HINWEIS: Keine Finanzberatung. Nur erklärende Analyse im Rahmen eines Uni-/Demo-Projekts.")
+
+    if result is not None:
+        context_parts.append("")
+        context_parts.append("AKTUELLE ANALYSE:")
+        for attr in ["ticker", "asset", "outlook", "risk", "confidence", "score", "reason", "interpretation"]:
+            if hasattr(result, attr):
+                context_parts.append(f"- {attr}: {safe_str(getattr(result, attr))}")
+
+    scenario_keys = [
+        "capital",
+        "portfolio_weight",
+        "risk_tolerance",
+        "asset",
+        "period_years",
+        "news_score",
+        "news_label",
+    ]
+
+    context_parts.append("")
+    context_parts.append("SESSION / SZENARIO:")
+    for key in scenario_keys:
+        if key in st.session_state:
+            context_parts.append(f"- {key}: {safe_str(st.session_state.get(key))}")
+
+    if base_df is not None and not base_df.empty:
+        context_parts.append("")
+        context_parts.append("DATENBASIS:")
+        context_parts.append(f"- Zeilen: {len(base_df)}")
+        if "ticker" in base_df.columns:
+            context_parts.append(f"- Ticker-Anzahl: {base_df['ticker'].nunique()}")
+        if "date" in base_df.columns:
+            context_parts.append(f"- Zeitraum: {safe_str(base_df['date'].min())} bis {safe_str(base_df['date'].max())}")
+
+    if features_df is not None and not features_df.empty:
+        context_parts.append("")
+        context_parts.append("LETZTE FEATURE-WERTE:")
+        latest = features_df.tail(1).iloc[0]
+        for col in [
+            "ticker",
+            "date",
+            "close",
+            "daily_return",
+            "return_5d",
+            "return_20d",
+            "ma_20_distance",
+            "ma_50_distance",
+            "ma_200_distance",
+            "volatility_20d",
+            "drawdown",
+            "target_20d",
+        ]:
+            if col in latest.index:
+                context_parts.append(f"- {col}: {safe_str(latest[col])}")
+
+    if news_df is not None and not news_df.empty:
+        context_parts.append("")
+        context_parts.append("AKTUELLE NEWS-BEISPIELE:")
+        title_col = "Titel" if "Titel" in news_df.columns else "title" if "title" in news_df.columns else None
+        source_col = "Quelle" if "Quelle" in news_df.columns else "source" if "source" in news_df.columns else None
+        sentiment_col = "Sentiment" if "Sentiment" in news_df.columns else "sentiment" if "sentiment" in news_df.columns else None
+        relevance_col = "Relevanz" if "Relevanz" in news_df.columns else "relevance" if "relevance" in news_df.columns else None
+        impact_col = "Impact" if "Impact" in news_df.columns else "impact" if "impact" in news_df.columns else None
+
+        for _, row in news_df.head(5).iterrows():
+            title = safe_str(row.get(title_col, "n/a")) if title_col else "n/a"
+            source = safe_str(row.get(source_col, "n/a")) if source_col else "n/a"
+            sentiment = safe_str(row.get(sentiment_col, "n/a")) if sentiment_col else "n/a"
+            relevance = safe_str(row.get(relevance_col, "n/a")) if relevance_col else "n/a"
+            impact = safe_str(row.get(impact_col, "n/a")) if impact_col else "n/a"
+            context_parts.append(f"- Titel: {title} | Quelle: {source} | Sentiment: {sentiment} | Relevanz: {relevance} | Impact: {impact}")
+
+    context_parts.append("")
+    context_parts.append("GRENZEN:")
+    context_parts.append("- Historische Kursdaten garantieren keine zukünftige Entwicklung.")
+    context_parts.append("- target_20d ist eine Modell-/Feature-Zielvariable und keine sichere Prognose.")
+    context_parts.append("- News-Sentiment ist vereinfachend und kann Quellen-/Aggregationsfehler enthalten.")
+    context_parts.append("- Die App ersetzt keine professionelle Finanzberatung.")
+
+    return "\n".join(context_parts)
+
+
+def assistant_answer_gemini(prompt: str, ctx: Dict[str, Any]) -> Optional[str]:
+    provider = secret_str("LLM_PROVIDER", "gemini").lower()
+    if provider not in ["gemini", "auto"]:
+        return None
+
+    client = get_gemini_client()
+    if client is None:
+        return None
+
+    model = secret_str("GEMINI_MODEL", "gemini-2.5-flash")
+    app_context = build_llm_context(ctx)
+
+    system_prompt = (
+        "Du bist der WealthScope AI Assistent. "
+        "Antworte auf Deutsch, präzise, verständlich und faktenbasiert. "
+        "Nutze ausschließlich den bereitgestellten App-Kontext. "
+        "Erfinde keine Zahlen. Wenn etwas nicht im Kontext steht, sage das offen. "
+        "Gib keine Kauf-, Verkaufs- oder Anlageberatung. "
+        "Erkläre Fachbegriffe wie Drawdown, Volatilität, target_20d und News-Sentiment einfach."
+    )
+
+    full_prompt = (
+        f"{system_prompt}\n\n"
+        f"APP-KONTEXT:\n{app_context}\n\n"
+        f"NUTZERFRAGE:\n{prompt}"
+    )
+
+    try:
+        response = client.models.generate_content(
+            model=model,
+            contents=full_prompt,
+        )
+        answer = getattr(response, "text", None)
+        if answer:
+            return answer.strip()
+    except Exception as exc:
+        return f"Gemini konnte gerade nicht antworten. Technischer Hinweis: {type(exc).__name__}. Ich nutze stattdessen die lokale Fallback-Logik."
+
+    return None
+
+
 def assistant_answer(prompt: str, ctx: Dict[str, Any]) -> str:
+    gemini_answer = assistant_answer_gemini(prompt, ctx)
+    if gemini_answer:
+        return gemini_answer
+
     result = ctx["result"]
     df = ctx["features"]
     news_df = ctx.get("news_df", pd.DataFrame())
@@ -1997,24 +2197,90 @@ def page_kompass(ctx: Dict[str, Any]) -> None:
         st.success("Die Risikoannahmen wirken im Verhältnis zum Kapital eher defensiv.")
 
 
+
+def normalize_scenario_allocations(df: pd.DataFrame) -> pd.DataFrame:
+    """Clean scenario allocation table and keep only valid positive weights."""
+    if df is None or df.empty:
+        return pd.DataFrame(columns=["Baustein", "Gewichtung %"])
+
+    out = df.copy()
+
+    if "Baustein" not in out.columns or "Gewichtung %" not in out.columns:
+        return pd.DataFrame(columns=["Baustein", "Gewichtung %"])
+
+    out["Baustein"] = out["Baustein"].astype(str).str.strip()
+    out["Gewichtung %"] = pd.to_numeric(out["Gewichtung %"], errors="coerce").fillna(0.0)
+
+    out = out[out["Baustein"] != ""]
+    out = out[out["Gewichtung %"] > 0]
+
+    # Gleiche Bausteine zusammenfassen
+    out = out.groupby("Baustein", as_index=False)["Gewichtung %"].sum()
+
+    return out
+
+
+def build_allocation_chart_df(scenario_df: pd.DataFrame) -> pd.DataFrame:
+    """Build chart data from scenario allocation table. Adds liquidity only if sum < 100."""
+    alloc = normalize_scenario_allocations(scenario_df)
+
+    if alloc.empty:
+        return pd.DataFrame(
+            {
+                "Baustein": ["Liquidität / Rest"],
+                "Gewichtung %": [100.0],
+            }
+        )
+
+    total = float(alloc["Gewichtung %"].sum())
+
+    if total < 100:
+        rest = 100.0 - total
+        alloc = pd.concat(
+            [
+                alloc,
+                pd.DataFrame(
+                    {
+                        "Baustein": ["Liquidität / Rest"],
+                        "Gewichtung %": [rest],
+                    }
+                ),
+            ],
+            ignore_index=True,
+        )
+
+    return alloc
+
+
+def validate_allocation_sum(scenario_df: pd.DataFrame) -> float:
+    alloc = normalize_scenario_allocations(scenario_df)
+    if alloc.empty:
+        return 0.0
+    return float(alloc["Gewichtung %"].sum())
+
+
 def page_simulator(ctx: Dict[str, Any]) -> None:
     result = ctx["result"]
-    page_title("Simulator", "Simuliere, wie stark eine Position dein Kapital beeinflusst.")
+    page_title("Simulator", "Simuliere, wie stark eine Portfolio-Allokation dein Kapital beeinflusst.")
 
-    show_chart_with_data(
-        "Portfolio-Allokation",
-        chart_portfolio(result.capital, result.asset_weight, result.ticker),
-        pd.DataFrame(
-            [
-                {"Baustein": result.ticker, "Wert": result.max_position},
-                {"Baustein": "Liquidität / Rest", "Wert": result.capital - result.max_position},
-            ]
-        ),
-        "portfolio_alloc",
-    )
+    if "portfolio_rows" not in st.session_state or not st.session_state.get("portfolio_rows"):
+        st.session_state["portfolio_rows"] = [
+            {"Baustein": result.ticker, "Gewichtung_%": float(result.asset_weight)},
+            {"Baustein": "QQQ", "Gewichtung_%": 25.0},
+            {"Baustein": "GLD", "Gewichtung_%": 10.0},
+            {"Baustein": "AGG", "Gewichtung_%": 20.0},
+        ]
 
     st.subheader("Szenario-Tabelle bearbeiten")
+
     portfolio_df = pd.DataFrame(st.session_state.get("portfolio_rows", []))
+
+    if "Baustein" not in portfolio_df.columns:
+        portfolio_df["Baustein"] = result.ticker
+
+    if "Gewichtung_%" not in portfolio_df.columns:
+        portfolio_df["Gewichtung_%"] = float(result.asset_weight)
+
     edited = st.data_editor(
         portfolio_df,
         num_rows="dynamic",
@@ -2022,18 +2288,65 @@ def page_simulator(ctx: Dict[str, Any]) -> None:
         hide_index=True,
         column_config={
             "Baustein": st.column_config.TextColumn("Baustein"),
-            "Gewichtung_%": st.column_config.NumberColumn("Gewichtung %", min_value=0.0, max_value=100.0, step=1.0),
+            "Gewichtung_%": st.column_config.NumberColumn(
+                "Gewichtung %",
+                min_value=0.0,
+                max_value=100.0,
+                step=1.0,
+            ),
         },
+        key="portfolio_scenario_editor",
     )
+
+    edited = edited.copy()
+    edited["Gewichtung_%"] = pd.to_numeric(edited["Gewichtung_%"], errors="coerce").fillna(0.0)
     st.session_state["portfolio_rows"] = edited.to_dict("records")
 
-    total_weight = edited["Gewichtung_%"].sum() if not edited.empty and "Gewichtung_%" in edited else 0
+    scenario_df = edited.rename(columns={"Gewichtung_%": "Gewichtung %"})
+    total_weight = validate_allocation_sum(scenario_df)
+    chart_df = build_allocation_chart_df(scenario_df)
+
+    m1, m2, m3 = st.columns(3)
+    m1.metric("Gesamtgewichtung", f"{total_weight:.1f} %")
+    m2.metric("Liquidität / Rest", f"{max(0.0, 100.0 - total_weight):.1f} %")
+    m3.metric("Status", "OK" if total_weight <= 100 else "Zu hoch")
+
     st.progress(min(int(total_weight), 100), text=f"Gesamtgewichtung: {total_weight:.1f} %")
 
     if total_weight > 100:
-        st.error("Die Gesamtgewichtung liegt über 100 %. Bitte reduzieren.")
+        st.error("Die Gesamtgewichtung liegt über 100 %. Bitte reduziere die Positionen.")
+    elif total_weight < 100:
+        st.info(f"{100.0 - total_weight:.1f} % bleiben als Liquidität / Rest.")
     else:
-        st.success("Die Gesamtgewichtung ist innerhalb des Rahmens.")
+        st.success("Die Allokation beträgt genau 100 %.")
+
+    fig = go.Figure(
+        data=[
+            go.Pie(
+                labels=chart_df["Baustein"],
+                values=chart_df["Gewichtung %"],
+                hole=0.55,
+                textinfo="percent+label",
+            )
+        ]
+    )
+    fig.update_layout(
+        title="Kapitalallokation im Szenario",
+        height=420,
+        margin=dict(l=10, r=10, t=55, b=10),
+    )
+
+    show_chart_with_data(
+        "Portfolio-Allokation",
+        fig,
+        chart_df,
+        "portfolio_alloc",
+    )
+
+    st.caption(
+        "Hinweis: Das Diagramm basiert jetzt direkt auf der editierbaren Szenario-Tabelle. "
+        "Liquidität / Rest wird nur ergänzt, wenn die Summe unter 100 % liegt."
+    )
 
 
 def page_watchlist(ctx: Dict[str, Any]) -> None:
