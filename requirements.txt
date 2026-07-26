@@ -5,8 +5,13 @@ plotly
 requests
 pyarrow
 scikit-learn
+joblib
+shap
+reportlab
 matplotlib
 nbformat
 pytest
 openai
 google-genai
+seaborn
+yfinance

@@ -1,11 +1,20 @@
 [theme]
 base = "light"
-primaryColor = "#6366F1"
+primaryColor = "#2f5d53"
+backgroundColor = "#f4f5f0"
+secondaryBackgroundColor = "#ffffff"
+textColor = "#171a17"
 font = "sans serif"
-baseRadius = "large"
-buttonRadius = "large"
+baseRadius = "medium"
+buttonRadius = "medium"
 showWidgetBorder = true
 showSidebarBorder = true
 
 [theme.sidebar]
 showWidgetBorder = true
+
+[server]
+headless = false
+
+[client]
+toolbarMode = "minimal"

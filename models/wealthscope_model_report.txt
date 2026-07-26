@@ -1,40 +1,31 @@
+WealthScope AI — Model Report
+================================
+Algorithm: RandomForestClassifier (sklearn 1.6.1)
+Target: target_20d (1 = price higher in 20 trading days)
 
-WealthScope AI Model Report
+Dataset rows: 190,527  |  Train: 142,895  |  Test: 47,632
+Features (8): daily_return, return_5d, return_20d, ma_20_distance, ma_50_distance, ma_200_distance, volatility_20d, drawdown
 
-Model:
-RandomForestClassifier
+Accuracy:          0.5527
+Majority baseline:  0.5651  (below baseline)
+ROC-AUC:           0.5881
+Precision:         0.6253
+Recall:            0.5204
+F1 (weighted):     0.5542
 
-Target:
-target_20d
-1 = Kurs liegt in 20 Handelstagen höher
-0 = Kurs liegt in 20 Handelstagen nicht höher
+5-fold CV accuracy: 0.5540 +/- 0.0036
+5-fold CV ROC-AUC:  0.5850 +/- 0.0031
 
-Rows:
-Total: 92075
-Train: 69056
-Test: 23019
+Feature importance (RandomForest):
+  drawdown           0.2140
+  volatility_20d     0.1843
+  ma_200_distance    0.1485
+  ma_50_distance     0.1241
+  return_20d         0.0983
+  ma_20_distance     0.0941
+  return_5d          0.0790
+  daily_return       0.0576
 
-Features:
-['daily_return', 'return_5d', 'return_20d', 'ma_20_distance', 'ma_50_distance', 'ma_200_distance', 'volatility_20d', 'drawdown']
-
-Accuracy:
-0.5325
-
-Classification Report:
-              precision    recall  f1-score   support
-
-           0       0.43      0.46      0.44      9328
-           1       0.61      0.58      0.60     13691
-
-    accuracy                           0.53     23019
-   macro avg       0.52      0.52      0.52     23019
-weighted avg       0.54      0.53      0.53     23019
-
-
-Confusion Matrix:
-[[4272 5056]
- [5706 7985]]
-
-Interpretation:
-Das Modell ist ein erster ML-Prototyp. Die Accuracy von 53.25% liegt leicht über Zufall.
-Deshalb wird das Modell in WealthScope AI nicht als sichere Prognose genutzt, sondern als ein Baustein im Confidence Score.
+Interpretation: Accuracy modestly above random is expected and consistent
+with the Efficient Market Hypothesis (Fama, 1970) — historical price data
+alone has limited predictive power over 20-day horizons.

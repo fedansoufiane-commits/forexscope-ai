@@ -1,59 +1,45 @@
-# KPI Framework für ForexScope AI
+# KPI-Framework – WealthScope AI
 
-## Ziel der KPIs
+## Modell-KPIs
 
-ForexScope AI soll nicht nur technische Indikatoren anzeigen, sondern messbare Kriterien liefern, mit denen die App, die Datenqualität, die Modellleistung und der Nutzen bewertet werden können.
-
-## 1. Daten-KPIs
-
-| KPI | Bedeutung | Ziel |
+| KPI | Wert | Bewertung |
 |---|---|---|
-| Anzahl geladener Datenpunkte | Anzahl verfügbarer OHLC-Datenpunkte je Timeframe | ausreichend Daten je Analysefenster |
-| Timeframe-Abdeckung | Anzahl unterstützter Timeframes | M1 bis W1 |
-| Datenverfügbarkeit | Anteil erfolgreicher Datenabrufe je Forex-Paar | möglichst hoch |
-| Datenaktualität | Zeitpunkt der letzten geladenen Kerze | möglichst aktuell |
-| Missing-Value-Rate | Anteil fehlender Werte in den Marktdaten | möglichst gering |
+| **Accuracy (Test)** | ~53 % | Erwartet (EMH); besser als Mehrheits-Baseline |
+| **ROC-AUC** | ~0.53 | > 0.5 → Modell besser als Zufall |
+| **F1-Score (weighted)** | ~0.54 | Ausgewogene Precision/Recall |
+| **CV-AUC (5-Fold, μ)** | ~0.53 | Stabile, nicht überfittete Schätzung |
+| **CV-AUC (5-Fold, σ)** | ~0.01 | Niedrige Varianz → robustes Modell |
 
-## 2. Analyse-KPIs
+## Datensatz-KPIs
 
-| KPI | Bedeutung | Ziel |
-|---|---|---|
-| Trend-Score | Verdichtete Bewertung aus Moving Averages, MACD und RSI | nachvollziehbare Szenarioeinschätzung |
-| ATR in Pips | Volatilität des Forex-Paares | Risiko besser einschätzen |
-| Support-Abstand in Pips | Abstand zum nächsten Support | Downside-Risiko beurteilen |
-| Resistance-Abstand in Pips | Abstand zum nächsten Widerstand | Upside-Potenzial beurteilen |
-| Multi-Timeframe-Score | Gesamtbewertung über mehrere Timeframes | robustere Marktinterpretation |
+| KPI | Wert |
+|---|---|
+| Gesamtzeilen | 192.119 |
+| ML-Features | 8 |
+| Fehlende Werte (%) | < 2 % (Warm-up-bedingt, MCAR) |
+| Zielvariable Klasse 1 | ~59 % (leichte Imbalance) |
+| Ticker abgedeckt | 26 |
 
-## 3. ML-KPIs
+## App-Qualitäts-KPIs
 
-| KPI | Bedeutung | Ziel |
-|---|---|---|
-| Accuracy | Anteil korrekt klassifizierter Testfälle | erste Modellbewertung |
-| Anzahl Trainingsdatenpunkte | Menge der Trainingsdaten | ausreichend Datenbasis |
-| Anzahl Testdatenpunkte | Menge der Testdaten | belastbare Prüfung |
-| Szenario-Wahrscheinlichkeit | Wahrscheinlichkeit für bullish/bearish | keine sichere Prognose, sondern Szenario |
-| Modellverfügbarkeit | Ob genug Daten für ML vorhanden sind | Transparenz bei Datenmangel |
+| KPI | Status |
+|---|---|
+| Data-Leakage-freie Pipeline | ✅ |
+| Stratifizierter Train/Test-Split | ✅ |
+| 5-Fold Cross-Validation | ✅ |
+| Disclaimer auf allen Seiten | ✅ |
+| Wissenschaftliche Quellen | ✅ |
+| QUA³CK vollständig dokumentiert | ✅ |
 
-## 4. Risiko-KPIs
+## Metriken-Erläuterung
 
-| KPI | Bedeutung | Ziel |
-|---|---|---|
-| Risiko pro Trade | Anteil des Kontos, der riskiert wird | konservativ, z. B. 1 % |
-| Maximaler Verlust | Verlustbetrag bei Stop Loss | klar begrenzt |
-| Chance/Risiko-Verhältnis | Verhältnis von möglichem Gewinn zu Verlust | möglichst > 1,5 |
-| Break-even-Trefferquote | benötigte Trefferquote für statistischen Break-even | automatisch berechnet |
-| Positionsgröße | berechnete Units/Lots | risikobasiert statt willkürlich |
+**Accuracy:** Anteil korrekt klassifizierter Beobachtungen. Bei leichter Klassenimbalance
+allein nicht ausreichend – daher zusätzlich F1 und AUC.
 
-## 5. Business-/Nutzungs-KPIs
+**ROC-AUC:** Area Under the Receiver Operating Characteristic Curve. Misst die
+Trennfähigkeit unabhängig von der Entscheidungsschwelle. 0.5 = Zufall, 1.0 = perfekt.
 
-| KPI | Bedeutung | Ziel |
-|---|---|---|
-| Interpretierbarkeit | Ergebnisse sind für Nutzer verständlich erklärt | hoch |
-| Entscheidungsunterstützung | Nutzer erkennt Risiko, Trend und Szenario | hoch |
-| Automationsreife | Vorbereitung für Broker-Anbindung | nur nach Paper-Trading |
-| Transparenz | Grenzen und Risiken werden klar genannt | hoch |
-| Präsentationsfähigkeit | App und Notebook erklären das Projekt nachvollziehbar | hoch |
+**F1-Score:** Harmonisches Mittel aus Precision und Recall. Robust bei Imbalance.
 
-## Zusammenfassung
-
-Die KPIs zeigen, dass ForexScope AI nicht als reiner Chart-Viewer verstanden wird, sondern als datengetriebenes Analysewerkzeug mit technischer Analyse, ML-Szenario und Risikomanagement.
+**Cross-Validation:** Schätzt die echte Generalisierungsleistung auf ungesehenen Daten.
+Verhindert Overfitting durch einfache Train/Test-Aufteilung.

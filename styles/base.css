@@ -1,0 +1,185 @@
+/* WealthScope AI — base design system (variable-driven, see src/theme.py) */
+
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400..700&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+
+html, body, [class*="css"] {
+  font-family: var(--ws-font-body, -apple-system, "Segoe UI", Arial, sans-serif);
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3 {
+  font-family: var(--ws-font-display, Georgia, serif);
+  letter-spacing: -0.01em;
+  font-weight: 600;
+  text-wrap: balance;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .ws-card, .ws-kpi, .element-container:has(.js-plotly-plot) { transition: box-shadow 160ms ease, transform 160ms ease; }
+}
+
+:focus-visible { outline: 2px solid var(--ws-primary); outline-offset: 2px; }
+
+[data-testid="stAppViewContainer"] { background: var(--ws-bg); color: var(--ws-text); }
+[data-testid="stHeader"] { background: transparent; }
+
+/* Native widget text doesn't follow Streamlit's own light/dark base theme when
+   we override the surface color at runtime — force it onto our variables so
+   labels stay legible after the Hell/Dunkel toggle (missing here once made
+   every sidebar label invisible in Dunkel-Modus). */
+[data-testid="stAppViewContainer"] [data-testid="stWidgetLabel"] p,
+[data-testid="stAppViewContainer"] [data-testid="stMarkdownContainer"] p,
+[data-testid="stAppViewContainer"] [data-testid="stCaptionContainer"],
+[data-testid="stAppViewContainer"] label,
+[data-testid="stAppViewContainer"] [data-testid="stMetricLabel"],
+[data-testid="stAppViewContainer"] [data-testid="stMetricValue"] {
+  color: var(--ws-text);
+}
+[data-testid="stAppViewContainer"] [data-testid="stCaptionContainer"] { color: var(--ws-text-muted); }
+
+/* Input/select chrome: theme background AND text together — theming text
+   alone (as above) breaks contrast against these widgets' own light box. */
+[data-testid="stAppViewContainer"] [data-baseweb="select"] > div,
+[data-testid="stAppViewContainer"] [data-baseweb="input"],
+[data-testid="stAppViewContainer"] [data-baseweb="base-input"],
+[data-testid="stAppViewContainer"] [data-baseweb="textarea"] {
+  background-color: var(--ws-surface) !important;
+  border-color: var(--ws-border) !important;
+}
+[data-testid="stAppViewContainer"] [data-baseweb="select"] > div *,
+[data-testid="stAppViewContainer"] [data-baseweb="input"] input,
+[data-testid="stAppViewContainer"] [data-baseweb="base-input"] input,
+[data-testid="stAppViewContainer"] [data-baseweb="textarea"] textarea {
+  color: var(--ws-text) !important;
+}
+/* Dropdown popovers are portaled to <body>, outside stAppViewContainer — style unscoped. */
+[data-baseweb="popover"] [data-baseweb="menu"] { background-color: var(--ws-surface) !important; }
+[data-baseweb="popover"] li[role="option"] { color: var(--ws-text) !important; }
+[data-baseweb="popover"] li[role="option"]:hover { background-color: var(--ws-primary-soft) !important; }
+
+/* Number input +/- steppers render as plain buttons outside the baseweb input box. */
+[data-testid="stAppViewContainer"] [data-testid="stNumberInputStepUp"],
+[data-testid="stAppViewContainer"] [data-testid="stNumberInputStepDown"] {
+  background-color: var(--ws-surface) !important;
+  color: var(--ws-text) !important;
+  border-color: var(--ws-border) !important;
+}
+
+[data-testid="stSidebar"] {
+  background: var(--ws-bg-elevated);
+  border-right: 1px solid var(--ws-border);
+}
+.block-container { padding-top: 1.6rem; padding-bottom: 6rem; max-width: 1360px; }
+
+[data-testid="stDataFrame"], [data-testid="stExpander"] {
+  border-radius: 10px;
+  border: 1px solid var(--ws-border);
+}
+
+.element-container:has(.js-plotly-plot) {
+  background: var(--ws-surface);
+  border: 1px solid var(--ws-border);
+  border-radius: 14px;
+  padding: 0.6rem;
+  box-shadow: var(--ws-shadow);
+}
+.element-container:has(.js-plotly-plot):hover { box-shadow: 0 16px 36px rgba(23,26,23,0.12); }
+
+/* ---- Numerals: tabular, monospace everywhere a figure needs to line up ---- */
+.ws-mono, .ws-kpi-value, .ws-mono-table td {
+  font-family: var(--ws-font-mono, ui-monospace, monospace);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---- Card system — hierarchy via tint, not a repeated left-rail accent ---- */
+.ws-card {
+  background: var(--ws-surface);
+  border: 1px solid var(--ws-border);
+  border-radius: 12px;
+  padding: 1.1rem 1.3rem;
+  margin-bottom: 1rem;
+  color: var(--ws-text);
+}
+.ws-card.ws-accent {
+  background: var(--ws-primary-soft);
+  border-color: color-mix(in srgb, var(--ws-primary) 35%, var(--ws-border));
+}
+.ws-card.ws-warn {
+  background: var(--ws-neutral-soft);
+  border-color: color-mix(in srgb, var(--ws-neutral) 35%, var(--ws-border));
+}
+.ws-card.ws-danger {
+  background: var(--ws-negative-soft);
+  border-color: color-mix(in srgb, var(--ws-negative) 35%, var(--ws-border));
+}
+
+/* Hero: quiet graph-paper texture instead of a blurred gradient blob */
+.ws-hero {
+  background-color: var(--ws-surface);
+  background-image:
+    linear-gradient(var(--ws-border) 1px, transparent 1px),
+    linear-gradient(90deg, var(--ws-border) 1px, transparent 1px);
+  background-size: 28px 28px;
+  background-position: -1px -1px;
+  border: 1px solid var(--ws-border);
+  border-radius: 16px;
+  padding: 1.7rem 2rem;
+  margin-bottom: 1.4rem;
+}
+
+.ws-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+.ws-kpi {
+  background: var(--ws-surface);
+  border: 1px solid var(--ws-border);
+  border-radius: 12px;
+  padding: 0.9rem 1.05rem;
+}
+.ws-kpi:hover { transform: translateY(-1px); box-shadow: var(--ws-shadow); }
+.ws-kpi-label {
+  display: flex; align-items: center; gap: 0.35rem;
+  font-size: 0.68rem; font-weight: 700; letter-spacing: 0.07em;
+  text-transform: uppercase; color: var(--ws-text-muted); margin-bottom: 0.35rem;
+}
+.ws-kpi-label svg { color: var(--ws-primary); }
+.ws-kpi-value { font-size: 1.5rem; font-weight: 600; letter-spacing: -0.01em; color: var(--ws-text); }
+.ws-kpi-sub { font-size: 0.74rem; color: var(--ws-text-muted); margin-top: 0.2rem; }
+
+/* ---- Badges ---- */
+.ws-badge {
+  display: inline-flex; align-items: center; gap: 0.32rem;
+  padding: 0.28rem 0.7rem; border-radius: 6px;
+  font-size: 0.76rem; font-weight: 600;
+}
+.ws-badge.positive { background: var(--ws-positive-soft); color: var(--ws-positive); }
+.ws-badge.negative { background: var(--ws-negative-soft); color: var(--ws-negative); }
+.ws-badge.neutral  { background: var(--ws-neutral-soft);  color: var(--ws-neutral); }
+.ws-badge.info     { background: var(--ws-primary-soft);  color: var(--ws-primary); }
+
+/* ---- Section header ---- */
+.ws-section-title {
+  display: flex; align-items: center; gap: 0.4rem;
+  font-size: 0.72rem; font-weight: 700; letter-spacing: 0.09em;
+  text-transform: uppercase; color: var(--ws-text-muted); margin: 1.3rem 0 0.6rem;
+}
+.ws-section-title svg { color: var(--ws-primary); }
+
+/* ---- Progress bar ---- */
+.ws-bar-track { width: 100%; height: 7px; border-radius: 999px; background: var(--ws-border); overflow: hidden; }
+.ws-bar-fill { height: 100%; border-radius: 999px; }
+
+/* ---- Scrollbar ---- */
+::-webkit-scrollbar { width: 7px; height: 7px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--ws-primary-soft); border-radius: 999px; }
+::-webkit-scrollbar-thumb:hover { background: var(--ws-primary); }
+
+/* ---- Disclaimer footer ---- */
+.ws-disclaimer {
+  font-size: 0.72rem; color: var(--ws-text-muted);
+  border-top: 1px solid var(--ws-border); margin-top: 2rem; padding-top: 0.8rem;
+}
