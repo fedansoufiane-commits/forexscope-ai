@@ -11,6 +11,7 @@ from src.diagnostics import (
     chart_correlation_heatmap,
     chart_feature_importance,
     chart_learning_curve,
+    chart_model_comparison,
     chart_roc_pr,
     compute_correlation,
     learning_curve_diagnosis,
@@ -54,12 +55,40 @@ def render() -> None:
         )
 
     tabs = st.tabs([
-        "🎯 Score-Zerlegung", "🔗 Korrelationsmatrix", "🧩 Konfusionsmatrix & ROC",
-        "📈 Lernkurve", "🌲 Feature Importance", "🔍 SHAP", "📖 Methodik",
+        "🕰️ Modell-Zeitreise", "🎯 Score-Zerlegung", "🔗 Korrelation",
+        "🧩 Fehler & ROC", "📈 Lernkurve", "🌲 Importance", "🔍 SHAP", "📖 Methodik",
     ])
 
-    # ---- Tab 1: Score breakdown -------------------------------------------------
+    # ---- Tab 1: historical model comparison -------------------------------------
     with tabs[0]:
+        validation = diag["validation"]
+        st.plotly_chart(chart_model_comparison(diag, mode), config={"displayModeBar": False})
+        st.info(
+            f"Fairer Vergleich: Training nur bis **{validation['train_end']}**, unangetasteter Test "
+            f"von **{validation['test_start']} bis {validation['test_end']}**, dazwischen "
+            f"**{validation['purge_trading_days']} Handelstage Sperrzone**. So kann das 20-Tage-Ziel "
+            "keine Zukunftsinformation in das Training tragen."
+        )
+        rows = []
+        for item in diag["model_comparison"].values():
+            metric = item["test_metrics"]
+            rows.append({
+                "Epoche": item["year"],
+                "Modell": item["label"],
+                "Idee": item["family"],
+                "ROC-AUC": metric["roc_auc"],
+                "Balanced Accuracy": metric["balanced_accuracy"],
+                "Walk-forward AUC": item["walk_forward_roc_auc_mean"],
+                "Training (s)": metric["fit_seconds"],
+            })
+        st.dataframe(rows, width="stretch", hide_index=True)
+        st.caption(
+            "Die Zeitreise macht Fortschritt und Grenzen sichtbar: Ein komplexeres Modell ist nicht "
+            "automatisch besser. Entscheidend sind Out-of-Time-Generalisation, Erklärbarkeit und Laufzeit."
+        )
+
+    # ---- Tab 2: Score breakdown -------------------------------------------------
+    with tabs[1]:
         c1, c2 = st.columns(2)
         with c1:
             st.plotly_chart(chart_radar(result, mode), config={"displayModeBar": False})
@@ -87,8 +116,8 @@ def render() -> None:
             "bewusst nicht gefittet, damit sie nachvollziehbar bleiben."
         )
 
-    # ---- Tab 2: Correlation heatmap ---------------------------------------------
-    with tabs[1]:
+    # ---- Tab 3: Correlation heatmap ---------------------------------------------
+    with tabs[2]:
         section_title("Pearson-Korrelationsmatrix aller ML-Features", "grid")
         corr = compute_correlation(ctx["market"])
         st.plotly_chart(chart_correlation_heatmap(corr, mode), config={"displayModeBar": False})
@@ -97,8 +126,8 @@ def render() -> None:
             "sind potenziell redundant — RandomForest ist robust gegenüber Multikollinearität, lineare Modelle wären es nicht."
         )
 
-    # ---- Tab 3: Confusion matrix + ROC/PR ---------------------------------------
-    with tabs[2]:
+    # ---- Tab 4: Confusion matrix + ROC/PR ---------------------------------------
+    with tabs[3]:
         tm = diag["test_metrics"]
         kpi_grid([
             ("Accuracy vs. Baseline", f"{tm['accuracy']*100:.2f}%",
@@ -115,44 +144,46 @@ def render() -> None:
             "→ bei Imbalance ist Accuracy allein irreführend, daher ROC-AUC als primäre Metrik (Kap. 3, Prof. Quibeldey-Cirkel)."
         )
 
-    # ---- Tab 4: Learning curve ----------------------------------------------------
-    with tabs[3]:
+    # ---- Tab 5: Learning curve ----------------------------------------------------
+    with tabs[4]:
         lc = load_learning_curve()
         section_title("Lernkurve — Bias/Variance-Diagnose", "trend-up")
         st.plotly_chart(chart_learning_curve(lc, mode), config={"displayModeBar": False})
         card(learning_curve_diagnosis(lc), variant="ws-accent")
         st.caption(
-            "Trainings- und Validierungs-Score (ROC-AUC) über wachsende Trainingsgröße, 5-fach stratifizierte "
-            "Cross-Validation. Schattierung = ±1 Standardabweichung über die Folds. Diese Analyse zeigt, ob "
+            "Trainings- und Validierungs-Score (ROC-AUC) über wachsende Trainingsgröße in einer expandierenden "
+            "Walk-forward-Validierung. Jede Validierung liegt zeitlich nach ihrem Training und besitzt eine "
+            "20-Handelstage-Sperrzone. Diese Analyse zeigt, ob "
             "mehr Trainingsdaten den größten Hebel wären (Lücke schließt sich) oder ob das Modell strukturell "
             "an seine Grenze stößt (beide Kurven laufen flach — konsistent mit der Efficient Market Hypothesis, Fama 1970)."
         )
 
-    # ---- Tab 5: Feature importance -----------------------------------------------
-    with tabs[4]:
+    # ---- Tab 6: Feature importance -----------------------------------------------
+    with tabs[5]:
         section_title("RandomForest Feature Importance", "layers")
         st.plotly_chart(chart_feature_importance(diag, mode), config={"displayModeBar": False})
         st.caption("Gini-Importance des RandomForest — wie oft/wirksam ein Feature zum Aufteilen der Bäume genutzt wird.")
 
-    # ---- Tab 6: SHAP ---------------------------------------------------------------
-    with tabs[5]:
+    # ---- Tab 7: SHAP ---------------------------------------------------------------
+    with tabs[6]:
         _render_shap(ctx)
 
-    # ---- Tab 7: Methodology --------------------------------------------------------
-    with tabs[6]:
+    # ---- Tab 8: Methodology --------------------------------------------------------
+    with tabs[7]:
         cv = diag["cross_validation"]
         st.markdown(f"""
 **Algorithmus:** RandomForestClassifier (sklearn {diag['sklearn_version']})
 **Zielvariable:** `target_20d` — Kurs in 20 Handelstagen höher? (binär)
 **Features ({len(diag['features'])}):** {', '.join(diag['features'])}
-**Train/Test:** {diag['n_train']:,} / {diag['n_test']:,} Zeilen, 75/25, stratifiziert, `random_state=42`
+**Train/Test:** {diag['n_train']:,} / {diag['n_test']:,} Zeilen, purged Out-of-Time-Holdout
+**Sperrzone:** {diag['validation']['purge_trading_days']} Handelstage passend zum Zielhorizont
 **Hyperparameter:** n_estimators={diag['hyperparams']['n_estimators']}, max_depth={diag['hyperparams']['max_depth']}, class_weight={diag['hyperparams']['class_weight']}
-**5-Fold CV:** Accuracy {cv['accuracy_mean']:.4f} ± {cv['accuracy_std']:.4f} · ROC-AUC {cv['auc_mean']:.4f} ± {cv['auc_std']:.4f}
+**Walk-forward CV:** Accuracy {cv['accuracy_mean']:.4f} ± {cv['accuracy_std']:.4f} · ROC-AUC {cv['auc_mean']:.4f} ± {cv['auc_std']:.4f}
 
-**Wissenschaftliche Einordnung:** Eine Accuracy knapp über 55% ist bei historischen Finanzdaten
-wissenschaftlich erwartbar und bemerkenswert zugleich (Efficient Market Hypothesis, Fama 1970) —
-das Modell ist ein Lerndemonstrator für den vollständigen ML-Workflow (Kapitel Q-U-A-A-C-K),
-**kein** Handelssignal-Generator.
+**Wissenschaftliche Einordnung:** Die Out-of-Time-ROC-AUC liegt nur knapp über 0,5
+und die rohe Accuracy unter der Mehrheits-Baseline. Dieses ehrliche Negativergebnis
+ist mit der Efficient Market Hypothesis (Fama 1970) vereinbar. Das Modell ist ein
+Lerndemonstrator für den vollständigen ML-Workflow, **kein** Handelssignal-Generator.
 
 > *„Aktuelle Kursdaten sind bereits im Marktpreis eingepreist."* — Fama (1970), Efficient Capital Markets
         """)

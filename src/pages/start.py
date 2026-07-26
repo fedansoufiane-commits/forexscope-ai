@@ -12,8 +12,10 @@ def render() -> None:
     ctx = get_context()
     result, mode = ctx["result"], ctx["theme_mode"]
 
-    page_header("Willkommen bei WealthScope AI",
-                "Interaktive Finanzanalyse auf Basis von Machine Learning — Uni-Projekt, IU Internationale Hochschule.")
+    page_header(
+        "WealthScope AI 1.0",
+        "Interaktive Finanzanalyse · Out-of-Time-ML · QUA³CK-Wissenstransfer",
+    )
 
     outlook_kind = "positive" if result.outlook == "Positiv" else "negative" if result.outlook == "Negativ" else "neutral"
     card(
@@ -44,7 +46,7 @@ def render() -> None:
     c1, c2, c3, c4 = st.columns(4)
     for col, icon_name, title, desc in [
         (c1, "chart", "Marktanalyse", "Kurscharts, Candlesticks, Drawdown, gleitende Durchschnitte."),
-        (c2, "flask", "ML-Insights", "Korrelationsmatrix, Konfusionsmatrix, Lernkurve, ROC/PR, SHAP."),
+        (c2, "flask", "ML-Insights", "Modell-Zeitreise, Out-of-Time-Test, ROC/PR und SHAP."),
         (c3, "compass", "Kapital-Kompass", "Risikoeinschätzung & Positionsgrößen-Empfehlung."),
         (c4, "briefcase", "Simulator", "Portfolio-Szenarien und Kapitalplanung."),
     ]:
@@ -53,4 +55,9 @@ def render() -> None:
                  f'<b>{title}</b><br>'
                  f'<span style="font-size:0.82rem;color:var(--ws-text-muted)">{desc}</span>')
 
+    st.info(
+        "Neu in 1.0: Dummy, logistische Regression, Entscheidungsbaum, Linear-SVM und "
+        "Random Forest werden auf demselben späteren Testzeitraum verglichen. Im Lernstudio "
+        "lässt sich das Ergebnis didaktisch prüfen und als arsnova.eu-Quiz exportieren."
+    )
     disclaimer_footer()

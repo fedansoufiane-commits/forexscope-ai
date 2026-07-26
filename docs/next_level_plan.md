@@ -13,14 +13,15 @@ Präsentation) ist mit dem Rebuild vom 2026-07-09 vollständig umgesetzt:
 | Wissenschaftlichkeit | Konfusionsmatrix, ROC/PR, **Lernkurve (Bias/Variance-Diagnose)**, Korrelationsmatrix, RF-Feature-Importance, SHAP, EMH-Einordnung |
 | Präsentation | Projekt-Seite, Methodik-/QUA³CK-Seite, exportierbarer Markdown/CSV/ZIP/PDF-Bericht |
 
-## Nächste sinnvolle Ausbaustufen (offen)
+## In Version 1.0 abgeschlossen
 
 ### A. Modell-Robustheit
-- Zeitreihen-Split statt zufälligem 75/25-Split für die Kreuzvalidierung
-  (`TimeSeriesSplit` statt `StratifiedKFold`) — realistischer für Finanzdaten,
-  da zufällige Splits Zukunftsinformation in die Trainingsmenge durchsickern
-  lassen können (Look-Ahead-Bias trotz korrekter Pipeline-Reihenfolge)
-- Walk-Forward-Validierung als Ergänzung zur Lernkurve
+- Purged Out-of-Time-Holdout statt zufälligem 75/25-Split
+- Vier expandierende Walk-forward-Folds
+- Fünf Modellgenerationen auf identischen Zeitfenstern
+- Model Card und versionierte Diagnostik-Artefakte
+
+## Nächste sinnvolle Ausbaustufen (nach 1.0)
 
 ### B. Datenbasis erweitern
 - VIX / Makro-Features (Ansatz existiert bereits in `_archiv/pre_rebuild_2026-07-09/retrain_model.py`

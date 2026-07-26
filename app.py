@@ -10,7 +10,7 @@ import streamlit as st
 
 from src.config import APP_NAME
 from src.pages import (
-    assistant_page, data_lab, export_page, kompass, legal,
+    assistant_page, data_lab, export_page, kompass, learning_studio, legal,
     market, methodology, ml_insights, news_page, project,
     simulator, start, status, watchlist,
 )
@@ -42,6 +42,7 @@ pages = {
         st.Page(news_page.render, title="News-Archiv", icon=":material/newspaper:", url_path="news"),
         st.Page(assistant_page.render, title="KI-Assistent", icon=":material/smart_toy:", url_path="assistent"),
         st.Page(methodology.render, title="Methodik (QUA³CK)", icon=":material/menu_book:", url_path="methodik"),
+        st.Page(learning_studio.render, title="Lernstudio", icon=":material/quiz:", url_path="lernstudio"),
         st.Page(project.render, title="Projekt", icon=":material/info:", url_path="projekt"),
         st.Page(export_page.render, title="Export", icon=":material/download:", url_path="export"),
     ],

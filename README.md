@@ -1,4 +1,4 @@
-# WealthScope AI
+# WealthScope AI 1.0
 
 **Interaktive Finanzanalyse-App auf Basis von Machine Learning**
 Uni-Projekt | IU Internationale Hochschule | Modul: Data Analytics und Big Data (DSDABD072501)
@@ -44,13 +44,14 @@ Interaktiv erklärt in der App unter **Methodik (QUA³CK)**.
 | Feature | Beschreibung |
 |---|---|
 | **Marktanalyse** | Kurscharts, Candlestick, gleitende Durchschnitte, Drawdown |
-| **ML-Insights** | Score-Zerlegung, **Korrelationsmatrix (Heatmap)**, **Konfusionsmatrix + ROC/PR**, **Lernkurve (Bias/Variance)**, Feature Importance, SHAP |
+| **ML-Insights** | Historischer Modellvergleich, purged Out-of-Time-Test, Korrelation, Konfusionsmatrix, ROC/PR, Lernkurve, Feature Importance, SHAP |
 | **Kapital-Kompass** | Risikoeinschätzung & Positionsgrößen-Empfehlung |
 | **Portfolio-Simulator** | Kapitalplanung, Allokations-Editor, Konzentrationsmaß (HHI) |
 | **Watchlist** | Ranking aller 26 Ticker nach Confidence-Score, Risiko/Rendite-Karte |
 | **Datenlabor** | Explorative Datenanalyse über den vollständigen Trainingsdatensatz |
 | **News & Assistent** | NewsAPI-Sentiment + Gemini-Chat zur aktuellen Analyse |
 | **Export** | Markdown/CSV/ZIP/PDF-Bericht |
+| **Lernstudio** | Acht Kursfragen, direktes Feedback und arsnova.eu-kompatibler JSON-Export |
 
 ---
 
@@ -72,20 +73,19 @@ Interaktiv erklärt in der App unter **Methodik (QUA³CK)**.
 
 | Aspekt | Detail |
 |---|---|
-| **Algorithmus** | Random Forest Classifier (Pipeline: Imputer → StandardScaler → RF) |
+| **Vergleich** | Dummy → Logistic Regression → Decision Tree → Linear SVM → Random Forest |
+| **Demonstrator** | Random Forest Classifier (Pipeline: Imputer → StandardScaler → RF) |
 | **Zielvariable** | `target_20d`: Kurs in 20 Handelstagen höher? (0/1) |
 | **Features (8)** | daily_return, return_5d, return_20d, ma_*_distance, volatility_20d, drawdown |
-| **Train/Test** | 75/25, stratifiziert, `random_state=42` |
-| **Accuracy** | ~55,3 % (leicht über Zufallsniveau – wissenschaftlich erwartet, EMH) |
-| **ROC-AUC** | ~0.59 |
-| **Cross-Validation** | 5-Fold, stratifiziert |
-| **Diagnostik** | Konfusionsmatrix, ROC/PR-Kurven, **Lernkurve** (`sklearn.model_selection.learning_curve`), SHAP — alle einmalig vorberechnet, siehe unten |
+| **Train/Test** | Älteste 80 % / neueste 20 % nach Datum |
+| **Leakage-Schutz** | 20 Handelstage Purge passend zu `target_20d` |
+| **Cross-Validation** | 4 expandierende Walk-forward-Folds |
+| **Diagnostik** | Accuracy, Balanced Accuracy, Precision, Recall, F1, ROC-AUC, PR, Lernkurve, Laufzeit, Importance und SHAP |
 
-Alle Metriken/Kurven werden **nicht** bei jedem App-Rerun neu gefittet (das wäre bei
-`learning_curve()` — ~40 RF-Fits — viel zu langsam), sondern einmalig von
-`scripts/train_and_diagnose.py` berechnet und in `models/diagnostics.json` /
-`models/learning_curve.json` gecacht. Nach Änderungen an Features, Hyperparametern
-oder Daten einfach neu ausführen:
+Alle Metriken/Kurven werden **nicht** bei jedem App-Rerun neu gefittet, sondern
+einmalig von `scripts/train_and_diagnose.py` berechnet. Die erzeugten Artefakte
+werden für ein reproduzierbares Deployment versioniert. Nach Änderungen an
+Features, Hyperparametern oder Daten:
 
 ```bash
 python3 scripts/train_and_diagnose.py
@@ -106,21 +106,25 @@ src/
   ui.py                         Wiederverwendbare UI-Bausteine (Card, KPI-Grid, Badge)
   data.py                       Laden & Feature Engineering (Kaggle-Parquet + live yfinance)
   model.py                      Regelbasierte Scoring-Engine + Modell-Loader
-  diagnostics.py                Korrelation, Konfusionsmatrix, ROC/PR, Lernkurve, SHAP
+  diagnostics.py                Modellvergleich, Korrelation, ROC/PR, Lernkurve, SHAP
+  quiz.py                       Lernfragen + arsnova.eu-Export
   charts.py                     Kurs-/Risiko-/Portfolio-Charts (Plotly)
   news.py                       NewsAPI + Lexikon-Sentiment + Gemini-Assistent
   export.py                     Markdown/CSV/ZIP/PDF-Export
   pages/                        Eine Datei pro Seite (start, market, ml_insights, ...)
 scripts/
-  train_and_diagnose.py         Einmaliges Training + Diagnostik-Cache (siehe oben)
+  train_and_diagnose.py         Purged Out-of-Time-Benchmark + Artefakte
   validate_app.py               Struktur-Check (Compile, Seiten, url_path, Artefakte)
   rebuild_wealthscope_notebooks.py  Generiert die QUA³CK-Notebooks
 tests/
-  test_app_static.py            pytest-Suite für die obigen Invarianten
+  test_app_static.py            pytest-Suite für App, Artefakte und Quizformat
 notebooks/                       8 QUA³CK-Notebooks (wissenschaftliche Dokumentation)
 data/, models/                   Datensatz, trainiertes Modell, Diagnostik-Caches
 _archiv/pre_rebuild_2026-07-09/  Der alte app_max.py-Monolith (Referenz, nicht aktiv)
 ```
+
+Der vollständige Stand unmittelbar vor 1.0 ist zusätzlich im Commit `834ff98`
+auf `codex/backup-status-quo-2026-07-26` gesichert.
 
 ---
 
@@ -187,4 +191,9 @@ jupyter lab
   https://doi.org/10.1186/s12874-024-02173-x
 - **Pinheiro et al. (2025):** The Impact of Feature Scaling in ML. arXiv:2506.08274.
 - **Lundberg & Lee (2017):** A Unified Approach to Interpreting Model Predictions (SHAP). NeurIPS.
-- **Quibeldey-Cirkel (2026):** U: Understanding the Data. IU Internationale Hochschule.
+- **Breiman (2001):** Random Forests. Machine Learning, 45, 5–32.
+- **Quibeldey-Cirkel (2026):** Kursmaterialien zu QUA³CK, Datenverständnis,
+  Klassifikation, Modelltraining, SVM, Entscheidungsbäumen und Random Forests.
+
+Weitere Details: [`docs/model_card.md`](docs/model_card.md) und
+[`docs/lecture_alignment.md`](docs/lecture_alignment.md).

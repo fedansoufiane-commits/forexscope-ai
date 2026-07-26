@@ -34,7 +34,8 @@ PAGE_MODULES = {
     "kompass": ["render"], "simulator": ["render"], "watchlist": ["render"],
     "data_lab": ["render"], "news_page": ["render"], "assistant_page": ["render"],
     "methodology": ["render"], "project": ["render"], "export_page": ["render"],
-    "legal": ["render_impressum", "render_datenschutz"], "status": ["render"],
+    "learning_studio": ["render"], "legal": ["render_impressum", "render_datenschutz"],
+    "status": ["render"],
 }
 
 
@@ -80,7 +81,11 @@ def main() -> None:
     for p in (model_path, diag_path, lc_path):
         if not p.exists():
             fail(f"Fehlendes Artefakt: {p.relative_to(BASE_DIR)} — führe scripts/train_and_diagnose.py aus.")
-    json.loads(diag_path.read_text())
+    diagnostics = json.loads(diag_path.read_text())
+    if diagnostics.get("schema_version") != 2:
+        fail("Diagnostics-Artefakt ist nicht auf 1.0-Schema v2 — führe scripts/train_and_diagnose.py aus.")
+    if "model_comparison" not in diagnostics or "validation" not in diagnostics:
+        fail("Diagnostics-Artefakt enthält keinen Modellvergleich/Validierungsnachweis.")
     json.loads(lc_path.read_text())
     print("   ✅ Modell, Diagnostics-Cache und Lernkurven-Cache vorhanden und lesbar")
 

@@ -15,12 +15,13 @@ STEPS = [
     ("A", "Analytics (Feature Engineering)", "8 Features: Renditen (1/5/20 Tage), Abstand zu MA-20/50/200, "
                                               "annualisierte Volatilität, Drawdown vom Allzeithoch. "
                                               "Zielvariable target_20d (binär)."),
-    ("A", "Algorithm Selection", "DummyClassifier (Baseline) → Logistic Regression (interpretierbar) → "
-                                  "RandomForestClassifier (gewählt: robust, nichtlinear, liefert Feature Importance)."),
-    ("A", "Adaption (Optimierung)", "class_weight='balanced', max_depth=8 (Regularisierung), 5-fach stratifizierte "
-                                     "Cross-Validation, 75/25 Split mit random_state=42, keine Datenlecks (Pipeline)."),
-    ("C", "Conclude", "RandomForest schlägt Baseline & Logistic Regression (ROC-AUC 0.58 vs. 0.50/0.52). "
-                       "Accuracy ~55% ist bei historischen Finanzdaten erwartbar (EMH, Fama 1970)."),
+    ("A", "Algorithm Selection", "DummyClassifier → logistische Regression → Entscheidungsbaum → Linear-SVM → "
+                                  "RandomForest. Alle Modelle erhalten dieselben Features und Testdaten."),
+    ("A", "Adaption (Optimierung)", "Pipeline mit medianer Imputation und Scaling; baumbasierte Modelle werden "
+                                     "regularisiert. Die Evaluation nutzt expandierende Walk-forward-Fenster."),
+    ("C", "Conclude & Compare", "Ein unangetasteter später 20%-Holdout und eine 20-Handelstage-Sperrzone "
+                                 "verhindern Future Leakage. Accuracy, Balanced Accuracy, ROC-AUC, PR und Laufzeit "
+                                 "machen Stärken und Grenzen jeder Modellgeneration sichtbar."),
     ("K", "Knowledge Transfer", "8 Jupyter-Notebooks (wissenschaftlich dokumentiert) → diese Streamlit-App "
                                  "(interaktive Exploration) → Export als PDF/CSV für offline Nutzung."),
 ]
@@ -42,7 +43,9 @@ def render() -> None:
 - Stock et al. (2021): *QUA³CK — A Machine Learning Development Process.* KIT ITIV.
 - Fama, E. (1970): *Efficient Capital Markets.* Journal of Finance, 25(2), 383–417.
 - Li et al. (2024): *Comparison of Imputation Methods.* BMC Medical Research Methodology.
+- Breiman (2001): *Random Forests.* Machine Learning, 45, 5–32.
 - Lundberg & Lee (2017): *A Unified Approach to Interpreting Model Predictions* (SHAP). NeurIPS.
+- Quibeldey-Cirkel (2026): Kursmaterialien zu Klassifikation, Modelltraining, SVM, Entscheidungsbäumen und Random Forests.
     """)
 
     disclaimer_footer()

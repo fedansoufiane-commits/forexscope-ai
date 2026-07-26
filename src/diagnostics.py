@@ -123,6 +123,36 @@ def chart_learning_curve(lc: Dict[str, Any], mode: str) -> go.Figure:
     return apply_chart_theme(fig, mode, height=420)
 
 
+def chart_model_comparison(diag: Dict[str, Any], mode: str) -> go.Figure:
+    """Compare model generations on the untouched out-of-time holdout."""
+    t = _t(mode)
+    models = list(diag["model_comparison"].values())
+    labels = [f"{m['year']} · {m['label']}" for m in models]
+    auc = [m["test_metrics"]["roc_auc"] for m in models]
+    balanced = [m["test_metrics"]["balanced_accuracy"] for m in models]
+    fig = go.Figure()
+    fig.add_trace(go.Bar(
+        x=labels, y=auc, name="ROC-AUC",
+        marker_color=t["primary"], text=[f"{v:.3f}" for v in auc],
+        textposition="outside",
+    ))
+    fig.add_trace(go.Bar(
+        x=labels, y=balanced, name="Balanced Accuracy",
+        marker_color=t["positive"], text=[f"{v:.3f}" for v in balanced],
+        textposition="outside",
+    ))
+    fig.add_hline(
+        y=0.5, line_dash="dash", line_color="#94a3b8",
+        annotation_text="Zufallsniveau 0,5",
+    )
+    fig.update_layout(
+        title="Modellgenerationen auf identischem Out-of-Time-Testfenster",
+        barmode="group", yaxis_title="Score", yaxis_range=[0.40, 0.70],
+        xaxis_tickangle=-18, height=470,
+    )
+    return apply_chart_theme(fig, mode, height=470)
+
+
 def learning_curve_diagnosis(lc: Dict[str, Any]) -> str:
     tr_final = lc["train_scores_mean"][-1]
     va_final = lc["val_scores_mean"][-1]

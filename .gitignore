@@ -44,7 +44,12 @@ data/external/
 # Duplicate processed CSV exports
 data/processed/*.csv
 # Local backups and generated models
-models/
+models/*
+!models/wealthscope_model.joblib
+!models/diagnostics.json
+!models/learning_curve.json
+!models/wealthscope_model_report.txt
 *.joblib
+!models/wealthscope_model.joblib
 .streamlit/config_before_*.toml
 .streamlit/config_invalid_*.toml

@@ -347,149 +347,77 @@ Die Features sind fachlich gruppierbar und können in der App verständlich erkl
 # ---------------------------------------------------------
 write_notebook(
     "04_modeling_baseline_ml.ipynb",
-    "04 – Modeling: Baseline & ML",
+    "04 – Modeling: KI damals und heute",
     [
         md("""
 ## Ziel
 
-Dieses Notebook erstellt ein erstes ML-Baseline-Modell zur Zielvariable `target_20d`.
+Dieses Notebook dokumentiert den reproduzierbaren 1.0-Benchmark zur Zielvariable
+`target_20d`. Fünf Modellgenerationen werden fair auf denselben Zeitfenstern
+verglichen:
 
-Wichtig:
+- Dummy-Baseline
+- logistische Regression
+- Entscheidungsbaum
+- Linear-SVM
+- Random Forest
 
-- Das Modell ist eine Demonstration.
-- Keine Anlageberatung.
-- Ziel ist methodische Nachvollziehbarkeit.
+Finanzdaten sind zeitlich geordnet. Deshalb gibt es keinen zufälligen Split:
+Die neuesten 20 % der Handelstage sind der unangetastete Test; eine Sperrzone
+von 20 Handelstagen verhindert überlappende Zielhorizonte.
 """),
         COMMON_SETUP,
         code("""
-from sklearn.model_selection import train_test_split
-from sklearn.pipeline import Pipeline
-from sklearn.impute import SimpleImputer
-from sklearn.preprocessing import StandardScaler
-from sklearn.linear_model import LogisticRegression
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, classification_report, confusion_matrix
+import json
+from pathlib import Path
+
+diagnostics = json.loads((BASE_DIR / "models" / "diagnostics.json").read_text())
+diagnostics["validation"]
 """),
         code("""
-target = "target_20d"
-
-feature_cols = [
-    "daily_return",
-    "return_5d",
-    "return_20d",
-    "ma_20_distance",
-    "ma_50_distance",
-    "ma_200_distance",
-    "volatility_20d",
-    "drawdown",
-]
-
-available_features = [c for c in feature_cols if c in df.columns]
-
-model_df = df[available_features + [target]].dropna(subset=[target]).copy()
-model_df[target] = model_df[target].astype(int)
-
-print("Features:", available_features)
-print("Model shape:", model_df.shape)
-print("Target distribution:")
-display(model_df[target].value_counts(normalize=True).rename("share"))
-"""),
-        code("""
-X = model_df[available_features]
-y = model_df[target]
-
-X_train, X_test, y_train, y_test = train_test_split(
-    X,
-    y,
-    test_size=0.25,
-    random_state=42,
-    stratify=y,
-)
-
-baseline_pred = np.repeat(y_train.mode().iloc[0], len(y_test))
-
-baseline_scores = {
-    "model": "Majority Baseline",
-    "accuracy": accuracy_score(y_test, baseline_pred),
-    "precision": precision_score(y_test, baseline_pred, zero_division=0),
-    "recall": recall_score(y_test, baseline_pred, zero_division=0),
-    "f1": f1_score(y_test, baseline_pred, zero_division=0),
-}
-
-baseline_scores
-"""),
-        code("""
-log_model = Pipeline(
-    steps=[
-        ("imputer", SimpleImputer(strategy="median")),
-        ("scaler", StandardScaler()),
-        ("model", LogisticRegression(max_iter=1000)),
-    ]
-)
-
-rf_model = Pipeline(
-    steps=[
-        ("imputer", SimpleImputer(strategy="median")),
-        ("model", RandomForestClassifier(n_estimators=150, random_state=42, max_depth=8)),
-    ]
-)
-
-models = {
-    "Logistic Regression": log_model,
-    "Random Forest": rf_model,
-}
-
-results = [baseline_scores]
-
-for name, model in models.items():
-    model.fit(X_train, y_train)
-    pred = model.predict(X_test)
-    results.append({
-        "model": name,
-        "accuracy": accuracy_score(y_test, pred),
-        "precision": precision_score(y_test, pred, zero_division=0),
-        "recall": recall_score(y_test, pred, zero_division=0),
-        "f1": f1_score(y_test, pred, zero_division=0),
+comparison = []
+for model in diagnostics["model_comparison"].values():
+    metric = model["test_metrics"]
+    comparison.append({
+        "Epoche": model["year"],
+        "Modell": model["label"],
+        "Idee": model["family"],
+        "Accuracy": metric["accuracy"],
+        "Balanced Accuracy": metric["balanced_accuracy"],
+        "ROC-AUC": metric["roc_auc"],
+        "Walk-forward AUC": model["walk_forward_roc_auc_mean"],
+        "Training (s)": metric["fit_seconds"],
     })
 
-pd.DataFrame(results).sort_values("f1", ascending=False)
+comparison_df = pd.DataFrame(comparison)
+display(comparison_df)
 """),
         code("""
-best_model = rf_model
-best_model.fit(X_train, y_train)
-pred = best_model.predict(X_test)
-
-print(classification_report(y_test, pred, zero_division=0))
-
-cm = confusion_matrix(y_test, pred)
-cm
-"""),
-        code("""
-plt.figure(figsize=(5, 4))
-plt.imshow(cm)
-plt.title("Confusion Matrix – Random Forest")
-plt.xlabel("Predicted")
-plt.ylabel("Actual")
-plt.colorbar()
-for i in range(cm.shape[0]):
-    for j in range(cm.shape[1]):
-        plt.text(j, i, cm[i, j], ha="center", va="center")
+ax = comparison_df.plot(
+    x="Modell",
+    y=["ROC-AUC", "Balanced Accuracy"],
+    kind="bar",
+    figsize=(11, 4),
+)
+ax.axhline(0.5, color="black", linestyle="--", linewidth=1)
+ax.set_ylim(0.45, 0.60)
+ax.set_title("Identischer Out-of-Time-Test: komplexer ist nicht automatisch besser")
+plt.xticks(rotation=25, ha="right")
 plt.show()
 """),
-        code("""
-rf = best_model.named_steps["model"]
-importances = pd.DataFrame({
-    "feature": available_features,
-    "importance": rf.feature_importances_,
-}).sort_values("importance", ascending=False)
+        md("""
+## Reproduktion
 
-display(importances)
+Der ausführbare Single Source of Truth ist `scripts/train_and_diagnose.py`.
+Er erzeugt Modell, Testkurven, Walk-forward-Ergebnisse und Lernkurve:
 
-plt.figure(figsize=(8, 4))
-plt.bar(importances["feature"], importances["importance"])
-plt.title("Feature Importance – Random Forest")
-plt.xticks(rotation=45, ha="right")
-plt.show()
+```bash
+python scripts/train_and_diagnose.py
+```
+
+Das ehrliche Ergebnis ist fachlich wichtiger als eine hohe Zahl: Der Random
+Forest liegt bei Out-of-Time-ROC-AUC nur knapp über 0,5. Historische Preise
+allein ergeben kein belastbares Handelssignal.
 """),
     ],
 )
@@ -523,7 +451,7 @@ evaluation_points = pd.DataFrame(
         ["Zielvariable", "target_20d vorhanden", "Gut erklärbar"],
         ["News", "NewsAPI integriert", "Extern abhängig"],
         ["Scoring", "Regelbasiert", "Transparent, aber noch kein echtes ML-Produkt"],
-        ["ML", "Baseline möglich", "Weiterer Ausbau nötig"],
+        ["ML", "Fünf Modelle im purged Out-of-Time-Benchmark", "Reproduzierbar"],
         ["Reproduzierbarkeit", "Export und Notebooks", "Stark"],
     ],
     columns=["Bereich", "Befund", "Bewertung"],
@@ -548,7 +476,9 @@ for item in limitations:
 WealthScope AI ist als datenbasierter, erklärbarer Prototyp geeignet.  
 Die App zeigt Datenbasis, Feature Engineering, Visualisierung, News-Kontext und Exportfähigkeit.
 
-Der nächste fachliche Schritt ist ein sauber dokumentiertes ML-Labor mit Modellvergleich, Confusion Matrix und Feature Importance.
+Version 1.0 liefert einen dokumentierten Modellvergleich, Confusion Matrix,
+ROC/PR, Walk-forward-Lernkurve und Feature Importance. Die geringe
+Out-of-Time-Leistung wird als wissenschaftliches Ergebnis gezeigt, nicht kaschiert.
 """),
     ],
 )
@@ -583,6 +513,7 @@ app_components = pd.DataFrame(
         ["Wealth Outlook", "Analyse und Charts"],
         ["Datenlabor", "Rohdaten, Profil, Fehlwerte"],
         ["ML-Labor", "Features und Modellbezug"],
+        ["Lernstudio", "Direktes Feedback und arsnova.eu-Export"],
         ["News-Archiv", "NewsAPI transparent machen"],
         ["Assistent", "Analyse erklären"],
         ["Export", "Reproduzierbarkeit"],
@@ -594,8 +525,8 @@ app_components
 """),
         code("""
 print("Start der App lokal:")
-print("cd ~/UNI/forexscope-ai")
-print("python3 -m streamlit run app_max.py")
+print("cd <repository>")
+print("python -m streamlit run app.py")
 """),
         md("""
 ## Transferargument

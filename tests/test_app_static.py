@@ -7,6 +7,7 @@ from __future__ import annotations
 import ast
 import importlib
 import json
+import math
 import py_compile
 import sys
 from pathlib import Path
@@ -24,7 +25,8 @@ PAGE_MODULES = {
     "kompass": ["render"], "simulator": ["render"], "watchlist": ["render"],
     "data_lab": ["render"], "news_page": ["render"], "assistant_page": ["render"],
     "methodology": ["render"], "project": ["render"], "export_page": ["render"],
-    "legal": ["render_impressum", "render_datenschutz"], "status": ["render"],
+    "learning_studio": ["render"], "legal": ["render_impressum", "render_datenschutz"],
+    "status": ["render"],
 }
 
 
@@ -82,10 +84,33 @@ def test_diagnostics_artifacts_exist_and_are_well_formed():
 
     diag = json.loads(diag_path.read_text())
     for key in ("test_metrics", "confusion_matrix", "roc_curve", "pr_curve",
-                "cross_validation", "feature_importance"):
+                "cross_validation", "feature_importance", "model_comparison", "validation"):
         assert key in diag, f"diagnostics.json missing '{key}'"
+    assert diag["schema_version"] == 2
+    validation = diag["validation"]
+    assert validation["train_end"] < validation["test_start"] <= validation["test_end"]
+    assert validation["purge_trading_days"] == 20
+    assert set(diag["model_comparison"]) == {
+        "dummy", "logistic", "decision_tree", "linear_svm", "random_forest",
+    }
+    assert len(diag["roc_curve"]["fpr"]) <= 800
+    assert len(diag["pr_curve"]["precision"]) <= 800
+    for model in diag["model_comparison"].values():
+        assert math.isfinite(model["test_metrics"]["roc_auc"])
+        assert len(model["walk_forward"]) == 4
 
     lc = json.loads(lc_path.read_text())
     for key in ("train_sizes_abs", "train_scores_mean", "val_scores_mean"):
         assert key in lc, f"learning_curve.json missing '{key}'"
     assert len(lc["train_sizes_abs"]) == len(lc["train_scores_mean"]) == len(lc["val_scores_mean"])
+
+
+def test_quiz_export_is_arsnova_compatible():
+    from src.quiz import QUESTIONS, build_arsnova_quiz
+
+    payload = json.loads(build_arsnova_quiz().decode("utf-8"))
+    assert payload["exportVersion"] == 1
+    exported = payload["quiz"]["questions"]
+    assert len(exported) == len(QUESTIONS)
+    assert all(q["type"] == "SINGLE_CHOICE" for q in exported)
+    assert all(sum(a["isCorrect"] for a in q["answers"]) == 1 for q in exported)

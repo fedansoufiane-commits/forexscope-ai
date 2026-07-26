@@ -4,7 +4,7 @@ from pathlib import Path
 
 import streamlit as st
 
-from src.config import DIAGNOSTICS_PATH, LEARNING_CURVE_PATH, MARKET_PARQUET, MODEL_PATH
+from src.config import APP_VERSION, DIAGNOSTICS_PATH, LEARNING_CURVE_PATH, MARKET_PARQUET, MODEL_PATH
 from src.news import get_secret
 from src.ui import badge, kpi_grid, page_header, section_title
 
@@ -35,6 +35,7 @@ def render() -> None:
     import sklearn
     import streamlit as st_mod
     kpi_grid([
+        ("WealthScope", APP_VERSION, "Release", "check"),
         ("Streamlit", st_mod.__version__, "", "activity"),
         ("scikit-learn", sklearn.__version__, "", "flask"),
     ])

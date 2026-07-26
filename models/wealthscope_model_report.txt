@@ -1,31 +1,17 @@
-WealthScope AI — Model Report
-================================
-Algorithm: RandomForestClassifier (sklearn 1.6.1)
-Target: target_20d (1 = price higher in 20 trading days)
+WealthScope AI 1.0 - Model Report
+======================================
+Validation: purged out-of-time holdout + expanding walk-forward
+Train end: 2006-10-09 | Test: 2006-11-07 to 2017-11-10
+Purge: 20 trading days (target horizon)
+Rows: 190,527 | Train: 120,920 | Test: 69,147
 
-Dataset rows: 190,527  |  Train: 142,895  |  Test: 47,632
-Features (8): daily_return, return_5d, return_20d, ma_20_distance, ma_50_distance, ma_200_distance, volatility_20d, drawdown
+Out-of-time model comparison:
+  Dummy (Mehrheitsklasse)     AUC=0.5000 BalAcc=0.5000 WF-AUC=0.5000
+  Logistische Regression      AUC=0.5174 BalAcc=0.5044 WF-AUC=0.4907
+  Entscheidungsbaum           AUC=0.5184 BalAcc=0.5129 WF-AUC=0.5153
+  Linear SVM                  AUC=0.5174 BalAcc=0.5044 WF-AUC=0.4907
+  Random Forest               AUC=0.5191 BalAcc=0.5129 WF-AUC=0.5140
 
-Accuracy:          0.5527
-Majority baseline:  0.5651  (below baseline)
-ROC-AUC:           0.5881
-Precision:         0.6253
-Recall:            0.5204
-F1 (weighted):     0.5542
-
-5-fold CV accuracy: 0.5540 +/- 0.0036
-5-fold CV ROC-AUC:  0.5850 +/- 0.0031
-
-Feature importance (RandomForest):
-  drawdown           0.2140
-  volatility_20d     0.1843
-  ma_200_distance    0.1485
-  ma_50_distance     0.1241
-  return_20d         0.0983
-  ma_20_distance     0.0941
-  return_5d          0.0790
-  daily_return       0.0576
-
-Interpretation: Accuracy modestly above random is expected and consistent
-with the Efficient Market Hypothesis (Fama, 1970) — historical price data
-alone has limited predictive power over 20-day horizons.
+Best walk-forward AUC: Entscheidungsbaum
+Production demonstrator: Random Forest (interpretability + nonlinear ensemble).
+Not financial advice. Historical data cannot guarantee future performance.

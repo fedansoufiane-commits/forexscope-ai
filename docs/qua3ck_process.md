@@ -130,6 +130,8 @@ WealthScope AI ist ein **wissenschaftlicher Prototyp** – kein Handelsbot, kein
 |---|---|---|
 | DummyClassifier | Baseline | Untergrenze definieren |
 | Logistische Regression | Parametrisch, linear | Interpretierbar, schnell |
+| Entscheidungsbaum | Regelbasiert, nichtlinear | White-Box-Vergleich |
+| Linear SVM | Maximum-Margin-Verfahren | Historischer SVM-Vergleich |
 | Random Forest | Ensemble, nicht-parametrisch | Robust, non-linear, kein Scaling nötig |
 
 ### Entscheidung
@@ -153,8 +155,9 @@ WealthScope AI ist ein **wissenschaftlicher Prototyp** – kein Handelsbot, kein
 - `class_weight='balanced'`: Ausgleich der leichten Klassenimbalance
 - `max_depth=8`: Regularisierung gegen Overfitting
 - `n_estimators=200`: Stabilere Schätzungen
-- **5-Fold Stratified Cross-Validation**: Belastbare Performance-Schätzung
-- Train/Test-Split 75/25, stratifiziert, `random_state=42`
+- **4 expandierende Walk-forward-Folds**: zeitlich belastbare Performance-Schätzung
+- Neueste 20 % der Handelstage als unangetasteter Out-of-Time-Test
+- 20 Handelstage Sperrzone vor jedem Validierungsfenster passend zu `target_20d`
 
 ### Pipeline-Design (kein Data Leakage)
 
@@ -170,14 +173,17 @@ Pipeline([
 
 | Metrik | Majority Baseline | Logist. Regression | Random Forest |
 |---|---|---|---|
-| Accuracy | ~59 % | ~53 % | 55,7 % |
-| ROC-AUC | ~0.50 | ~0.52 | 0.58 |
-| F1 (wtd) | ~0.43 | ~0.53 | ~0.54 |
+| Accuracy | 59,1 % | 54,7 % | 51,9 % |
+| Balanced Accuracy | 50,0 % | 50,4 % | 51,3 % |
+| ROC-AUC | 0,500 | 0,517 | 0,519 |
+| Walk-forward ROC-AUC | 0,500 | 0,491 | 0,514 |
 
 ### Interpretation
 
-Accuracy von 55,7 % ist bei historischen Finanzdaten **wissenschaftlich erwartet**  
-(Efficient Market Hypothesis, Fama 1970). Das Modell leistet besser als Zufall.
+Der Random Forest schlägt die Mehrheits-Baseline **nicht bei roher Accuracy**,
+liegt aber bei Balanced Accuracy und ROC-AUC knapp über Zufall. Das ist ein
+wichtiges Negativergebnis: historische Preisdaten besitzen nur ein schwaches,
+nicht stabiles Signal (Efficient Market Hypothesis, Fama 1970).
 
 ---
 
@@ -185,7 +191,7 @@ Accuracy von 55,7 % ist bei historischen Finanzdaten **wissenschaftlich erwartet
 
 ### Kernergebnisse
 
-- H1 bestätigt: RF-Modell übertrifft Zufallsniveau (AUC > 0.5) ✓
+- H1 nur schwach gestützt: RF-AUC liegt knapp über 0,5, der Vorsprung ist nicht handlungsrelevant
 - H2 bestätigt: Streamlit-App macht Analyse verständlich zugänglich ✓
 - H3 teilweise: Kombination aus ML + Scoring verbessert Nutzbarkeit ✓
 
@@ -208,6 +214,7 @@ Accuracy von 55,7 % ist bei historischen Finanzdaten **wissenschaftlich erwartet
 1. **Technisch**: Jupyter-Notebooks (reproduzierbar, kommentiert)
 2. **Interaktiv**: Streamlit-App (`app.py` + `src/`)
 3. **Dokumentarisch**: docs/, README.md
+4. **Didaktisch**: Lernstudio mit direktem Feedback und arsnova.eu-Export
 
 ### App-Features für Wissenstransfer
 

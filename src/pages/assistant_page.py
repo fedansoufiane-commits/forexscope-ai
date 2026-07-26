@@ -5,14 +5,25 @@ import streamlit as st
 from src.context import get_context
 from src.export import analysis_markdown
 from src.news import assistant_answer
-from src.ui import disclaimer_footer, page_header
+from src.ui import card, disclaimer_footer, page_header
 
 
 def render() -> None:
     ctx = get_context()
     result = ctx["result"]
 
-    page_header("KI-Assistent", "Fragen zur aktuellen Analyse — beantwortet von Gemini (falls API-Key gesetzt)")
+    page_header("KI-Assistent", "Generative KI auf einem transparenten klassischen ML-Kontext")
+    card(
+        "<b>Drei Ebenen, klar getrennt:</b><br>"
+        "1. Regelbasierter Confidence-Score (vollständig lesbare Formel)<br>"
+        "2. Random-Forest-Wahrscheinlichkeit (trainiertes Klassifikationsmodell)<br>"
+        "3. Gemini (sprachliche Einordnung, optional und nicht Teil der Vorhersage)",
+        variant="ws-accent",
+    )
+    st.caption(
+        "Der Assistent erhält nur den angezeigten Analysebericht als Kontext. Er verändert weder "
+        "Modell noch Daten und darf keine Anlageentscheidung ersetzen."
+    )
 
     if "chat_history" not in st.session_state:
         st.session_state["chat_history"] = []
