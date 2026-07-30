@@ -5,6 +5,8 @@ import json
 from datetime import datetime, timezone
 from typing import Any, Dict, List
 
+from src.config import APP_NAME, APP_VERSION
+
 QUESTIONS: List[Dict[str, Any]] = [
     {
         "chapter": "QUA³CK",
@@ -122,7 +124,7 @@ def build_arsnova_quiz() -> bytes:
         "exportVersion": 1,
         "exportedAt": datetime.now(timezone.utc).isoformat(),
         "quiz": {
-            "name": "WealthScope AI 1.0 – ML & QUA³CK",
+            "name": f"{APP_NAME} {APP_VERSION} – ML & QUA³CK",
             "description": "Begleitquiz zum IU-Lernprojekt WealthScope AI.",
             "showLeaderboard": True,
             "allowCustomNicknames": False,

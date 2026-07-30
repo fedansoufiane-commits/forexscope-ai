@@ -3,6 +3,7 @@ from __future__ import annotations
 import streamlit as st
 
 from src.charts import chart_gauge, chart_price
+from src.config import APP_NAME, APP_VERSION
 from src.context import get_context
 from src.icons import icon
 from src.ui import badge, card, disclaimer_footer, kpi_grid, page_header
@@ -13,7 +14,7 @@ def render() -> None:
     result, mode = ctx["result"], ctx["theme_mode"]
 
     page_header(
-        "WealthScope AI 1.0",
+        f"{APP_NAME} {APP_VERSION}",
         "Interaktive Finanzanalyse · Out-of-Time-ML · QUA³CK-Wissenstransfer",
     )
 

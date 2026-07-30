@@ -1,5 +1,27 @@
 # Changelog
 
+## 1.0.3 - 2026-07-30
+
+- Fixed the README quick-start: the `cd` into the cloned directory was missing, so
+  following the three commands literally ran `streamlit run app.py` in whatever
+  directory the user happened to be in. Added the missing step, a verification
+  command (`ls app.py src/ models/`) and an explicit warning. Rewrote "Setup &
+  Ausführen" as numbered steps instead of one shell block with comments, which
+  broke when pasted into zsh.
+- Removed two remaining version literals the 1.0.2 guard did not cover:
+  `src/pages/start.py` printed "WealthScope AI 1.0" as the page title and
+  `src/quiz.py` stamped it into the arsnova export name. Both now derive from
+  `APP_NAME` / `APP_VERSION`, and the test additionally rejects any
+  `"WealthScope AI <number>"` literal anywhere under `src/`.
+- Replaced the stale learning-curve screenshot on appendix slide 30. It still
+  showed the pre-1.0.2 diagnosis text ("Mehr Daten … könnten helfen"), which the
+  code no longer produces. The slide now carries the chart rendered from
+  `src.diagnostics.chart_learning_curve` at 3320x1914 px; the interpretation lives
+  in the slide's bullet list, so it cannot go stale inside an image again.
+- Verified end to end by running the app: the learning-curve panel shows the
+  corrected "Hohe Varianz (Overfitting-Tendenz)" diagnosis with the data-aware
+  remedy.
+
 ## 1.0.2 - 2026-07-30
 
 - Added `scripts/validation_experiments.py` and the `models/validation_experiments.json`

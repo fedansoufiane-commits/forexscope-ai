@@ -126,6 +126,16 @@ def test_version_strings_agree_across_the_project():
         for value in stamped:
             assert value == APP_VERSION, f"{rel} stamps {value}, expected {APP_VERSION}"
 
+    # No page may print a version literal next to the app name - that silently
+    # drifts from APP_VERSION and is visible to the user on every page load.
+    literal = re.compile(r'["\']WealthScope AI \d+\.\d+')
+    for path in sorted((BASE_DIR / "src").rglob("*.py")):
+        hits = literal.findall(path.read_text(encoding="utf-8"))
+        assert not hits, (
+            f"{path.relative_to(BASE_DIR)} hardcodes {hits[0]!r}; "
+            f"use f\"{{APP_NAME}} {{APP_VERSION}}\" instead"
+        )
+
 
 def test_validation_experiments_artifact_supports_the_negative_result():
     """The report and notebooks quote these numbers, so they must stay in sync."""

@@ -14,14 +14,20 @@ Bearbeiter: Soufiane Fedan | soufiane.fedan@solvvision.de | Tutor: Klaus Quibeld
 **Repository:** https://github.com/fedansoufiane-commits/forexscope-ai
 
 Die App läuft lokal — es gibt bewusst kein öffentliches Deployment, weil die
-NewsAPI- und Gemini-Schlüssel nicht mitveröffentlicht werden. Drei Befehle,
-Python 3.11:
+NewsAPI- und Gemini-Schlüssel nicht mitveröffentlicht werden. Python 3.11:
 
 ```bash
 git clone https://github.com/fedansoufiane-commits/forexscope-ai.git
+cd forexscope-ai
 pip install -r requirements.txt
 streamlit run app.py
 ```
+
+> **Wichtig:** Alle Befehle müssen **im Projektverzeichnis** laufen — `cd` also
+> nicht überspringen. Ohne `cd` startet `streamlit run app.py` je nach
+> Arbeitsverzeichnis eine völlig andere `app.py` oder bricht mit
+> `FileNotFoundError` ab. Kontrolle: `ls app.py src/ models/` muss alle drei
+> auflisten.
 
 Die App öffnet sich unter **http://localhost:8501**. Modell und
 Diagnostik-Artefakte liegen versioniert im Repository — ein Neutraining ist für
@@ -193,25 +199,49 @@ Der vollständige Stand unmittelbar vor 1.0 ist im Commit `834ff98` gesichert un
 
 ## Setup & Ausführen
 
+**1. Ins Projektverzeichnis wechseln.** Nach `git clone` heißt es `forexscope-ai`;
+lokal kann der Ordner anders heißen. Jeder folgende Befehl setzt voraus, dass du
+dort stehst:
+
 ```bash
-# 1. Repository klonen / Ordner öffnen
-cd "Big Data and Data Analytics"
+cd forexscope-ai
+ls app.py src/ models/
+```
 
-# 2. Abhängigkeiten installieren
+Listet der zweite Befehl alle drei auf, bist du richtig. Sonst stimmt das
+Arbeitsverzeichnis nicht — und `streamlit run app.py` würde eine fremde `app.py`
+starten oder mit `FileNotFoundError` abbrechen.
+
+**2. Abhängigkeiten installieren:**
+
+```bash
 pip install -r requirements.txt
+```
 
-# 3. Modell + Diagnostik-Caches einmalig erzeugen (falls nicht vorhanden)
+**3. App starten:**
+
+```bash
+streamlit run app.py
+```
+
+Alternativ per Doppelklick: `Startbefehle/start_app.command` — das Skript wechselt
+selbst ins richtige Verzeichnis.
+
+**4. Optional — Artefakte neu erzeugen.** Nicht nötig für den Start, Modell und
+Caches liegen versioniert im Repository:
+
+```bash
 python3 scripts/train_and_diagnose.py
 python3 scripts/validation_experiments.py
+```
 
-# 4. API-Keys konfigurieren (optional, für NewsAPI + Gemini)
-# .streamlit/secrets.toml:
-# NEWS_API_KEY = "dein_key"
-# GEMINI_API_KEY = "dein_key"
+**5. Optional — API-Schlüssel für NewsAPI und Gemini.** Ohne Schlüssel
+funktionieren alle Analyse- und ML-Seiten; nur die Nachrichten- und
+Assistentenseite bleibt leer. Datei `.streamlit/secrets.toml` anlegen:
 
-# 5. App starten
-streamlit run app.py
-# oder: Startbefehle/start_app.command
+```toml
+NEWS_API_KEY = "dein_key"
+GEMINI_API_KEY = "dein_key"
 ```
 
 ### Tests & Validierung
