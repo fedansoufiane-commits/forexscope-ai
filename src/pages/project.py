@@ -10,7 +10,7 @@ def render() -> None:
     page_header(f"{APP_NAME} {APP_VERSION}", "Projektinformationen")
 
     card(
-        "<b>Bearbeiter:</b> Soufiane Fedan · soufiane.fedan@solvvision.de<br>"
+        "<b>Bearbeiter:</b> Soufiane Fedan · fedan.soufiane@gmail.com<br>"
         "<b>Modul:</b> Data Analytics und Big Data (DSDABD072501) · IU Internationale Hochschule<br>"
         "<b>Tutor:</b> Klaus Quibeldey-Cirkel · Prüfungsform: Klausur<br>"
         f"<b>Release:</b> {APP_VERSION} · purged Out-of-Time-Evaluation · Modellvergleich<br>"

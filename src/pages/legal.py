@@ -12,7 +12,7 @@ def render_impressum() -> None:
 
 Soufiane Fedan
 IU Internationale Hochschule
-Kontakt: soufiane.fedan@solvvision.de
+Kontakt: fedan.soufiane@gmail.com
 
 Dieses Projekt ist eine akademische Studienarbeit im Rahmen des Moduls
 Data Analytics und Big Data (DSDABD072501) und stellt kein kommerzielles Angebot dar.

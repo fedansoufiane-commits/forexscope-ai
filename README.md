@@ -2,7 +2,7 @@
 
 **Interaktive Finanzanalyse-App auf Basis von Machine Learning**
 Uni-Projekt | IU Internationale Hochschule | Modul: Data Analytics und Big Data (DSDABD072501)
-Bearbeiter: Soufiane Fedan | soufiane.fedan@solvvision.de | Tutor: Klaus Quibeldey-Cirkel
+Bearbeiter: Soufiane Fedan | fedan.soufiane@gmail.com | Tutor: Klaus Quibeldey-Cirkel
 
 > ⚠️ **Disclaimer:** Dieses Projekt dient ausschließlich Lernzwecken. Keine Finanzberatung.
 > Alle Analysen sind Demonstrationen. Keine Haftung für Handelsentscheidungen.
