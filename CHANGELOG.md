@@ -1,5 +1,20 @@
 # Changelog
 
+> Tagged releases: `v1.0.3` is the current one. 1.0.2 was superseded the same day
+> and carries no tag; its entry below stays as a record of what changed.
+
+## 1.0.4 - 2026-07-30
+
+- Raised the `pyarrow` ceiling from `<22` to `<26`. pyarrow 21 ships no CPython
+  3.14 wheel, so `pip install -r requirements.txt` tried to build it from source
+  and failed on any interpreter newer than 3.11. The project now installs
+  cleanly on 3.11 through 3.14 with wheels only. pyarrow is used solely for
+  `read_parquet`, so no reported metric depends on the version.
+- Documented the virtual-environment setup in the README and stated the verified
+  interpreter honestly: tested on 3.14, `runtime.txt` keeps 3.11 as the
+  deployment target.
+- Removed the redundant `v1.0.2` tag; `v1.0.3` had superseded it the same day.
+
 ## 1.0.3 - 2026-07-30
 
 - Fixed the README quick-start: the `cd` into the cloned directory was missing, so

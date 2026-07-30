@@ -14,7 +14,8 @@ Bearbeiter: Soufiane Fedan | soufiane.fedan@solvvision.de | Tutor: Klaus Quibeld
 **Repository:** https://github.com/fedansoufiane-commits/forexscope-ai
 
 Die App läuft lokal — es gibt bewusst kein öffentliches Deployment, weil die
-NewsAPI- und Gemini-Schlüssel nicht mitveröffentlicht werden. Python 3.11:
+NewsAPI- und Gemini-Schlüssel nicht mitveröffentlicht werden. Python 3.11 oder
+neuer — verifiziert mit 3.14; `runtime.txt` pinnt 3.11 als Deployment-Ziel:
 
 ```bash
 git clone https://github.com/fedansoufiane-commits/forexscope-ai.git
@@ -212,11 +213,17 @@ Listet der zweite Befehl alle drei auf, bist du richtig. Sonst stimmt das
 Arbeitsverzeichnis nicht — und `streamlit run app.py` würde eine fremde `app.py`
 starten oder mit `FileNotFoundError` abbrechen.
 
-**2. Abhängigkeiten installieren:**
+**2. Abhängigkeiten in einer virtuellen Umgebung installieren.** Das hält die
+Projektpakete von der System-Python-Installation getrennt:
 
 ```bash
+python3 -m venv .venv
+source .venv/bin/activate
 pip install -r requirements.txt
 ```
+
+Ab jetzt steht `(.venv)` vor deinem Prompt. In neuen Terminal-Fenstern erst
+wieder `source .venv/bin/activate` ausführen.
 
 **3. App starten:**
 

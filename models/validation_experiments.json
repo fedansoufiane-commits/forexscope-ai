@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "app_version": "1.0.3",
+  "app_version": "1.0.4",
   "sklearn_version": "1.6.1",
   "purpose": "Falsifikationsexperimente zum schwachen Signal: schließen Modellkapazität und Datenmenge als Ursache aus und quantifizieren die Illusion eines falschen Splits.",
   "features": [

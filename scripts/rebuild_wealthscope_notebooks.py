@@ -664,7 +664,7 @@ pd.DataFrame({"Leitplanke": assistant_guardrails})
 """),
         code("""
 export_contract = {
-    "app_version": "1.0.3",
+    "app_version": "1.0.4",
     "model_metrics_source": "models/diagnostics.json",
     "method": "purged out-of-time + expanding walk-forward",
     "target": "target_20d",
