@@ -1,7 +1,8 @@
 # Changelog
 
-> Tagged releases: `v1.0.3` is the current one. 1.0.2 was superseded the same day
-> and carries no tag; its entry below stays as a record of what changed.
+> Tagged release: **`v1.0.4`** — the submitted state. 1.0.2 and 1.0.3 were
+> same-day iterations on the way there and carry no tags; their entries below stay
+> as a record of what changed and why.
 
 ## 1.0.4 - 2026-07-30
 
