@@ -1,12 +1,15 @@
+"""Generate the eight executable WealthScope AI 1.0 notebooks."""
+
 from __future__ import annotations
 
 from pathlib import Path
+
 import nbformat as nbf
 
 
-PROJECT_ROOT = Path(".")
-NOTEBOOK_DIR = PROJECT_ROOT / "notebooks"
-NOTEBOOK_DIR.mkdir(exist_ok=True)
+ROOT = Path(__file__).resolve().parent.parent
+OUT = ROOT / "notebooks"
+OUT.mkdir(exist_ok=True)
 
 
 def md(text: str):
@@ -17,7 +20,7 @@ def code(text: str):
     return nbf.v4.new_code_cell(text.strip())
 
 
-def write_notebook(filename: str, title: str, cells: list):
+def write(filename: str, title: str, cells: list) -> None:
     nb = nbf.v4.new_notebook()
     nb["metadata"] = {
         "kernelspec": {
@@ -25,34 +28,26 @@ def write_notebook(filename: str, title: str, cells: list):
             "language": "python",
             "name": "python3",
         },
-        "language_info": {
-            "name": "python",
-            "pygments_lexer": "ipython3",
-        },
+        "language_info": {"name": "python", "pygments_lexer": "ipython3"},
         "wealthscope": {
-            "project": "WealthScope AI",
+            "version": "1.0",
+            "phase": title,
             "generated_by": "scripts/rebuild_wealthscope_notebooks.py",
-            "purpose": "QUA3CK Big-Data / ML documentation",
         },
     }
-
     header = md(f"""
 # {title}
 
-**Projekt:** WealthScope AI  
-**Kontext:** QUA3CK / Big-Data / Machine-Learning / Streamlit-App  
-**Datenbasis:** Kaggle Stock/ETF Dataset, lokal verarbeitet  
-**Hinweis:** Diese Notebooks dienen der wissenschaftlichen Nachvollziehbarkeit. Sie ersetzen keine Finanzberatung.
+**Projekt:** WealthScope AI 1.0  
+**Methode:** QUA³CK · reproduzierbarer Out-of-Time-Benchmark  
+**Hinweis:** Wissenschaftlicher Prototyp, keine Anlageberatung.
 """)
-
-    nb["cells"] = [header] + cells
-
-    output_path = NOTEBOOK_DIR / filename
-    nbf.write(nb, output_path)
-    print(f"created: {output_path}")
+    nb["cells"] = [header, *cells]
+    nbf.write(nb, OUT / filename)
+    print(f"created: {OUT / filename}")
 
 
-COMMON_SETUP = code("""
+SETUP = code("""
 from pathlib import Path
 import json
 import warnings
@@ -60,604 +55,630 @@ import warnings
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+from IPython.display import display
 
 warnings.filterwarnings("ignore")
+plt.style.use("seaborn-v0_8-whitegrid")
 
 PROJECT_ROOT = Path("..").resolve()
-DATA_DIR = PROJECT_ROOT / "data" / "processed"
+DATA_PATH = PROJECT_ROOT / "data" / "processed" / "wealthscope_features.parquet"
+DIAGNOSTICS_PATH = PROJECT_ROOT / "models" / "diagnostics.json"
+EXPERIMENTS_PATH = PROJECT_ROOT / "models" / "validation_experiments.json"
 
-PARQUET_PATH = DATA_DIR / "wealthscope_features.parquet"
-CSV_PATH = DATA_DIR / "wealthscope_features.csv"
+if not DATA_PATH.exists():
+    raise FileNotFoundError(f"Datensatz fehlt: {DATA_PATH}")
 
-def load_features():
-    if PARQUET_PATH.exists():
-        df = pd.read_parquet(PARQUET_PATH)
-        source = "REAL_PARQUET"
-    elif CSV_PATH.exists():
-        df = pd.read_csv(CSV_PATH)
-        source = "REAL_CSV"
-    else:
-        raise FileNotFoundError("Kein Feature-Datensatz gefunden. Erwartet wealthscope_features.parquet oder .csv")
-
-    if "date" in df.columns:
-        df["date"] = pd.to_datetime(df["date"], errors="coerce")
-
-    return df, source
-
-df, source = load_features()
-
-print("Datenquelle:", source)
-print("Shape:", df.shape)
-display(df.head())
+df = pd.read_parquet(DATA_PATH)
+df["date"] = pd.to_datetime(df["date"], errors="coerce")
+print(f"Daten: {len(df):,} Zeilen × {len(df.columns)} Spalten")
+display(df.head(3))
 """)
 
 
-# ---------------------------------------------------------
-# 00 Project Overview
-# ---------------------------------------------------------
-write_notebook(
+write(
     "00_project_overview.ipynb",
-    "00 – Project Overview",
+    "00 – Projektüberblick",
     [
         md("""
-## Ziel des Projekts
+## Zielbild
 
-WealthScope AI ist eine interaktive Finanz-/Marktdaten-App auf Basis von Streamlit.
+WealthScope AI verbindet historische US-Aktienmarktdaten mit technischer
+Analyse, einem ehrlichen ML-Benchmark, Risikoplanung und Wissenstransfer.
+Der Mehrwert liegt in **Nachvollziehbarkeit**, nicht in einem Renditeversprechen.
 
-Die App soll zeigen:
+Die Version 1.0 stellt drei Perspektiven nebeneinander:
 
-- echte lokale Big-Data-Grundlage
-- Feature Engineering
-- NewsAPI-Integration
-- regelbasiertes Scoring
-- Visualisierung
-- Export
-- methodische Grenzen
-- spätere ML-Erweiterbarkeit
+1. **KI damals:** Baseline, Logistische Regression, Entscheidungsbaum und SVM.
+2. **KI im klassischen ML:** Random Forest, Diagnostik und Erklärbarkeit.
+3. **KI heute:** ein erklärender Assistent, klar getrennt vom Prognosemodell.
 """),
-        COMMON_SETUP,
+        SETUP,
         code("""
-summary = {
-    "rows": int(len(df)),
-    "columns": int(len(df.columns)),
-    "tickers": int(df["ticker"].nunique()) if "ticker" in df.columns else None,
-    "asset_types": df["asset_type"].value_counts().to_dict() if "asset_type" in df.columns else {},
-    "date_min": str(df["date"].min().date()) if "date" in df.columns else None,
-    "date_max": str(df["date"].max().date()) if "date" in df.columns else None,
-    "target_20d_available": "target_20d" in df.columns,
-}
-summary
+overview = pd.Series({
+    "Zeilen": len(df),
+    "Ticker": df["ticker"].nunique(),
+    "Zeitraum von": df["date"].min().date(),
+    "Zeitraum bis": df["date"].max().date(),
+    "Zielvariable vorhanden": "target_20d" in df.columns,
+    "Diagnostik vorhanden": DIAGNOSTICS_PATH.exists(),
+})
+overview.to_frame("Wert")
 """),
         code("""
-pd.DataFrame([summary]).T.rename(columns={0: "Wert"})
+qua3ck = pd.DataFrame([
+    ["Q", "Question", "Leitfrage und Hypothesen"],
+    ["U", "Understanding", "Datenprofil, Fehlwerte, Klassen und Zeit"],
+    ["A", "Analytics", "Returns, Trend- und Risikofeatures"],
+    ["A", "Algorithm", "Fünf Klassifikatoren auf identischen Fenstern"],
+    ["A", "Adaption", "Pipeline, Purge, Walk-forward und Hyperparameter"],
+    ["C", "Conclude", "Metriken, Grenzen und Hypothesenbewertung"],
+    ["K", "Knowledge", "Streamlit, Export, Lernstudio und Dokumentation"],
+], columns=["Phase", "Name", "WealthScope-Artefakt"])
+qua3ck
 """),
         md("""
-## Wissenschaftlicher Nutzen
+## Reproduzierbarkeit
 
-Dieses Notebook dokumentiert die Projektidee, die Datenbasis und die geplante methodische Struktur.  
-Es ist der Einstiegspunkt für die Bewertung durch Professor, Team oder Prüfer.
+Die Notebooks erklären und prüfen die Artefakte. Die verbindliche Trainingslogik
+liegt in `scripts/train_and_diagnose.py`; Kennzahlen werden aus
+`models/diagnostics.json` gelesen. So widersprechen sich App, Ausarbeitung und
+Notebooks nicht.
 """),
     ],
 )
 
 
-# ---------------------------------------------------------
-# 01 Question
-# ---------------------------------------------------------
-write_notebook(
+write(
     "01_question.ipynb",
     "01 – Question",
     [
         md("""
-## Forschungs-/Projektfrage
+## Leitfrage
 
-**Wie kann eine interaktive Streamlit-App historische Marktdaten, technische Features und Newsdaten so kombinieren, dass eine nachvollziehbare, reproduzierbare und erklärbare Markteinschätzung entsteht?**
+**Wie können historische US-Aktienmarktdaten genutzt werden, um eine interaktive
+Finanzanalyse-App zu entwickeln, die technische Analyse, ML-Signalgebung und
+risikobasierte Positionsplanung nachvollziehbar kombiniert?**
 
-Teilfragen:
+### Hypothesen
 
-1. Welche Datenbasis liegt vor?
-2. Welche Features eignen sich für eine erste Bewertung?
-3. Wie kann eine Zielvariable wie `target_20d` erklärt werden?
-4. Wie können Newsdaten ergänzend genutzt werden?
-5. Wie lassen sich Ergebnisse transparent exportieren?
+- **H1:** Der Random Forest erreicht im purged Out-of-Time-Test eine ROC-AUC
+  oberhalb von 0,5 und bleibt im Walk-forward-Vergleich stabil.
+- **H2:** Die Streamlit-App macht Daten, Methodik und Grenzen für
+  Nicht-Experten zugänglich.
+- **H3:** Die Kombination aus technischen Indikatoren, ML und Risiko verbessert
+  die Orientierung; ein wirtschaftlicher Nutzen muss separat getestet werden.
 """),
-        COMMON_SETUP,
+        SETUP,
         code("""
-question_frame = pd.DataFrame(
-    [
-        ["Q1", "Welche Marktdaten stehen zur Verfügung?", "Datenprofil, Ticker, Zeitraum, Asset-Typen"],
-        ["Q2", "Welche Features wurden erzeugt?", "Returns, Moving Averages, Volatilität, Drawdown"],
-        ["Q3", "Wie ist die Zielvariable definiert?", "target_20d"],
-        ["Q4", "Wie werden News genutzt?", "NewsAPI + regelbasierte Einordnung"],
-        ["Q5", "Wie wird Wissen übertragen?", "Streamlit-App, Export, Assistent, Methodikdialog"],
-    ],
-    columns=["ID", "Frage", "Operationalisierung"],
-)
-question_frame
+questions = pd.DataFrame([
+    ["Q1", "Welche Daten liegen wirklich vor?", "Zeilen, Ticker, Zeitraum, Fehlwerte"],
+    ["Q2", "Was ist das Prognoseziel?", "target_20d: Richtung nach 20 Handelstagen"],
+    ["Q3", "Wie wird Leakage verhindert?", "Zeit-Split, 20T-Purge, Pipeline"],
+    ["Q4", "Welches Modell ist tragfähig?", "Dummy bis Random Forest, gleiche Fenster"],
+    ["Q5", "Wie wird Wissen übertragen?", "App, Model Card, Export, Lernstudio"],
+], columns=["ID", "Frage", "Operationalisierung"])
+questions
 """),
-        md("""
-## Erwartetes Ergebnis
-
-Am Ende soll nicht nur ein Modell oder Chart entstehen, sondern eine **prüfbare Daten-App** mit klarer Methodik.
+        code("""
+scope = pd.DataFrame([
+    ["Im Scope", "Klassifikation, technische Features, Erklärbarkeit, Risikoszenarien"],
+    ["Nicht im Scope", "Handelsbot, sichere Prognosen, persönliche Anlageberatung"],
+    ["Erfolgskriterium", "Reproduzierbare und kritisch interpretierte Ergebnisse"],
+], columns=["Bereich", "Festlegung"])
+scope
 """),
     ],
 )
 
 
-# ---------------------------------------------------------
-# 02 Understanding Data
-# ---------------------------------------------------------
-write_notebook(
+write(
     "02_understanding_the_data.ipynb",
     "02 – Understanding the Data",
     [
         md("""
 ## Ziel
 
-Dieses Notebook prüft die Datenbasis:
+Die Datenphase prüft Umfang, zeitliche Abdeckung, Klassenverteilung und
+Fehlwerte. Finanzdaten sind **nicht austauschbar**: Reihenfolge und Marktregime
+gehören zur Bedeutung jeder Zeile.
+"""),
+        SETUP,
+        code("""
+profile = pd.Series({
+    "Zeilen": len(df),
+    "Spalten": len(df.columns),
+    "Ticker": df["ticker"].nunique(),
+    "Start": df["date"].min().date(),
+    "Ende": df["date"].max().date(),
+    "Handelstage": df["date"].nunique(),
+})
+profile.to_frame("Wert")
+"""),
+        code("""
+missing = df.isna().mean().mul(100).sort_values(ascending=False)
+missing[missing > 0].round(2).to_frame("Fehlwerte (%)").head(20)
+"""),
+        md("""
+Fehlwerte in gleitenden Fenstern sind überwiegend **strukturell**: Ein MA-200
+kann für die ersten 199 Beobachtungen eines Tickers nicht vollständig
+berechnet werden. Das ist keine zufällige MCAR-Lücke. Im Training übernimmt ein
+Median-Imputer die Behandlung innerhalb jedes Trainingsfensters.
+"""),
+        code("""
+target = df["target_20d"].dropna().astype(int)
+class_balance = target.value_counts(normalize=True).sort_index().rename({
+    0: "0 · nicht höher", 1: "1 · höher"
+}).mul(100).round(2)
+display(class_balance.to_frame("Anteil (%)"))
 
-- Größe
-- Spalten
-- Zeitraum
-- Ticker-Verteilung
-- Asset-Typen
-- fehlende Werte
-- Zielvariable
-"""),
-        COMMON_SETUP,
-        code("""
-profile = {
-    "rows": len(df),
-    "columns": len(df.columns),
-    "tickers": df["ticker"].nunique() if "ticker" in df.columns else None,
-    "date_min": df["date"].min() if "date" in df.columns else None,
-    "date_max": df["date"].max() if "date" in df.columns else None,
-    "target_20d_available": "target_20d" in df.columns,
-}
-pd.DataFrame([profile]).T.rename(columns={0: "Wert"})
-"""),
-        code("""
-missing = (
-    df.isna()
-    .mean()
-    .mul(100)
-    .round(2)
-    .reset_index()
-)
-missing.columns = ["Spalte", "Fehlende Werte in %"]
-missing.sort_values("Fehlende Werte in %", ascending=False).head(30)
-"""),
-        code("""
-ticker_counts = df["ticker"].value_counts().reset_index()
-ticker_counts.columns = ["ticker", "rows"]
-ticker_counts
-"""),
-        code("""
-plt.figure(figsize=(12, 5))
-plt.bar(ticker_counts["ticker"], ticker_counts["rows"])
-plt.title("Datenpunkte je Ticker")
-plt.xticks(rotation=45)
-plt.ylabel("Zeilen")
+ax = class_balance.plot(kind="bar", color=["#B98519", "#1F5A4E"], figsize=(6, 3))
+ax.set_title("Klassenverteilung target_20d")
+ax.set_ylabel("Anteil (%)")
+ax.set_xlabel("")
+plt.xticks(rotation=0)
 plt.show()
 """),
         code("""
-if "asset_type" in df.columns:
-    asset_counts = df["asset_type"].value_counts()
-    display(asset_counts)
-
-    plt.figure(figsize=(6, 4))
-    plt.bar(asset_counts.index.astype(str), asset_counts.values)
-    plt.title("Asset-Typen")
-    plt.ylabel("Zeilen")
-    plt.show()
+ticker_span = (
+    df.groupby("ticker")
+      .agg(Zeilen=("date", "size"), Start=("date", "min"), Ende=("date", "max"))
+      .sort_values("Zeilen", ascending=False)
+)
+ticker_span.head(10)
 """),
         md("""
-## Interpretation
+## Datenrisiken
 
-Diese Analyse belegt, dass die App auf einer echten Datenbasis arbeitet und nicht auf einer Demo-Tabelle.
+- Ticker haben unterschiedlich lange Historien.
+- Die Auswahl von 26 Titeln kann Survivorship-/Selection Bias enthalten.
+- Daten nach 2017 sind gegenüber dem Training ein Distribution Shift.
+- Zufälliges Mischen würde Zeitinformation und überlappende Zielhorizonte leaken.
 """),
     ],
 )
 
 
-# ---------------------------------------------------------
-# 03 Feature Engineering
-# ---------------------------------------------------------
-write_notebook(
+write(
     "03_feature_engineering.ipynb",
     "03 – Feature Engineering",
     [
         md("""
-## Ziel
+## Acht Modellfeatures
 
-Dieses Notebook erklärt und prüft die verwendeten Features:
+| Gruppe | Features | Aussage |
+|---|---|---|
+| Rendite | `daily_return`, `return_5d`, `return_20d` | kurz- bis mittelfristiges Momentum |
+| Trend | `ma_20_distance`, `ma_50_distance`, `ma_200_distance` | Abstand zu gleitenden Durchschnitten |
+| Risiko | `volatility_20d`, `drawdown` | Schwankung und Abstand zum Hoch |
 
-- `daily_return`
-- `return_5d`
-- `return_20d`
-- `ma_20`, `ma_50`, `ma_200`
-- `ma_*_distance`
-- `volatility_20d`
-- `drawdown`
-- `future_return_20d`
-- `target_20d`
+Die Zielvariable `target_20d` ist 1, wenn der Schlusskurs 20 Handelstage später
+höher ist. Nur die Zielbildung darf nach vorn blicken; alle Eingabefeatures
+verwenden ausschließlich Vergangenheit und Gegenwart.
 """),
-        COMMON_SETUP,
+        SETUP,
         code("""
-feature_groups = {
-    "Preis": ["open", "high", "low", "close", "volume"],
-    "Rendite": ["daily_return", "return_5d", "return_20d"],
-    "Trend": ["ma_20", "ma_50", "ma_200", "ma_20_distance", "ma_50_distance", "ma_200_distance"],
-    "Risiko": ["volatility_20d", "rolling_high", "drawdown"],
-    "Zielvariable": ["future_return_20d", "target_20d"],
-}
+features = [
+    "daily_return", "return_5d", "return_20d",
+    "ma_20_distance", "ma_50_distance", "ma_200_distance",
+    "volatility_20d", "drawdown",
+]
 
-rows = []
-for group, cols in feature_groups.items():
-    for col in cols:
-        rows.append({
-            "Gruppe": group,
-            "Feature": col,
-            "Vorhanden": col in df.columns,
-            "Fehlende Werte %": round(df[col].isna().mean() * 100, 2) if col in df.columns else None,
-        })
-
-pd.DataFrame(rows)
+feature_check = pd.DataFrame({
+    "vorhanden": [f in df.columns for f in features],
+    "fehlend_%": [df[f].isna().mean() * 100 for f in features],
+    "median": [df[f].median() for f in features],
+    "std": [df[f].std() for f in features],
+}, index=features)
+feature_check.round(4)
 """),
         code("""
 sample_ticker = df["ticker"].value_counts().index[0]
-d = df[df["ticker"] == sample_ticker].sort_values("date").copy()
+d = df.loc[df["ticker"].eq(sample_ticker)].sort_values("date")
 
-plt.figure(figsize=(14, 5))
-plt.plot(d["date"], d["close"], label="Close")
-for ma in ["ma_20", "ma_50", "ma_200"]:
-    if ma in d.columns:
-        plt.plot(d["date"], d[ma], label=ma)
-plt.title(f"Kurs und Moving Averages – {sample_ticker}")
-plt.legend()
+fig, axes = plt.subplots(2, 1, figsize=(12, 6), sharex=True)
+axes[0].plot(d["date"], d["close"], label="Close", color="#1F5A4E")
+for name, color in [("ma_20", "#B98519"), ("ma_50", "#52796F"), ("ma_200", "#8C6D31")]:
+    if name in d:
+        axes[0].plot(d["date"], d[name], label=name, linewidth=1, color=color)
+axes[0].set_title(f"Kurs und gleitende Durchschnitte · {sample_ticker}")
+axes[0].legend(ncol=4)
+axes[1].plot(d["date"], d["drawdown"] * 100, color="#B54D3A")
+axes[1].set_title("Drawdown zum bisherigen Hoch")
+axes[1].set_ylabel("%")
+plt.tight_layout()
 plt.show()
 """),
         code("""
-if "drawdown" in d.columns:
-    plt.figure(figsize=(14, 4))
-    plt.plot(d["date"], d["drawdown"] * 100)
-    plt.title(f"Drawdown – {sample_ticker}")
-    plt.ylabel("Drawdown in %")
-    plt.show()
-"""),
-        code("""
-if "volatility_20d" in d.columns:
-    plt.figure(figsize=(14, 4))
-    plt.plot(d["date"], d["volatility_20d"] * 100)
-    plt.title(f"20T Volatilität – {sample_ticker}")
-    plt.ylabel("Volatilität in %")
-    plt.show()
+corr = df[features + ["target_20d"]].corr(method="spearman")
+corr["target_20d"].drop("target_20d").sort_values().to_frame(
+    "Spearman-Korrelation mit target_20d"
+).round(4)
 """),
         md("""
-## Ergebnis
+## Interpretation
 
-Die Features sind fachlich gruppierbar und können in der App verständlich erklärt werden.
+Schwache Einzelkorrelationen sind bei Marktdaten erwartbar. Sie rechtfertigen
+keine Kausalbehauptung. Nichtlineare Modelle dürfen Interaktionen prüfen, müssen
+aber auf einem späteren Zeitfenster zeigen, ob das Muster Bestand hat.
 """),
     ],
 )
 
 
-# ---------------------------------------------------------
-# 04 Modeling
-# ---------------------------------------------------------
-write_notebook(
+write(
     "04_modeling_baseline_ml.ipynb",
-    "04 – Modeling: Baseline & ML",
+    "04 – Modeling: StandardScaler, KI damals und heute",
     [
         md("""
-## Ziel
+## Faire Pipeline
 
-Dieses Notebook erstellt ein erstes ML-Baseline-Modell zur Zielvariable `target_20d`.
+**StandardScaler:** $z=(x-\\mu_{Train})/\\sigma_{Train}$
 
-Wichtig:
+Der Scaler wird nur auf dem Training gefittet. Testdaten werden mit den
+Trainingsparametern transformiert. Das verhindert Data Leakage.
 
-- Das Modell ist eine Demonstration.
-- Keine Anlageberatung.
-- Ziel ist methodische Nachvollziehbarkeit.
+- **notwendig/sinnvoll:** Logistische Regression und Linear-SVM, da
+  Optimierung bzw. Abstände von der Skala abhängen;
+- **nicht erforderlich:** Entscheidungsbaum und Random Forest, weil
+  Schwellenentscheidungen weitgehend skaleninvariant sind.
+
+Vor jedem Test- oder Validierungsfenster liegen 20 gesperrte Handelstage
+(`purge`), passend zum Horizont von `target_20d`.
 """),
-        COMMON_SETUP,
+        SETUP,
         code("""
-from sklearn.model_selection import train_test_split
-from sklearn.pipeline import Pipeline
-from sklearn.impute import SimpleImputer
-from sklearn.preprocessing import StandardScaler
-from sklearn.linear_model import LogisticRegression
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, classification_report, confusion_matrix
-"""),
-        code("""
-target = "target_20d"
-
-feature_cols = [
-    "daily_return",
-    "return_5d",
-    "return_20d",
-    "ma_20_distance",
-    "ma_50_distance",
-    "ma_200_distance",
-    "volatility_20d",
-    "drawdown",
-]
-
-available_features = [c for c in feature_cols if c in df.columns]
-
-model_df = df[available_features + [target]].dropna(subset=[target]).copy()
-model_df[target] = model_df[target].astype(int)
-
-print("Features:", available_features)
-print("Model shape:", model_df.shape)
-print("Target distribution:")
-display(model_df[target].value_counts(normalize=True).rename("share"))
+diagnostics = json.loads(DIAGNOSTICS_PATH.read_text(encoding="utf-8"))
+pd.Series(diagnostics["validation"]).to_frame("Validierung")
 """),
         code("""
-X = model_df[available_features]
-y = model_df[target]
-
-X_train, X_test, y_train, y_test = train_test_split(
-    X,
-    y,
-    test_size=0.25,
-    random_state=42,
-    stratify=y,
-)
-
-baseline_pred = np.repeat(y_train.mode().iloc[0], len(y_test))
-
-baseline_scores = {
-    "model": "Majority Baseline",
-    "accuracy": accuracy_score(y_test, baseline_pred),
-    "precision": precision_score(y_test, baseline_pred, zero_division=0),
-    "recall": recall_score(y_test, baseline_pred, zero_division=0),
-    "f1": f1_score(y_test, baseline_pred, zero_division=0),
-}
-
-baseline_scores
-"""),
-        code("""
-log_model = Pipeline(
-    steps=[
-        ("imputer", SimpleImputer(strategy="median")),
-        ("scaler", StandardScaler()),
-        ("model", LogisticRegression(max_iter=1000)),
-    ]
-)
-
-rf_model = Pipeline(
-    steps=[
-        ("imputer", SimpleImputer(strategy="median")),
-        ("model", RandomForestClassifier(n_estimators=150, random_state=42, max_depth=8)),
-    ]
-)
-
-models = {
-    "Logistic Regression": log_model,
-    "Random Forest": rf_model,
-}
-
-results = [baseline_scores]
-
-for name, model in models.items():
-    model.fit(X_train, y_train)
-    pred = model.predict(X_test)
-    results.append({
-        "model": name,
-        "accuracy": accuracy_score(y_test, pred),
-        "precision": precision_score(y_test, pred, zero_division=0),
-        "recall": recall_score(y_test, pred, zero_division=0),
-        "f1": f1_score(y_test, pred, zero_division=0),
+rows = []
+for key, model in diagnostics["model_comparison"].items():
+    metric = model["test_metrics"]
+    rows.append({
+        "Epoche": model["year"],
+        "Modell": model["label"],
+        "Scaler": "StandardScaler" if key in {"logistic", "linear_svm"} else "nicht nötig",
+        "Accuracy": metric["accuracy"],
+        "Balanced Accuracy": metric["balanced_accuracy"],
+        "ROC-AUC": metric["roc_auc"],
+        "Walk-forward AUC": model["walk_forward_roc_auc_mean"],
     })
-
-pd.DataFrame(results).sort_values("f1", ascending=False)
+comparison = pd.DataFrame(rows)
+comparison.style.format({
+    "Accuracy": "{:.3f}", "Balanced Accuracy": "{:.3f}",
+    "ROC-AUC": "{:.3f}", "Walk-forward AUC": "{:.3f}",
+})
 """),
         code("""
-best_model = rf_model
-best_model.fit(X_train, y_train)
-pred = best_model.predict(X_test)
-
-print(classification_report(y_test, pred, zero_division=0))
-
-cm = confusion_matrix(y_test, pred)
-cm
-"""),
-        code("""
-plt.figure(figsize=(5, 4))
-plt.imshow(cm)
-plt.title("Confusion Matrix – Random Forest")
-plt.xlabel("Predicted")
-plt.ylabel("Actual")
-plt.colorbar()
-for i in range(cm.shape[0]):
-    for j in range(cm.shape[1]):
-        plt.text(j, i, cm[i, j], ha="center", va="center")
+ax = comparison.plot(
+    x="Modell", y=["ROC-AUC", "Balanced Accuracy"],
+    kind="bar", figsize=(10, 4), color=["#1F5A4E", "#B98519"],
+)
+ax.axhline(0.5, color="#58635E", linestyle="--", linewidth=1)
+ax.set_ylim(0.47, 0.54)
+ax.set_title("Identischer purged Out-of-Time-Test")
+plt.xticks(rotation=20, ha="right")
+plt.tight_layout()
 plt.show()
 """),
         code("""
-rf = best_model.named_steps["model"]
-importances = pd.DataFrame({
-    "feature": available_features,
-    "importance": rf.feature_importances_,
-}).sort_values("importance", ascending=False)
+# Sichtbarer Leakage-Test: Der Scaler kennt nur X_train.
+from sklearn.preprocessing import StandardScaler
 
-display(importances)
+features = diagnostics["features"]
+model_df = (
+    df.dropna(subset=features + ["target_20d", "date"])
+      .sort_values(["date", "ticker"])
+)
+train_end = pd.Timestamp(diagnostics["validation"]["train_end"])
+test_start = pd.Timestamp(diagnostics["validation"]["test_start"])
+X_train = model_df.loc[model_df["date"].le(train_end), features]
+X_test = model_df.loc[model_df["date"].ge(test_start), features]
 
-plt.figure(figsize=(8, 4))
-plt.bar(importances["feature"], importances["importance"])
-plt.title("Feature Importance – Random Forest")
-plt.xticks(rotation=45, ha="right")
+scaler = StandardScaler().fit(X_train)
+train_scaled = scaler.transform(X_train)
+test_scaled = scaler.transform(X_test)
+
+pd.DataFrame({
+    "Prüfung": ["Mittelwert skaliertes Training", "Mittelwert skalierter Test"],
+    "absoluter Mittelwert über Features": [
+        np.abs(train_scaled.mean(axis=0)).mean(),
+        np.abs(test_scaled.mean(axis=0)).mean(),
+    ],
+})
+"""),
+        md("""
+Der Trainingsmittelwert liegt nach Skalierung praktisch bei null. Der
+Testmittelwert darf davon abweichen: Würde man auch ihn künstlich auf null
+zentrieren, hätte der Scaler bereits Information aus der Zukunft gesehen.
+
+Die Single Source of Truth ist `scripts/train_and_diagnose.py`.
+
+## Was kostet eine falsche Aufteilung?
+
+Die Forderung „kein Zufalls-Split" bleibt eine Behauptung, solange man sie nicht
+beziffert. `scripts/validation_experiments.py` trainiert deshalb dasselbe Modell
+auf denselben Daten dreimal und variiert ausschließlich die Aufteilung.
+"""),
+        code("""
+experiments = json.loads(EXPERIMENTS_PATH.read_text(encoding="utf-8"))
+
+splits = pd.DataFrame(experiments["split_comparison"])[
+    ["label", "leakage", "roc_auc", "balanced_accuracy",
+     "accuracy", "majority_baseline_accuracy"]
+].rename(columns={
+    "label": "Aufteilung", "leakage": "Leakage", "roc_auc": "ROC-AUC",
+    "balanced_accuracy": "Balanced Accuracy", "accuracy": "Accuracy",
+    "majority_baseline_accuracy": "Baseline Accuracy",
+})
+splits.style.format({
+    "ROC-AUC": "{:.4f}", "Balanced Accuracy": "{:.4f}",
+    "Accuracy": "{:.4f}", "Baseline Accuracy": "{:.4f}",
+}).hide(axis="index")
+"""),
+        code("""
+summary = experiments["split_comparison_summary"]
+print(f"purged Out-of-Time (v1.0) : ROC-AUC {summary['reference_roc_auc']:.4f}")
+print(f"naiver Zufalls-Split      : ROC-AUC {summary['leaky_roc_auc']:.4f}")
+print(f"Differenz                 : {summary['absolute_difference']:+.4f}")
+print()
+print("Gemessen am Zufallsniveau 0,5:")
+print(f"  echtes scheinbares Signal   {summary['apparent_signal_reference']:.4f}")
+print(f"  Signal mit Leakage          {summary['apparent_signal_leaky']:.4f}")
+print(f"  Faktor                      {summary['apparent_signal_factor']:.1f}x")
+"""),
+        md("""
+Der naive Split lässt das scheinbare Signal rund **4,2-mal größer** aussehen –
+ohne dass Modell oder Daten sich ändern. Die niedrige Kennzahl dieses Projekts
+ist damit keine Schwäche, sondern die Folge einer Validierung, die dem Modell
+die Zukunft entzieht.
+"""),
+        code("""
+# Ist die Trainings-Test-Lücke ein Kapazitätsproblem? Sieben Stufen im Vergleich.
+capacity = pd.DataFrame(experiments["capacity_sweep"])[
+    ["label", "train_roc_auc", "roc_auc", "gap"]
+].rename(columns={
+    "label": "Konfiguration", "train_roc_auc": "Train-AUC",
+    "roc_auc": "Test-AUC", "gap": "Lücke",
+})
+
+fig, ax = plt.subplots(figsize=(9, 4))
+ax.plot(capacity["Konfiguration"], capacity["Train-AUC"], "o-",
+        color="#B98519", label="Train-AUC")
+ax.plot(capacity["Konfiguration"], capacity["Test-AUC"], "o-",
+        color="#1F5A4E", label="Test-AUC")
+ax.axhline(0.5, color="#58635E", linestyle="--", linewidth=1)
+ax.set_title("Kapazität verändert nur die Trainingsseite")
+ax.set_ylabel("ROC-AUC")
+ax.legend()
+plt.xticks(rotation=25, ha="right")
+plt.tight_layout()
 plt.show()
+
+display(capacity.style.format({
+    "Train-AUC": "{:.4f}", "Test-AUC": "{:.4f}", "Lücke": "{:.4f}",
+}).hide(axis="index"))
+"""),
+        md("""
+Der Trainings-AUC wandert von 1,000 (perfektes Auswendiglernen aller
+Trainingszeilen) bis 0,543. Der Test-AUC bleibt dabei in einer Spanne von
+0,007 – also im Rauschen. **Die Obergrenze setzt der Informationsgehalt der
+Features, nicht die Modellkapazität.** Beste Einstellung im Vergleich ist genau
+die produktive Konfiguration `max_depth=8, min_samples_leaf=5`.
 """),
     ],
 )
 
 
-# ---------------------------------------------------------
-# 05 Evaluation / Conclude
-# ---------------------------------------------------------
-write_notebook(
+write(
     "05_conclude_evaluate.ipynb",
     "05 – Conclude & Evaluate",
     [
         md("""
-## Ziel
+## Ergebnislogik
 
-Dieses Notebook bewertet die Ergebnisse methodisch.
-
-Es geht nicht darum, ein perfektes Finanzmodell zu behaupten, sondern:
-
-- Baseline erklären
-- Modellgüte kritisch prüfen
-- Grenzen offenlegen
-- nächsten Ausbau ableiten
+Accuracy allein ist wegen der Mehrheitsklasse irreführend. Deshalb werden
+Balanced Accuracy, ROC-AUC, Average Precision, Konfusionsmatrix und
+Walk-forward-Stabilität gemeinsam bewertet.
 """),
-        COMMON_SETUP,
+        SETUP,
         code("""
-evaluation_points = pd.DataFrame(
-    [
-        ["Datenbasis", "Echte lokale Marktdaten vorhanden", "Stark"],
-        ["Feature Engineering", "Returns, Moving Averages, Volatilität, Drawdown", "Stark"],
-        ["Zielvariable", "target_20d vorhanden", "Gut erklärbar"],
-        ["News", "NewsAPI integriert", "Extern abhängig"],
-        ["Scoring", "Regelbasiert", "Transparent, aber noch kein echtes ML-Produkt"],
-        ["ML", "Baseline möglich", "Weiterer Ausbau nötig"],
-        ["Reproduzierbarkeit", "Export und Notebooks", "Stark"],
-    ],
-    columns=["Bereich", "Befund", "Bewertung"],
-)
-evaluation_points
+diagnostics = json.loads(DIAGNOSTICS_PATH.read_text(encoding="utf-8"))
+m = diagnostics["test_metrics"]
+summary = pd.Series({
+    "Random-Forest Accuracy": m["accuracy"],
+    "Mehrheitsbaseline Accuracy": m["majority_baseline"],
+    "Balanced Accuracy": m["balanced_accuracy"],
+    "ROC-AUC": m["roc_auc"],
+    "Average Precision": m["average_precision"],
+    "Walk-forward ROC-AUC": diagnostics["cross_validation"]["auc_mean"],
+})
+summary.to_frame("Wert").style.format("{:.3f}")
 """),
         code("""
-limitations = [
-    "Historische Daten garantieren keine zukünftige Kursentwicklung.",
-    "target_20d ist eine vereinfachte Zielvariable.",
-    "News-Sentiment ist aktuell regelbasiert und nicht semantisch tief.",
-    "Ticker-Auswahl ist ein kontrollierter Ausschnitt.",
-    "Das Modell ist keine Anlageberatung.",
-]
+cm = np.array(diagnostics["confusion_matrix"]["counts"])
+fig, ax = plt.subplots(figsize=(4.5, 3.8))
+im = ax.imshow(cm, cmap="Greens")
+for (i, j), value in np.ndenumerate(cm):
+    ax.text(j, i, f"{value:,}", ha="center", va="center")
+ax.set_xticks([0, 1], ["0", "1"])
+ax.set_yticks([0, 1], ["0", "1"])
+ax.set_xlabel("Vorhersage")
+ax.set_ylabel("Wahr")
+ax.set_title("Konfusionsmatrix · Out-of-Time-Test")
+plt.colorbar(im, ax=ax, fraction=.045)
+plt.show()
+"""),
+        code("""
+hypotheses = pd.DataFrame([
+    ["H1", "falsifiziert",
+     f"RF AUC {m['roc_auc']:.3f}; Walk-forward {diagnostics['cross_validation']['auc_mean']:.3f}"],
+    ["H2", "im Prototyp umgesetzt", "App, Methodik, Export und Lernstudio; Nutzerstudie offen"],
+    ["H3", "teilweise plausibel", "Orientierung verbessert; wirtschaftlicher Nutzen nicht bewiesen"],
+], columns=["Hypothese", "Urteil", "Begründung"])
+hypotheses
+"""),
+        md("""
+H1 ist **falsifiziert, nicht ungeprüft**. Die Hypothese war so formuliert, dass
+sie scheitern konnte – genau das macht sie zu einer wissenschaftlichen Aussage.
+Ein Negativergebnis ist allerdings nur dann ein Befund, wenn die naheliegenden
+Gegenerklärungen ausgeschlossen sind. Genau das prüft die nächste Zelle.
+"""),
+        code("""
+experiments = json.loads(EXPERIMENTS_PATH.read_text(encoding="utf-8"))
+cap = experiments["capacity_sweep_summary"]
+split = experiments["split_comparison_summary"]
+lc = json.loads((PROJECT_ROOT / "models" / "learning_curve.json").read_text(encoding="utf-8"))
+val_trend = lc["val_scores_mean"][-1] - lc["val_scores_mean"][0]
+data_factor = lc["train_sizes_abs"][-1] / lc["train_sizes_abs"][0]
 
-for item in limitations:
-    print("-", item)
+checks = pd.DataFrame([
+    ["Zu wenig Modellkapazität?", "ausgeschlossen",
+     f"Test-AUC-Spanne über 7 Stufen nur {cap['test_roc_auc_span']:.4f} "
+     f"({cap['test_roc_auc_min']:.4f}–{cap['test_roc_auc_max']:.4f})"],
+    ["Zu wenig Daten?", "ausgeschlossen",
+     f"{data_factor:.1f}-fache Trainingsmenge verändert die Validierung um "
+     f"{val_trend:+.4f}"],
+    ["Ist die Aufteilung der Hebel?", "ja – und zwar der einzige",
+     f"naiver Zufalls-Split: AUC {split['leaky_roc_auc']:.4f} statt "
+     f"{split['reference_roc_auc']:.4f} → scheinbares Signal "
+     f"{split['apparent_signal_factor']:.1f}x größer"],
+], columns=["Gegenerklärung", "Ergebnis", "Belegte Messung"])
+checks.style.hide(axis="index")
 """),
         md("""
 ## Fazit
 
-WealthScope AI ist als datenbasierter, erklärbarer Prototyp geeignet.  
-Die App zeigt Datenbasis, Feature Engineering, Visualisierung, News-Kontext und Exportfähigkeit.
+Die Out-of-Time-AUC des Random Forest beträgt rund **0,519** – kein belastbares
+Handelssignal. Das eigentliche Ergebnis dieses Projekts ist deshalb nicht das
+Modell, sondern eine **Messung**: Wie viel verwertbare Information tragen rein
+kursbasierte technische Indikatoren? Antwort: nahezu keine, belegt an 190.527
+Beobachtungen mit elf Jahren unangetastetem Testzeitraum.
 
-Der nächste fachliche Schritt ist ein sauber dokumentiertes ML-Labor mit Modellvergleich, Confusion Matrix und Feature Importance.
+Zwei Gegenerklärungen wurden ausgeschlossen (Kapazität, Datenmenge), und der
+tatsächliche Hebel wurde beziffert: Ein naiver Zufalls-Split hätte dieselben
+Daten mit AUC 0,581 bewertet – ein rund **4,2-mal größeres scheinbares Signal**.
+Damit ist die niedrige Kennzahl kein Qualitätsmangel, sondern der Nachweis, dass
+dieser Fehler nicht gemacht wurde. Das ist eine nachgerechnete, nicht bloß
+zitierte Bestätigung der Effizienzmarkthypothese (Fama 1970).
+
+### Nächste Schritte
+
+- echter Forward-Test mit neueren Daten;
+- Transaktionskosten, Slippage und Steuern;
+- Makro-, Fundamental- und Sentimentvariablen (der einzige Hebel, der die
+  Validierungskurve heben könnte);
+- formale Nutzerstudie zur Verständlichkeit.
 """),
     ],
 )
 
 
-# ---------------------------------------------------------
-# 06 Knowledge Transfer
-# ---------------------------------------------------------
-write_notebook(
+write(
     "06_knowledge_transfer_streamlit.ipynb",
-    "06 – Knowledge Transfer: Streamlit App",
+    "06 – Knowledge Transfer: Streamlit-App",
     [
         md("""
-## Ziel
+## Von Analyse zu Wissen
 
-Dieses Notebook verbindet die Notebook-Arbeit mit der Streamlit-App.
-
-Die App ist der Knowledge-Transfer-Kanal:
-
-- Interaktion
-- Visualisierung
-- Export
-- Erklärung
-- Assistent
-- Methodikdialog
+Notebooks dokumentieren die Herleitung; die App macht sie interaktiv. Der
+Knowledge-Schritt trennt Prognose, Erklärung und Handlungshilfe sichtbar.
 """),
-        COMMON_SETUP,
+        SETUP,
         code("""
-app_components = pd.DataFrame(
-    [
-        ["Startseite", "Projekt erklären und Nutzer führen"],
-        ["Wealth Outlook", "Analyse und Charts"],
-        ["Datenlabor", "Rohdaten, Profil, Fehlwerte"],
-        ["ML-Labor", "Features und Modellbezug"],
-        ["News-Archiv", "NewsAPI transparent machen"],
-        ["Assistent", "Analyse erklären"],
-        ["Export", "Reproduzierbarkeit"],
-        ["Status", "technischer Zustand"],
-    ],
-    columns=["App-Bereich", "Funktion"],
-)
-app_components
+components = pd.DataFrame([
+    ["Marktanalyse", "Kurs, Moving Averages, Candlesticks, Volatilität, Drawdown"],
+    ["ML Insights", "Vergleich, Konfusionsmatrix, ROC/PR, Lernkurve, Wichtigkeiten"],
+    ["Kapital-Kompass", "Positionsgröße auf Basis eines expliziten Risikobudgets"],
+    ["Portfolio-Simulator", "Szenarien statt Renditeversprechen"],
+    ["Lernstudio", "Quiz, Feedback und arsnova.eu-kompatibler Export"],
+    ["Methodik & Export", "QUA³CK, Model Card und reproduzierbare Dateien"],
+    ["Assistent", "Erklärt Analysekontext; erteilt keine Anlageberatung"],
+], columns=["Bereich", "Wissenstransfer"])
+components
 """),
         code("""
-print("Start der App lokal:")
-print("cd ~/UNI/forexscope-ai")
-print("python3 -m streamlit run app_max.py")
-"""),
-        md("""
-## Transferargument
-
-Die Notebooks zeigen die methodische Herleitung.  
-Die Streamlit-App macht die Ergebnisse für Nutzer interaktiv erlebbar.
-"""),
-    ],
-)
-
-
-# ---------------------------------------------------------
-# 07 NewsAPI / Assistant / Export
-# ---------------------------------------------------------
-write_notebook(
-    "07_newsapi_assistant_export.ipynb",
-    "07 – NewsAPI, Assistant & Export",
-    [
-        md("""
-## Ziel
-
-Dieses Notebook dokumentiert die Zusatzmodule:
-
-- NewsAPI
-- regelbasierte News-Einordnung
-- Analyse-Assistent
-- Export-Paket
-"""),
-        COMMON_SETUP,
-        code("""
-news_design = pd.DataFrame(
-    [
-        ["NewsAPI", "Externe Nachrichtenquelle"],
-        ["Query", "Suchlogik abhängig von Asset und Thema"],
-        ["Sentiment", "Regelbasierte Einschätzung"],
-        ["News-Karten", "Bessere UX als Tabelle"],
-        ["Assistent", "Erklärt Analysekontext"],
-        ["Export", "Markdown, CSV, JSON, ZIP"],
-    ],
-    columns=["Modul", "Zweck"],
-)
-news_design
-"""),
-        code("""
-assistant_questions = [
-    "Was bedeutet Drawdown?",
-    "Was ist target_20d?",
-    "Welche News wurden berücksichtigt?",
-    "Wie funktioniert die Methodik?",
-    "Warum ist die Einschätzung neutral?",
+required_files = [
+    "app.py",
+    "src/pages/market.py",
+    "src/pages/ml_insights.py",
+    "src/pages/kompass.py",
+    "src/pages/simulator.py",
+    "src/pages/learning_studio.py",
+    "src/pages/methodology.py",
+    "docs/model_card.md",
 ]
-
-pd.DataFrame({"Beispielfragen": assistant_questions})
+pd.DataFrame({
+    "Artefakt": required_files,
+    "vorhanden": [(PROJECT_ROOT / path).exists() for path in required_files],
+})
+"""),
+        code("""
+print("Lokaler Start:")
+print("python -m streamlit run app.py")
+print("\\nDidaktische Referenzen:")
+print("https://arsnova.eu/de/")
+print("https://mc-test.streamlit.app/")
 """),
         md("""
-## Wichtig
+## Transferprinzip
 
-Der Assistent soll erklären, nicht beraten.  
-Er ist ein Analyse- und Methodik-Assistent, kein Finanzberater.
+„KI damals und heute“ wird nicht nur erzählt: Der identische Test zeigt
+historische Modellgenerationen, während der moderne Assistent ausschließlich
+erklärt. Damit bleibt nachvollziehbar, welche Komponente rechnet, welche
+visualisiert und welche Sprache erzeugt.
 """),
     ],
 )
 
 
-print("\\nNotebook-Rebuild abgeschlossen.")
+write(
+    "07_newsapi_assistant_export.ipynb",
+    "07 – NewsAPI, Assistent und Export",
+    [
+        md("""
+## Zusatzmodule mit klaren Grenzen
+
+Diese Module erhöhen Aktualität und Verständlichkeit, verändern aber nicht
+rückwirkend den historischen ML-Benchmark.
+"""),
+        SETUP,
+        code("""
+modules = pd.DataFrame([
+    ["NewsAPI", "externe Schlagzeilen", "Netzwerk/API-Key, Abdeckung, Aktualität"],
+    ["Regelbasiertes Sentiment", "transparente Einordnung", "keine tiefe Semantik"],
+    ["KI-Assistent", "Erklärung der aktuellen Ansicht", "Halluzination, keine Beratung"],
+    ["Export", "CSV, JSON, Markdown, ZIP", "Zeitstempel und Annahmen mitliefern"],
+], columns=["Modul", "Nutzen", "Grenze"])
+modules
+"""),
+        code("""
+assistant_guardrails = [
+    "Keine Kauf-, Verkaufs- oder Renditeversprechen.",
+    "Modellkennzahlen und Datenzeitraum nennen.",
+    "Historische Signale nicht als Kausalität darstellen.",
+    "Bei fehlenden Live-Daten den Zustand transparent ausweisen.",
+    "Export muss Annahmen, Quelle und Zeitstempel enthalten.",
+]
+pd.DataFrame({"Leitplanke": assistant_guardrails})
+"""),
+        code("""
+export_contract = {
+    "app_version": "1.0",
+    "model_metrics_source": "models/diagnostics.json",
+    "method": "purged out-of-time + expanding walk-forward",
+    "target": "target_20d",
+    "financial_advice": False,
+}
+print(json.dumps(export_contract, ensure_ascii=False, indent=2))
+"""),
+        md("""
+## Schluss
+
+Ein gutes KI-Produkt macht Unsicherheit sichtbar. News, Assistent und Export
+sind daher Kommunikationsschichten – keine Abkürzung zu einer stärkeren
+Prognose.
+"""),
+    ],
+)
+

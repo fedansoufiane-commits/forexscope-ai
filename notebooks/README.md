@@ -1,18 +1,15 @@
-# WealthScope AI – Notebooks
+# WealthScope AI 1.0 – Notebooks
 
-Diese Notebooks dokumentieren das WealthScope-AI-Projekt methodisch entlang des QUA3CK-Prozesses.
+Ausführbare Dokumentation entlang QUA³CK:
 
-## Reihenfolge
+1. `00_project_overview.ipynb` – Projekt, Datenstatus und Prozess
+2. `01_question.ipynb` – Leitfrage, Hypothesen und Abgrenzung
+3. `02_understanding_the_data.ipynb` – Datenprofil, Fehlwerte und Zeitrisiken
+4. `03_feature_engineering.ipynb` – acht Features und Zielvariable
+5. `04_modeling_baseline_ml.ipynb` – StandardScaler, Leakage-Schutz und Modellvergleich
+6. `05_conclude_evaluate.ipynb` – echte Kennzahlen, Hypothesen und Grenzen
+7. `06_knowledge_transfer_streamlit.ipynb` – App, Lernstudio und Transfer
+8. `07_newsapi_assistant_export.ipynb` – Zusatzmodule und Leitplanken
 
-1. `00_project_overview.ipynb` – Projektüberblick und Datenstatus
-2. `01_question.ipynb` – Forschungs-/Projektfrage
-3. `02_understanding_the_data.ipynb` – Datenverständnis
-4. `03_feature_engineering.ipynb` – Feature Engineering
-5. `04_modeling_baseline_ml.ipynb` – Baseline-ML und Modellvergleich
-6. `05_conclude_evaluate.ipynb` – Bewertung, Grenzen und Fazit
-7. `06_knowledge_transfer_streamlit.ipynb` – Transfer in die Streamlit-App
-8. `07_newsapi_assistant_export.ipynb` – NewsAPI, Assistent und Export
-
-## Hinweis
-
-Die Notebooks dienen der wissenschaftlichen Nachvollziehbarkeit. Die App und Analysen stellen keine Anlageberatung dar.
+Die verbindliche Trainingslogik liegt in `scripts/train_and_diagnose.py`.
+Alle Notebooks verwenden echte lokale Daten und stellen keine Anlageberatung dar.
