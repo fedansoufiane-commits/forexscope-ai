@@ -9,6 +9,7 @@ import importlib
 import json
 import math
 import py_compile
+import re
 import sys
 from pathlib import Path
 
@@ -103,6 +104,27 @@ def test_diagnostics_artifacts_exist_and_are_well_formed():
     for key in ("train_sizes_abs", "train_scores_mean", "val_scores_mean"):
         assert key in lc, f"learning_curve.json missing '{key}'"
     assert len(lc["train_sizes_abs"]) == len(lc["train_scores_mean"]) == len(lc["val_scores_mean"])
+
+
+def test_version_strings_agree_across_the_project():
+    """The version lives in src/config.py; scripts and CHANGELOG must not drift."""
+    from src.config import APP_VERSION
+
+    changelog = (BASE_DIR / "CHANGELOG.md").read_text(encoding="utf-8")
+    newest = re.search(r"^## (\d+\.\d+\.\d+)", changelog, re.MULTILINE)
+    assert newest, "CHANGELOG.md has no versioned section"
+    assert newest.group(1) == APP_VERSION, (
+        f"newest CHANGELOG entry {newest.group(1)} != APP_VERSION {APP_VERSION}"
+    )
+
+    for rel in ("scripts/train_and_diagnose.py",
+                "scripts/validation_experiments.py",
+                "scripts/rebuild_wealthscope_notebooks.py"):
+        source = (BASE_DIR / rel).read_text(encoding="utf-8")
+        stamped = re.findall(r'"app_version":\s*"([^"]+)"', source)
+        assert stamped, f"{rel} stamps no app_version"
+        for value in stamped:
+            assert value == APP_VERSION, f"{rel} stamps {value}, expected {APP_VERSION}"
 
 
 def test_validation_experiments_artifact_supports_the_negative_result():

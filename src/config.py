@@ -14,7 +14,7 @@ DIAGNOSTICS_PATH = MODEL_DIR / "diagnostics.json"
 LEARNING_CURVE_PATH = MODEL_DIR / "learning_curve.json"
 
 APP_NAME = "WealthScope AI"
-APP_VERSION = "1.0.0"
+APP_VERSION = "1.0.2"
 APP_TAGLINE = "ML-gestützte Finanzanalyse · QUA³CK-Prozess · IU Internationale Hochschule"
 
 # Same 8 engineered features the model was trained on (scripts/train_and_diagnose.py).

@@ -182,6 +182,7 @@ def main() -> None:
     test_aucs = [row["roc_auc"] for row in capacity]
     payload = {
         "schema_version": 1,
+        "app_version": "1.0.2",
         "sklearn_version": sklearn.__version__,
         "purpose": ("Falsifikationsexperimente zum schwachen Signal: schließen "
                     "Modellkapazität und Datenmenge als Ursache aus und "

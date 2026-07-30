@@ -13,7 +13,7 @@ def render() -> None:
         "<b>Bearbeiter:</b> Soufiane Fedan · soufiane.fedan@solvvision.de<br>"
         "<b>Modul:</b> Data Analytics und Big Data (DSDABD072501) · IU Internationale Hochschule<br>"
         "<b>Tutor:</b> Klaus Quibeldey-Cirkel · Prüfungsform: Klausur<br>"
-        "<b>Release:</b> 1.0.0 · purged Out-of-Time-Evaluation · Modellvergleich<br>"
+        f"<b>Release:</b> {APP_VERSION} · purged Out-of-Time-Evaluation · Modellvergleich<br>"
         "<b>Prozessmodell:</b> QUA³CK (Stock et al., 2021, KIT ITIV)<br>"
         "<b>Datenbasis:</b> Kaggle US Stocks &amp; ETFs (Boris Marjanovic), CC0-Lizenz, 192.119 Zeilen, 26 Ticker"
     )

@@ -20,6 +20,19 @@
 - Added a direct link to the application plus local start instructions to the report.
 - Switched all report tables to German decimal notation and completed the table
   numbering.
+- Made the version a single source of truth in `src/config.py`; the project page,
+  both generator scripts and the CHANGELOG are now guarded by a test that fails on
+  drift. Note: `models/diagnostics.json` still records `app_version` 1.0.0, which is
+  correct provenance - the trained model itself is unchanged since 1.0.0.
+- Added a prominent "Zugang zur Anwendung" section with the repository link and the
+  three start commands to the README, mirroring section 9 of the report.
+- Corrected the README: the Random Forest pipeline does not include a StandardScaler
+  (trees are scale-invariant; the scaler applies to Logistic Regression and Linear
+  SVM only), and the actual result was never stated - it now leads with the metrics
+  table and the falsification of H1.
+- Cleaned up the repository: removed the superseded 34-slide presentation and the
+  separate speech script (both replaced by the 37-slide deck with speaker notes),
+  and deleted the five branches that were fully merged into `main`.
 
 ## 1.0.1 - 2026-07-26
 

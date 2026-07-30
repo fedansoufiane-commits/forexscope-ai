@@ -9,6 +9,29 @@ Bearbeiter: Soufiane Fedan | soufiane.fedan@solvvision.de | Tutor: Klaus Quibeld
 
 ---
 
+## Zugang zur Anwendung
+
+**Repository:** https://github.com/fedansoufiane-commits/forexscope-ai
+
+Die App läuft lokal — es gibt bewusst kein öffentliches Deployment, weil die
+NewsAPI- und Gemini-Schlüssel nicht mitveröffentlicht werden. Drei Befehle,
+Python 3.11:
+
+```bash
+git clone https://github.com/fedansoufiane-commits/forexscope-ai.git
+pip install -r requirements.txt
+streamlit run app.py
+```
+
+Die App öffnet sich unter **http://localhost:8501**. Modell und
+Diagnostik-Artefakte liegen versioniert im Repository — ein Neutraining ist für
+den Start **nicht** erforderlich. NewsAPI und Gemini sind optional; ohne
+Schlüssel funktionieren alle Analyse- und ML-Seiten vollständig.
+
+Ausführliche Setup-Hinweise: [Setup & Ausführen](#setup--ausführen).
+
+---
+
 ## Über das Projekt
 
 WealthScope AI ist eine interaktive Streamlit-App, die historische US-Aktien- und ETF-Daten
@@ -163,8 +186,8 @@ data/, models/                   Datensatz, trainiertes Modell, Diagnostik-Cache
 _archiv/pre_rebuild_2026-07-09/  Der alte app_max.py-Monolith (Referenz, nicht aktiv)
 ```
 
-Der vollständige Stand unmittelbar vor 1.0 ist zusätzlich im Commit `834ff98`
-auf `codex/backup-status-quo-2026-07-26` gesichert.
+Der vollständige Stand unmittelbar vor 1.0 ist im Commit `834ff98` gesichert und
+über die Historie von `main` erreichbar (`git show 834ff98`).
 
 ---
 
