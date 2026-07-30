@@ -159,9 +159,18 @@ def learning_curve_diagnosis(lc: Dict[str, Any]) -> str:
     gap = tr_final - va_final
     va_trend = lc["val_scores_mean"][-1] - lc["val_scores_mean"][0]
     if gap > 0.08:
+        # Bei flacher Validierungskurve nahe Zufallsniveau ist "mehr Daten hilft"
+        # die falsche Empfehlung: die Kurve selbst widerlegt sie bereits.
+        if abs(va_trend) < 0.02 and va_final < 0.55:
+            remedy = (f"Die Lücke entsteht auf der Trainingsseite: der Validierungs-Score verändert sich "
+                      f"über den gesamten Kurvenverlauf nur um {va_trend:+.3f} und bleibt nahe "
+                      f"Zufallsniveau. Mehr Daten haben hier also nicht geholfen; stärkere Regularisierung "
+                      f"schließt die Lücke, ohne den Validierungs-Score zu heben (vgl. EMH, Fama 1970).")
+        else:
+            remedy = ("Mehr Daten oder stärkere Regularisierung "
+                      "(kleinere <code>max_depth</code>) könnten helfen.")
         return (f"<b>Hohe Varianz (Overfitting-Tendenz):</b> Trainings-Score ({tr_final:.3f}) liegt deutlich über "
-                f"dem Validierungs-Score ({va_final:.3f}), Gap = {gap:.3f}. Mehr Daten oder stärkere "
-                f"Regularisierung (kleinere <code>max_depth</code>) könnten helfen.")
+                f"dem Validierungs-Score ({va_final:.3f}), Gap = {gap:.3f}. {remedy}")
     if va_final < 0.55:
         return (f"<b>Hoher Bias (Underfitting-Tendenz):</b> Beide Kurven konvergieren auf niedrigem Niveau "
                 f"(Val = {va_final:.3f}). Mehr Trainingsdaten allein würde kaum helfen — das Modell ist "

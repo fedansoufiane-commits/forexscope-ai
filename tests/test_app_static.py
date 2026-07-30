@@ -105,6 +105,37 @@ def test_diagnostics_artifacts_exist_and_are_well_formed():
     assert len(lc["train_sizes_abs"]) == len(lc["train_scores_mean"]) == len(lc["val_scores_mean"])
 
 
+def test_validation_experiments_artifact_supports_the_negative_result():
+    """The report and notebooks quote these numbers, so they must stay in sync."""
+    path = BASE_DIR / "models" / "validation_experiments.json"
+    assert path.exists(), "Run scripts/validation_experiments.py first"
+
+    exp = json.loads(path.read_text())
+    assert exp["schema_version"] == 1
+
+    # Capacity sweep: training score spans a wide range, test score barely moves.
+    sweep = exp["capacity_sweep"]
+    assert len(sweep) == 7
+    train_span = max(r["train_roc_auc"] for r in sweep) - min(r["train_roc_auc"] for r in sweep)
+    summary = exp["capacity_sweep_summary"]
+    assert train_span > 0.30, "capacity sweep no longer covers a wide capacity range"
+    assert summary["test_roc_auc_span"] < 0.02, (
+        "test AUC now varies with capacity - the 'capacity is not the bottleneck' "
+        "claim in the report and notebook 04 would no longer hold"
+    )
+
+    # Split comparison: the leaky split must inflate the apparent signal.
+    splits = exp["split_comparison"]
+    assert len(splits) == 3
+    assert all(math.isfinite(row["roc_auc"]) for row in splits)
+    split_summary = exp["split_comparison_summary"]
+    assert split_summary["leaky_roc_auc"] > split_summary["reference_roc_auc"]
+    assert split_summary["apparent_signal_factor"] > 2.0, (
+        "the leakage demonstration lost its effect - slide 19 and section 6 of the "
+        "report quote this factor"
+    )
+
+
 def test_quiz_export_is_arsnova_compatible():
     from src.quiz import QUESTIONS, build_arsnova_quiz
 

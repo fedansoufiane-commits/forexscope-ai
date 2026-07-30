@@ -9,7 +9,7 @@ werden nachvollziehbar in Code, App und Dokumentation umgesetzt.
 |---|---|
 | ML-Grundlagen und historische Entwicklung | Modell-Zeitreise von Baseline/Logistic Regression bis Random Forest |
 | Klassifikation | Konfusionsmatrix, Precision, Recall, F1, ROC- und PR-Kurve |
-| Modelltraining | Pipeline, Regularisierung, Lernkurve, purged Out-of-Time-Test |
+| Modelltraining | Median-Imputation und StandardScaler ausschließlich im Training; Pipeline, Regularisierung, Lernkurve, purged Out-of-Time-Test |
 | Support Vector Machines | Linear-SVM als Maximum-Margin-Vergleichsmodell |
 | Entscheidungsbäume | transparenter Einzelbaum im Benchmark, Erklärung der White-Box-Stärke |
 | Random Forests / Ensemble Learning | produktiver Demonstrator, Feature Importance und SHAP |

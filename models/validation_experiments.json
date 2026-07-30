@@ -1,0 +1,186 @@
+{
+  "schema_version": 1,
+  "sklearn_version": "1.6.1",
+  "purpose": "Falsifikationsexperimente zum schwachen Signal: schließen Modellkapazität und Datenmenge als Ursache aus und quantifizieren die Illusion eines falschen Splits.",
+  "features": [
+    "daily_return",
+    "return_5d",
+    "return_20d",
+    "ma_20_distance",
+    "ma_50_distance",
+    "ma_200_distance",
+    "volatility_20d",
+    "drawdown"
+  ],
+  "target": "target_20d",
+  "n_rows": 190527,
+  "reference_split": {
+    "strategy": "purged out-of-time holdout",
+    "purge_trading_days": 20,
+    "train_end": "2006-10-09",
+    "test_start": "2006-11-07",
+    "test_end": "2017-11-10"
+  },
+  "hyperparams_reference": {
+    "n_estimators": 200,
+    "class_weight": "balanced",
+    "random_state": 42,
+    "n_jobs": -1,
+    "max_depth": 8,
+    "min_samples_leaf": 5
+  },
+  "capacity_sweep": [
+    {
+      "label": "unbeschränkt",
+      "max_depth": null,
+      "min_samples_leaf": 1,
+      "train_roc_auc": 1.0,
+      "roc_auc": 0.5121098806174198,
+      "balanced_accuracy": 0.5060433456724112,
+      "accuracy": 0.5328647663673044,
+      "majority_baseline_accuracy": 0.5914500990643122,
+      "positive_rate": 0.5914500990643122,
+      "n_train": 120920,
+      "n_eval": 69147,
+      "gap": 0.4878901193825802
+    },
+    {
+      "label": "max_depth=16, leaf=2",
+      "max_depth": 16,
+      "min_samples_leaf": 2,
+      "train_roc_auc": 0.9043566947404218,
+      "roc_auc": 0.5180294324550712,
+      "balanced_accuracy": 0.5118406547335298,
+      "accuracy": 0.5244623772542554,
+      "majority_baseline_accuracy": 0.5914500990643122,
+      "positive_rate": 0.5914500990643122,
+      "n_train": 120920,
+      "n_eval": 69147,
+      "gap": 0.38632726228535064
+    },
+    {
+      "label": "max_depth=8, leaf=5 (v1.0)",
+      "max_depth": 8,
+      "min_samples_leaf": 5,
+      "train_roc_auc": 0.6326704573637592,
+      "roc_auc": 0.5191850647460781,
+      "balanced_accuracy": 0.5128817199089186,
+      "accuracy": 0.5187209857260618,
+      "majority_baseline_accuracy": 0.5914500990643122,
+      "positive_rate": 0.5914500990643122,
+      "n_train": 120920,
+      "n_eval": 69147,
+      "gap": 0.11348539261768109
+    },
+    {
+      "label": "max_depth=6, leaf=20",
+      "max_depth": 6,
+      "min_samples_leaf": 20,
+      "train_roc_auc": 0.5947703048773385,
+      "roc_auc": 0.5157631827507092,
+      "balanced_accuracy": 0.5113711242207652,
+      "accuracy": 0.516493846443085,
+      "majority_baseline_accuracy": 0.5914500990643122,
+      "positive_rate": 0.5914500990643122,
+      "n_train": 120920,
+      "n_eval": 69147,
+      "gap": 0.0790071221266293
+    },
+    {
+      "label": "max_depth=4, leaf=50",
+      "max_depth": 4,
+      "min_samples_leaf": 50,
+      "train_roc_auc": 0.5671696681659621,
+      "roc_auc": 0.5145889165551014,
+      "balanced_accuracy": 0.5134247231497389,
+      "accuracy": 0.5178677310657006,
+      "majority_baseline_accuracy": 0.5914500990643122,
+      "positive_rate": 0.5914500990643122,
+      "n_train": 120920,
+      "n_eval": 69147,
+      "gap": 0.05258075161086073
+    },
+    {
+      "label": "max_depth=3, leaf=100",
+      "max_depth": 3,
+      "min_samples_leaf": 100,
+      "train_roc_auc": 0.5548288140203399,
+      "roc_auc": 0.5161157416613851,
+      "balanced_accuracy": 0.5116347141026204,
+      "accuracy": 0.5150187282166978,
+      "majority_baseline_accuracy": 0.5914500990643122,
+      "positive_rate": 0.5914500990643122,
+      "n_train": 120920,
+      "n_eval": 69147,
+      "gap": 0.038713072358954825
+    },
+    {
+      "label": "max_depth=2, leaf=200",
+      "max_depth": 2,
+      "min_samples_leaf": 200,
+      "train_roc_auc": 0.5426301826601825,
+      "roc_auc": 0.5128676041538413,
+      "balanced_accuracy": 0.5096183531215155,
+      "accuracy": 0.5089302500470013,
+      "majority_baseline_accuracy": 0.5914500990643122,
+      "positive_rate": 0.5914500990643122,
+      "n_train": 120920,
+      "n_eval": 69147,
+      "gap": 0.02976257850634123
+    }
+  ],
+  "capacity_sweep_summary": {
+    "test_roc_auc_min": 0.5121098806174198,
+    "test_roc_auc_max": 0.5191850647460781,
+    "test_roc_auc_span": 0.007075184128658263,
+    "best_label": "max_depth=8, leaf=5 (v1.0)",
+    "conclusion": "Der Test-AUC ist über den gesamten Komplexitätsbereich flach; die Lücke entsteht ausschließlich auf der Trainingsseite. Kapazität ist nicht der Engpass."
+  },
+  "split_comparison": [
+    {
+      "label": "zeitlich + 20 Handelstage Purge (v1.0)",
+      "leakage": "keine",
+      "train_roc_auc": 0.6326704573637592,
+      "roc_auc": 0.5191850647460781,
+      "balanced_accuracy": 0.5128817199089186,
+      "accuracy": 0.5187209857260618,
+      "majority_baseline_accuracy": 0.5914500990643122,
+      "positive_rate": 0.5914500990643122,
+      "n_train": 120920,
+      "n_eval": 69147
+    },
+    {
+      "label": "zeitlich, ohne Purge",
+      "leakage": "überlappende Zielhorizonte",
+      "train_roc_auc": 0.6353557622638476,
+      "roc_auc": 0.5240250216332375,
+      "balanced_accuracy": 0.5172367984236679,
+      "accuracy": 0.5307677845748912,
+      "majority_baseline_accuracy": 0.5914500990643122,
+      "positive_rate": 0.5914500990643122,
+      "n_train": 121380,
+      "n_eval": 69147
+    },
+    {
+      "label": "naiver Zufalls-Split 80/20",
+      "leakage": "Zukunft im Training + Zielhorizont-Overlap",
+      "train_roc_auc": 0.622637494050073,
+      "roc_auc": 0.5813019856131499,
+      "balanced_accuracy": 0.5511924611008896,
+      "accuracy": 0.5467118039153939,
+      "majority_baseline_accuracy": 0.5592032750747914,
+      "positive_rate": 0.5592032750747914,
+      "n_train": 152421,
+      "n_eval": 38106
+    }
+  ],
+  "split_comparison_summary": {
+    "reference_roc_auc": 0.5191850647460781,
+    "leaky_roc_auc": 0.5813019856131499,
+    "absolute_difference": 0.06211692086707188,
+    "apparent_signal_reference": 0.019185064746078062,
+    "apparent_signal_leaky": 0.08130198561314994,
+    "apparent_signal_factor": 4.237774888394381,
+    "conclusion": "Ein naiver Zufalls-Split lässt das scheinbare Signal um den angegebenen Faktor größer erscheinen, ohne dass Modell oder Daten sich ändern."
+  }
+}

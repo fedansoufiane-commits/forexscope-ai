@@ -10,7 +10,7 @@ Out-of-time model comparison:
   Logistische Regression      AUC=0.5174 BalAcc=0.5044 WF-AUC=0.4907
   Entscheidungsbaum           AUC=0.5184 BalAcc=0.5129 WF-AUC=0.5153
   Linear SVM                  AUC=0.5174 BalAcc=0.5044 WF-AUC=0.4907
-  Random Forest               AUC=0.5191 BalAcc=0.5129 WF-AUC=0.5140
+  Random Forest               AUC=0.5192 BalAcc=0.5129 WF-AUC=0.5141
 
 Best walk-forward AUC: Entscheidungsbaum
 Production demonstrator: Random Forest (interpretability + nonlinear ensemble).

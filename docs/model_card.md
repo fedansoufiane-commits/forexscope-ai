@@ -30,6 +30,13 @@ Regression, Decision Tree, Linear SVM and Random Forest. The comparison exposes
 the historical development from transparent statistical and rule-based models
 to margin methods and ensemble learning.
 
+Median imputation is fitted inside every training window. `StandardScaler` is
+also fitted on training data only for Logistic Regression and Linear SVM,
+because their optimization and distances depend on feature scale. Decision
+Tree and Random Forest do not require scaling because threshold splits are
+scale-invariant. This separation prevents preprocessing leakage while making
+the role of scaling explicit.
+
 ## Metrics
 
 Accuracy is shown but never used alone. Balanced Accuracy, ROC-AUC, Average

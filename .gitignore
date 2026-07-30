@@ -17,6 +17,8 @@ ENV/
 .DS_Store
 .vscode/
 .idea/
+# Office lock files (created while a document is open)
+~$*
 # Streamlit secrets
 .streamlit/secrets.toml
 # Jupyter
@@ -24,6 +26,9 @@ ENV/
 # Local backups / recovery
 backups/
 backup*/
+# Superseded presentation variants (kept locally, not versioned)
+*_ohne_Sidebar.pptx
+*_mit_Scaler.pptx
 app_max_before_*.py
 app_max_broken_*.py
 app_max_broken_line1_*.py
@@ -48,6 +53,7 @@ models/*
 !models/wealthscope_model.joblib
 !models/diagnostics.json
 !models/learning_curve.json
+!models/validation_experiments.json
 !models/wealthscope_model_report.txt
 *.joblib
 !models/wealthscope_model.joblib

@@ -116,9 +116,14 @@ def build_pipeline(model_key: str = "random_forest") -> Pipeline:
     """Create an isolated sklearn pipeline for one benchmark candidate."""
     if model_key not in MODEL_SPECS:
         raise KeyError(f"Unknown model: {model_key}")
+    scaler = (
+        StandardScaler()
+        if model_key in {"logistic", "linear_svm"}
+        else "passthrough"
+    )
     return Pipeline([
         ("imp", SimpleImputer(strategy="median")),
-        ("scl", StandardScaler()),
+        ("scl", scaler),
         ("mod", clone(MODEL_SPECS[model_key]["estimator"])),
     ])
 
@@ -317,6 +322,16 @@ def main() -> None:
         "n_test": int(len(X_test)),
         "features": FEATURES,
         "target": TARGET,
+        "preprocessing": {
+            "imputation": "Median imputer fitted within each training window.",
+            "scaling": {
+                "logistic": "StandardScaler fitted on training data only.",
+                "linear_svm": "StandardScaler fitted on training data only.",
+                "dummy": "No scaling required.",
+                "decision_tree": "No scaling required (tree thresholds are scale-invariant).",
+                "random_forest": "No scaling required (tree thresholds are scale-invariant).",
+            },
+        },
         "validation": {
             "strategy": "purged out-of-time holdout + expanding walk-forward",
             "purge_trading_days": PURGE_PERIODS,
