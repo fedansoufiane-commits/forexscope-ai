@@ -92,8 +92,18 @@ WealthScope AI ist ein **wissenschaftlicher Prototyp** – kein Handelsbot, kein
 
 ### Wissenschaftliche Belege
 
-- Li et al. (2024): 5–10 % fehlende Werte → bis zu 15 % Genauigkeitsverlust. BMC.
-- Pinheiro et al. (2025): Feature Scaling → bis zu 25 % Performance-Verbesserung. arXiv.
+- Li et al. (2024): Acht Imputationsverfahren auf einem Kohortendatensatz mit 10.164
+  Fällen und 20 % künstlich erzeugten Fehlwerten; KNN und Random Forest imputieren am
+  genauesten, das Verfahren beeinflusst die Modellgüte messbar.
+  BMC Med Res Methodol 24:41.
+- Pinheiro et al. (2025): 12 Skalierungsverfahren über 14 Algorithmen und 16 Datensätze.
+  Ensembles wie der Random Forest bleiben weitgehend skalenunabhängig, während
+  Logistische Regression, SVM, KNN und MLP stark auf die Wahl des Scalers reagieren —
+  genau die Trennung, die `build_pipeline()` umsetzt. arXiv:2506.08274.
+
+> Beide Quellen belegen die Vorverarbeitungs-Entscheidungen qualitativ. Bewusst steht
+> hier keine Prozentzahl: Weder das 15-%- noch das 25-%-Ergebnis, die frühere Fassungen
+> zitierten, findet sich in den Arbeiten.
 
 ---
 

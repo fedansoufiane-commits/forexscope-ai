@@ -13,6 +13,21 @@ recall and the majority baseline exactly, and the dataset, split, capacity-sweep
 and learning-curve numbers all match. No metric changed in this release. What
 follows are the inconsistencies that audit found around them.
 
+- **Removed two quantitative claims that the cited papers do not make.**
+  `docs/qua3ck_process.md` and the deck attributed "bis zu 15 % Genauigkeitsverlust
+  bei 5–10 % fehlenden Werten" to Li et al. (2024) and "bis zu 25 %
+  Performance-Verbesserung" to Pinheiro et al. (2025). Both were checked against the
+  sources: Li tests a single 20 % missingness rate on 10.164 cohort cases and states
+  no such relationship (it cites prior work for imputation performance being
+  *independent* of the missingness rate); Pinheiro reports no percentage figures at
+  all. The Li claim was not only in the speaker notes — it stood on the face of
+  slide 12. Both now state what the papers actually report, which supports the
+  project's preprocessing choices better than the invented numbers did: Pinheiro
+  finds ensembles largely scale-invariant while LogReg/SVM/KNN/MLP are highly
+  scaler-dependent — exactly the split `build_pipeline()` implements.
+- Tightened the pipeline line on deck slide 17 from "Imputation → Scaling → Modell"
+  to "Imputation → Scaling (nur LogReg/SVM) → Modell", matching slide 13, the report
+  and the corrected process documentation.
 - **Rebuilt the A3 poster, which was still entirely pre-1.0.** It advertised
   Accuracy 55,3 % and ROC-AUC 0,588 — the very figure 1.0.1 recorded as obsolete
   and replaced with 0,519 — described the method as "5-Fold Stratified CV" and
