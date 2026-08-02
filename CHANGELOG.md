@@ -13,6 +13,15 @@ recall and the majority baseline exactly, and the dataset, split, capacity-sweep
 and learning-curve numbers all match. No metric changed in this release. What
 follows are the inconsistencies that audit found around them.
 
+- Refreshed the two embedded result images on the appendix evidence slides. Slide 29
+  carried a screenshot from a marginally earlier training run: the confusion-matrix
+  cells read 18.637/22.260/13.605/14.645 against the current
+  18.616/22.281/13.587/14.663, and its Recall showed 0,544 where the artifact gives
+  0,545. Every headline metric on the slide was already correct, so only a
+  digit-level comparison against `diagnostics.json` would have exposed it. Slide 30's
+  learning curve was current but still titled "4-Fold CV"; re-rendered with the
+  corrected wording. Slides 31–37 and the correlation image on slide 11 were checked
+  and are unchanged and correct.
 - **Removed two quantitative claims that the cited papers do not make.**
   `docs/qua3ck_process.md` and the deck attributed "bis zu 15 % Genauigkeitsverlust
   bei 5–10 % fehlenden Werten" to Li et al. (2024) and "bis zu 25 %
