@@ -13,6 +13,25 @@ recall and the majority baseline exactly, and the dataset, split, capacity-sweep
 and learning-curve numbers all match. No metric changed in this release. What
 follows are the inconsistencies that audit found around them.
 
+- **Rebuilt the A3 poster, which was still entirely pre-1.0.** It advertised
+  Accuracy 55,3 % and ROC-AUC 0,588 — the very figure 1.0.1 recorded as obsolete
+  and replaced with 0,519 — described the method as "5-Fold Stratified CV" and
+  "Pipeline: Impute → Scale → RF", and embedded a confusion matrix from a
+  47.632-row test set and a learning curve from the old 5-fold run. Every one of
+  those contradicted the report, the deck, the app and the README on the project's
+  headline result, on the poster a reader looks at first. Added
+  `scripts/refresh_poster.py`, which writes the metrics and both result figures
+  straight from `diagnostics.json` and `learning_curve.json`, so the poster has no
+  hand-typed numbers left. The correlation matrix (Abb. 1) is model-independent and
+  was verified unchanged. Regenerated the `.pptx` and `.pdf`.
+- Renamed the learning-curve chart title from "N-Fold CV" to name the actual
+  strategy from the artifact ("4 Folds, expanding walk-forward"). Calling it k-fold
+  CV was misleading in a project whose central experiment is that naive k-fold
+  inflates the apparent signal 4,2-fold. Visible in the app and on the poster.
+- Added `requirements-dev.txt` for the two document generators. `python-docx` was
+  never declared, so `scripts/build_wealthscope_report.py` could not run after a
+  clean install either; `python-pptx` and `kaleido` are new with the poster script.
+  Kept out of `requirements.txt` so the app, the notebooks and CI stay lean.
 - Corrected the pipeline snippet in `docs/qua3ck_process.md`. It showed a
   `StandardScaler` sitting unconditionally in the Random Forest pipeline, which
   contradicted the actual `build_pipeline()` (it passes `"passthrough"` for tree

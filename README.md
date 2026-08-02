@@ -184,6 +184,7 @@ scripts/
   train_and_diagnose.py         Purged Out-of-Time-Benchmark + Artefakte
   validation_experiments.py     Falsifikationsexperimente: Kapazitäts-Sweep + Split-Vergleich
   build_wealthscope_report.py   Erzeugt die fünfseitige Ausarbeitung (.docx)
+  refresh_poster.py             Schreibt Kennzahlen + Abbildungen ins A3-Poster
   validate_app.py               Struktur-Check (Compile, Seiten, url_path, Artefakte)
   rebuild_wealthscope_notebooks.py  Generiert die QUA³CK-Notebooks
 tests/
@@ -241,6 +242,20 @@ Caches liegen versioniert im Repository:
 python3 scripts/train_and_diagnose.py
 python3 scripts/validation_experiments.py
 ```
+
+Danach die Dokumente nachziehen, damit Ausarbeitung und Poster nicht auf alten
+Zahlen stehenbleiben. Diese beiden Generatoren brauchen zusätzliche Pakete, die
+für App, Notebooks und Tests nicht nötig sind:
+
+```bash
+pip install -r requirements-dev.txt
+python3 scripts/build_wealthscope_report.py
+python3 scripts/refresh_poster.py
+```
+
+`refresh_poster.py` schreibt Kennzahlen und beide Ergebnisabbildungen direkt aus
+`models/diagnostics.json` und `models/learning_curve.json` ins Poster — von Hand
+getippte Werte gibt es dort bewusst nicht mehr.
 
 **5. Optional — API-Schlüssel für NewsAPI und Gemini.** Ohne Schlüssel
 funktionieren alle Analyse- und ML-Seiten; nur die Nachrichten- und

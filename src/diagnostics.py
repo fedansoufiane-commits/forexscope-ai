@@ -115,8 +115,12 @@ def chart_learning_curve(lc: Dict[str, Any], mode: str) -> go.Figure:
     fig.add_trace(go.Scatter(x=sizes + sizes[::-1], y=list(va_mean + va_std) + list((va_mean - va_std)[::-1]),
                               fill="toself", fillcolor=t["positive-soft"], line=dict(width=0),
                               showlegend=False, hoverinfo="skip"))
+    # Name the actual strategy, not "N-Fold CV" - these are expanding
+    # walk-forward folds, the opposite of the naive k-fold this project rules out.
+    strategy = lc.get("strategy", "expanding walk-forward")
     fig.update_layout(
-        title=f"Lernkurve — {lc['scoring']} vs. Trainingsgröße ({lc['cv_n_splits']}-Fold CV)",
+        title=(f"Lernkurve — {lc['scoring']} vs. Trainingsgröße "
+               f"({lc['cv_n_splits']} Folds, {strategy})"),
         xaxis_title="Anzahl Trainingsbeispiele", yaxis_title=lc["scoring"].upper(),
         height=420,
     )
