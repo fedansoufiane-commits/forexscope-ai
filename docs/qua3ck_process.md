@@ -161,13 +161,23 @@ WealthScope AI ist ein **wissenschaftlicher Prototyp** – kein Handelsbot, kein
 
 ### Pipeline-Design (kein Data Leakage)
 
+Der Scaler ist modellabhängig: Logistische Regression und Linear SVM brauchen ihn,
+Entscheidungsbaum und Random Forest nicht — Schwellenwert-Splits sind
+skaleninvariant. `scripts/train_and_diagnose.py:build_pipeline()` setzt deshalb
+`"passthrough"` statt eines Scalers, sobald das Modell ein Baumverfahren ist:
+
 ```python
+scaler = StandardScaler() if model_key in {"logistic", "linear_svm"} else "passthrough"
+
 Pipeline([
-    ("imputer", SimpleImputer(strategy="median")),
-    ("scaler",  StandardScaler()),
-    ("model",   RandomForestClassifier(...)),
+    ("imp", SimpleImputer(strategy="median")),
+    ("scl", scaler),                            # passthrough beim Random Forest
+    ("mod", RandomForestClassifier(...)),
 ])
 ```
+
+Imputer und Scaler werden ausschließlich auf dem Trainingsfenster gefittet — das
+verhindert Preprocessing-Leakage.
 
 ### Ergebnisse
 

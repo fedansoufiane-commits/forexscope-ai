@@ -529,8 +529,12 @@ def build() -> None:
         "Zugang zur Anwendung",
         REPO_URL,
         [
-            "Lokal starten (Python 3.11):   1) git clone " + REPO_URL + ".git    "
-            "2) pip install -r requirements.txt    3) streamlit run app.py",
+            "Lokal starten (Python 3.11 oder neuer):   1) git clone " + REPO_URL
+            + ".git    2) cd forexscope-ai    3) pip install -r requirements.txt    "
+            "4) streamlit run app.py",
+            "Schritt 2 nicht überspringen: ohne den Wechsel ins Projektverzeichnis "
+            "startet Schritt 4 eine fremde app.py oder bricht ab. Kontrolle: "
+            "ls app.py src/ models/ muss alle drei auflisten.",
             "Die App öffnet sich anschließend unter http://localhost:8501. Die "
             "Diagnostik-Artefakte sind versioniert im Repository enthalten, ein "
             "Neutraining ist für den Start nicht erforderlich.",

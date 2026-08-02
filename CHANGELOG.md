@@ -1,8 +1,57 @@
 # Changelog
 
-> Tagged release: **`v1.0.4`** — the submitted state. 1.0.2 and 1.0.3 were
-> same-day iterations on the way there and carry no tags; their entries below stay
-> as a record of what changed and why.
+> Tagged release: **`v1.0.5`**. `v1.0.4` was the state handed in; 1.0.5 is a
+> documentation and reproducibility pass on top of it and changes no metric. 1.0.2
+> and 1.0.3 were same-day iterations on the way to 1.0.4 and carry no tags; their
+> entries below stay as a record of what changed and why.
+
+## 1.0.5 - 2026-08-02
+
+Audit pass over the submitted state. Every reported figure was recomputed against
+the artifacts and confirmed — the confusion matrix reproduces accuracy, precision,
+recall and the majority baseline exactly, and the dataset, split, capacity-sweep
+and learning-curve numbers all match. No metric changed in this release. What
+follows are the inconsistencies that audit found around them.
+
+- Corrected the pipeline snippet in `docs/qua3ck_process.md`. It showed a
+  `StandardScaler` sitting unconditionally in the Random Forest pipeline, which
+  contradicted the actual `build_pipeline()` (it passes `"passthrough"` for tree
+  models), the README, the model card, `diagnostics.json` and the report — the last
+  of which calls the scaler decision a central methodological point. 1.0.2 fixed
+  this claim in the README only; the process documentation kept the wrong version.
+- Executed all eight QUA³CK notebooks and committed them **with their outputs**.
+  They shipped with zero execution counts and no stored results, so anyone opening
+  them saw code and prose but no tables, charts or numbers — while the README
+  called them the project's scientific documentation. The code itself was sound and
+  ran unchanged.
+- Added `jupyterlab` and `ipykernel` to `requirements.txt`. The README and
+  `Startbefehle/start_jupyter.command` tell the reader to run `jupyter lab`, and
+  every notebook imports `IPython.display`, but neither package was declared. After
+  a clean `pip install -r requirements.txt` the documented notebook workflow did
+  not exist.
+- Fixed the quick-start inside the report generator: it still listed
+  `git clone` → `pip install` → `streamlit run` with no `cd` into the cloned
+  directory. That is the same defect 1.0.3 fixed in the README, which never reached
+  `scripts/build_wealthscope_report.py`. The report also still pinned "Python 3.11"
+  after 1.0.4 widened support to 3.11 through 3.14. Regenerated the five-page
+  Ausarbeitung (`.docx` and `.pdf`) from the corrected generator.
+- Corrected the learning-curve gap in the 1.0.2 entry below from 0.112 to 0.111.
+  `learning_curve.json` gives 0.63659 − 0.52514 = 0.11145; the old figure came from
+  subtracting the already-rounded values. The README and `src/diagnostics.py` were
+  always right.
+- Replaced the hardcoded model version in `src/context.py` with the `app_version`
+  read from `diagnostics.json`. The version-drift guard only matched the literal
+  `"WealthScope AI <number>"`, so this one slipped past it; the model version now
+  comes from the artifact that was actually trained.
+- Tightened two dataset KPIs in `docs/kpi_framework.md` that the newly executed
+  notebook 02 now visibly contradicts. "Fehlende Werte < 2 %" held for the eight ML
+  features (max 0,83 %) but not for the raw frame, where `source_file` is 52 %
+  missing; and "Zielvariable Klasse 1 ~59 %" is the out-of-time test window — the
+  full dataset is 56,4 %. Both rows now name which population they describe.
+- `models/diagnostics.json` (1.0.0) and `models/validation_experiments.json`
+  (1.0.4) keep their training-time stamps on purpose. No feature, hyperparameter or
+  data input changed in this release, so re-running the trainer would only rewrite
+  a version string into artifacts whose provenance is the point.
 
 ## 1.0.4 - 2026-07-30
 
@@ -46,7 +95,7 @@
 - Quantified the cost of a wrong split: a naive random split scores AUC 0.581 instead
   of 0.519 on the same data, making the apparent signal 4.2x larger.
 - Corrected the learning-curve interpretation across all artifacts. The curve shows
-  high variance (gap 0.112), not high bias; the previous "no variance lever" claim
+  high variance (gap 0.111), not high bias; the previous "no variance lever" claim
   contradicted the app's own diagnosis in `src/diagnostics.py`.
 - Made the learning-curve remedy in `src/diagnostics.py` data-aware: it no longer
   recommends "more data" when the validation curve is flat near chance level.

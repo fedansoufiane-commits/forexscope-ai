@@ -16,9 +16,10 @@
 | KPI | Wert |
 |---|---|
 | Gesamtzeilen | 192.119 |
+| Zeilen im Modelldatensatz | 190.527 (nach Dropna auf Features + Target) |
 | ML-Features | 8 |
-| Fehlende Werte (%) | < 2 % (Warm-up-bedingt, MCAR) |
-| Zielvariable Klasse 1 | ~59 % (leichte Imbalance) |
+| Fehlende Werte in den 8 ML-Features | max. 0,83 % (`ma_200_distance`, Warm-up-bedingt, MCAR) |
+| Zielvariable Klasse 1 | 56,4 % im Gesamtdatensatz, 59,1 % im Out-of-Time-Testfenster |
 | Ticker abgedeckt | 26 |
 
 ## App-Qualitäts-KPIs

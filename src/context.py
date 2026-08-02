@@ -10,6 +10,8 @@ import streamlit as st
 
 from src import data as data_mod
 from src import news as news_mod
+from src.config import APP_VERSION
+from src.diagnostics import load_diagnostics
 from src.model import compute_scores, load_model
 
 
@@ -47,7 +49,13 @@ def get_context() -> Dict[str, Any]:
         asset_weight=st.session_state.get("asset_weight", 15),
     )
 
-    model_info = {"name": "RandomForestClassifier", "version": "1.0"}
+    # The model version is the app version that trained it, read from the
+    # artifact itself — a literal here would silently drift from the .joblib.
+    model_info = {"name": "RandomForestClassifier", "version": APP_VERSION}
+    try:
+        model_info["version"] = load_diagnostics().get("app_version", APP_VERSION)
+    except Exception:
+        pass
     try:
         model_info["loaded"] = load_model() is not None
     except Exception:
