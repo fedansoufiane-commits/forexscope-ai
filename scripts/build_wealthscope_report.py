@@ -15,7 +15,7 @@ from docx.shared import Cm, Pt, RGBColor
 
 
 ROOT = Path(__file__).resolve().parent.parent
-FINAL_DIR = ROOT / "Präsentation" / "Final"
+FINAL_DIR = ROOT / "Präsentation" / "FINAL"
 DOCX_PATH = FINAL_DIR / "WealthScope_Ausarbeitung_5_Seiten_v1.0.docx"
 DIAGNOSTICS_PATH = ROOT / "models" / "diagnostics.json"
 EXPERIMENTS_PATH = ROOT / "models" / "validation_experiments.json"

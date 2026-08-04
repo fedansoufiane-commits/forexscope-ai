@@ -24,8 +24,8 @@ Präsentation) ist mit dem Rebuild vom 2026-07-09 vollständig umgesetzt:
 ## Nächste sinnvolle Ausbaustufen (nach 1.0)
 
 ### B. Datenbasis erweitern
-- VIX / Makro-Features (Ansatz existiert bereits in `_archiv/pre_rebuild_2026-07-09/retrain_model.py`
-  als `wealthscope_model_v2`, aber nicht in die aktuelle App übernommen)
+- VIX / Makro-Features (vor dem 1.0-Rebuild prototypisch erprobt, aber nicht in
+  die aktuelle App übernommen)
 - Sentiment aus strukturierten Quellen statt Lexikon-basiertem NewsAPI-Scoring
 
 ### C. Deployment
