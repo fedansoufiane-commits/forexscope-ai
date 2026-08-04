@@ -26,6 +26,13 @@ ENV/
 # Local backups / recovery
 backups/
 backup*/
+**/Backup/
+_archiv/
+.codex_tmp/
+
+# Generated presentation previews and inspection metadata
+Präsentation/FINAL/WealthScope_Praesentation_*/
+*.pptx.inspect.ndjson
 # Superseded presentation variants (kept locally, not versioned)
 *_ohne_Sidebar.pptx
 *_mit_Scaler.pptx
