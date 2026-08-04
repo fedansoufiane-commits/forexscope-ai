@@ -3,8 +3,8 @@
 > Diese Datei ersetzt eine frühere, sehr ausführliche Entwicklungs-Historie des
 > alten `app_max.py`-Monolithen (Routing per Query-Parameter, `route_link()`,
 > manuelle Sidebar-Funktionen etc.). Diese Architektur wurde am 2026-07-09
-> komplett neu aufgebaut; der alte Code liegt zur Referenz unter
-> `_archiv/pre_rebuild_2026-07-09/`. Dieses Dokument beschreibt nur noch den
+> komplett neu aufgebaut; der historische Stand ist bei Bedarf über Commit
+> `834ff98` erreichbar. Dieses Dokument beschreibt nur noch den
 > **aktuellen** Stand.
 
 ## Projektstruktur

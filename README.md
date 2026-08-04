@@ -47,8 +47,9 @@ Das Projekt folgt dem **QUA³CK-Prozessmodell** (Stock et al., 2021, KIT ITIV) u
 vollständig durch Jupyter-Notebooks wissenschaftlich dokumentiert.
 
 Die App wurde vollständig modular neu aufgebaut (siehe „Architektur" unten): statt eines
-5.600-Zeilen-Monolithen (`app_max.py`, archiviert unter `_archiv/pre_rebuild_2026-07-09/`)
-gibt es jetzt ein schlankes `app.py` mit `st.navigation` und ein `src/`-Package pro Verantwortlichkeit.
+5.600-Zeilen-Monolithen gibt es jetzt ein schlankes `app.py` mit `st.navigation`
+und ein `src/`-Package pro Verantwortlichkeit. Der historische Stand bleibt über
+Commit `834ff98` nachvollziehbar.
 
 ---
 
@@ -191,7 +192,6 @@ tests/
   test_app_static.py            pytest-Suite für App, Artefakte und Quizformat
 notebooks/                       8 QUA³CK-Notebooks (wissenschaftliche Dokumentation)
 data/, models/                   Datensatz, trainiertes Modell, Diagnostik-Caches
-_archiv/pre_rebuild_2026-07-09/  Der alte app_max.py-Monolith (Referenz, nicht aktiv)
 ```
 
 Der vollständige Stand unmittelbar vor 1.0 ist im Commit `834ff98` gesichert und
